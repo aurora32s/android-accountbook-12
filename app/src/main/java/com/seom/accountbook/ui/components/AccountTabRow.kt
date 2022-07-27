@@ -22,6 +22,7 @@ import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.unit.dp
 import com.seom.accountbook.AccountDestination
+import com.seom.accountbook.ui.theme.ColorPalette
 
 @Composable
 fun AccountTabRow(
@@ -80,9 +81,14 @@ fun AccountTab(
             contentDescription = title,
             modifier = Modifier
                 .height(24.dp)
-                .width(24.dp)
+                .width(24.dp),
+            alpha = if (selected) 1f else 0.5f
         )
-        Text(text = title, style = MaterialTheme.typography.body2)
+        Text(
+            text = title,
+            style = MaterialTheme.typography.body2,
+            color = if (selected) ColorPalette.White else ColorPalette.White50
+        )
     }
 }
 
