@@ -2,19 +2,20 @@ package com.seom.accountbook.ui.components
 
 import androidx.annotation.DrawableRes
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.selection.selectableGroup
+import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.material.ripple.rememberRipple
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.HorizontalAlignmentLine
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.clearAndSetSemantics
@@ -29,11 +30,15 @@ fun AccountTabRow(
     currentScreen: AccountDestination
 ) {
     Surface(
-        Modifier
+        modifier = Modifier
             .height(tabHeight)
-            .fillMaxWidth()
+            .fillMaxWidth(),
+        color = MaterialTheme.colors.primary
     ) {
-        Row(Modifier.selectableGroup()) {
+        Row(
+            modifier = Modifier.selectableGroup(),
+            horizontalArrangement = Arrangement.SpaceAround
+        ) {
             allScreens.forEach { screen ->
                 AccountTab(
                     title = screen.title,
@@ -66,7 +71,8 @@ fun AccountTab(
                     bounded = false
                 )
             )
-            .clearAndSetSemantics { contentDescription = title }
+            .clearAndSetSemantics { contentDescription = title },
+        verticalArrangement = Arrangement.Center
     ) {
         Image(painter = painterResource(id = icon), contentDescription = title)
         Text(text = title)
