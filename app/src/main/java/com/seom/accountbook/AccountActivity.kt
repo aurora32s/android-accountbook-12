@@ -18,6 +18,7 @@ import androidx.navigation.compose.rememberNavController
 import com.seom.accountbook.ui.components.AccountTabRow
 import com.seom.accountbook.ui.theme.AccountBookTheme
 import com.seom.accountbook.util.AccountNavigationHost
+import com.seom.accountbook.util.navigateSingleTop
 
 class AccountActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -43,8 +44,8 @@ fun AccountApp() {
             bottomBar = {
                 AccountTabRow(
                     allScreens = accountBottomTabScreens,
-                    onTabSelected = {
-
+                    onTabSelected = { screen ->
+                        navController.navigateSingleTop(screen.route)
                     },
                     currentScreen = currentScreen
                 )
