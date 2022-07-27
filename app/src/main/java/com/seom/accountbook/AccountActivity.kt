@@ -38,20 +38,22 @@ fun AccountApp() {
     val currentScreen =
         accountBottomTabScreens.find { it.route == currentDestination?.route } ?: History
 
-    Scaffold(
-        bottomBar = {
-            AccountTabRow(
-                allScreens = accountBottomTabScreens,
-                onTabSelected = {
+    AccountBookTheme() {
+        Scaffold(
+            bottomBar = {
+                AccountTabRow(
+                    allScreens = accountBottomTabScreens,
+                    onTabSelected = {
 
-                },
-                currentScreen = currentScreen
+                    },
+                    currentScreen = currentScreen
+                )
+            }
+        ) { innerPadding ->
+            AccountNavigationHost(
+                navController = navController,
+                modifier = Modifier.padding(innerPadding)
             )
         }
-    ) { innerPadding ->
-        AccountNavigationHost(
-            navController = navController,
-            modifier = Modifier.padding(innerPadding)
-        )
     }
 }

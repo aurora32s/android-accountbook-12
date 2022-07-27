@@ -72,10 +72,17 @@ fun AccountTab(
                 )
             )
             .clearAndSetSemantics { contentDescription = title },
-        verticalArrangement = Arrangement.Center
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Image(painter = painterResource(id = icon), contentDescription = title)
-        Text(text = title)
+        Image(
+            painter = painterResource(id = icon),
+            contentDescription = title,
+            modifier = Modifier
+                .height(24.dp)
+                .width(24.dp)
+        )
+        Text(text = title, style = MaterialTheme.typography.body2)
     }
 }
 
