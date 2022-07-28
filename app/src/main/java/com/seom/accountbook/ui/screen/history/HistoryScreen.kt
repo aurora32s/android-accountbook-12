@@ -20,6 +20,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.seom.accountbook.R
 import com.seom.accountbook.mock.histories
+import com.seom.accountbook.model.common.Date
 import com.seom.accountbook.model.history.History
 import com.seom.accountbook.model.history.HistoryType
 import com.seom.accountbook.ui.components.DateAppBar
@@ -32,17 +33,10 @@ import java.util.*
 @Composable
 fun HistoryScreen() {
     var currentSelectedTab by remember { mutableStateOf(HistoryType.INCOME) }
-    var currentDate by remember { mutableStateOf(Date()) }
 
-    Scaffold(
-        topBar = {
-            // 상단 날짜 tab
-            DateAppBar(
-                currentDate = currentDate,
-                onDateChange = { currentDate = it }
-            )
-        }
-    ) {
+    DateAppBar(onDateChange = { date ->
+        // TODO 변경된 날짜에 맞는 데이터 요청
+    }) {
         Divider(
             color = ColorPalette.Purple,
             thickness = 2.dp
@@ -58,6 +52,7 @@ fun HistoryScreen() {
             // 수입 / 지출 리스트
             HistoryList(
                 historyGroupedByDate = histories,
+                currentType = currentSelectedTab,
                 modifier = Modifier.fillMaxWidth()
             )
         }
@@ -147,6 +142,7 @@ fun HistoryTypeItem(
 fun HistoryList(
     // TODO Key 를 String 으로 두는게 맞을까...
     historyGroupedByDate: Map<String, List<History>>,
+    currentType: HistoryType,
     modifier: Modifier = Modifier
 ) {
     LazyColumn(
@@ -154,9 +150,15 @@ fun HistoryList(
     ) {
         historyGroupedByDate.forEach { (date, histories) ->
             item {
-                HistoryListHeader(date = date, income = 1000, outCome = 2000)
+                HistoryListHeader(
+                    date = date,
+                    income = histories.filter { it.type == HistoryType.INCOME }
+                        .sumOf { it.money },
+                    outCome = histories.filter { it.type == HistoryType.OUTCOME }
+                        .sumOf { it.money }
+                )
             }
-            items(items = histories) { history ->
+            items(items = histories.filter { it.type == currentType }) { history ->
                 HistoryListItem(history = history)
             }
             item {
@@ -195,7 +197,7 @@ fun HistoryListHeader(
             color = ColorPalette.LightPurple
         )
         Text(
-            text = "수입 $income 지출 $outCome",
+            text = "수입 ${income}원 지출 ${outCome}원",
             style = MaterialTheme.typography.subtitle1,
             color = ColorPalette.LightPurple
         )

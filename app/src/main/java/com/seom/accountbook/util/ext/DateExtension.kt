@@ -1,16 +1,10 @@
 package com.seom.accountbook.util.ext
 
-import java.text.SimpleDateFormat
-import java.time.format.DateTimeFormatter
-import java.util.*
+import com.seom.accountbook.model.common.Date
+
 
 /**
- * Date 관련 확장 함수
+ * curtom Date 관련 확장 함수
  */
 
-fun Date.format(pattern: String): String {
-    val formatter = SimpleDateFormat(pattern, Locale.getDefault())
-    return formatter.format(this)
-}
-
-fun Date.toYearAndMonth() = this.format("YYYY년 MM월")
+fun Date.format(): String = "${year}년 ${month}월"
