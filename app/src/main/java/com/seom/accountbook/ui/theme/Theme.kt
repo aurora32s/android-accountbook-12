@@ -5,6 +5,7 @@ import androidx.compose.material.MaterialTheme
 import androidx.compose.material.darkColors
 import androidx.compose.material.lightColors
 import androidx.compose.runtime.Composable
+import com.google.accompanist.systemuicontroller.rememberSystemUiController
 
 private val DarkColorPalette = darkColors(
     primary = ColorPalette.Purple,
@@ -17,7 +18,8 @@ private val LightColorPalette = lightColors(
     primaryVariant = ColorPalette.LightPurple,
     secondary = ColorPalette.Purple40,
 
-    onPrimary = ColorPalette.White
+    onPrimary = ColorPalette.White,
+    background = ColorPalette.OffWhite
     /* Other default colors to override
     background = Color.White,
     surface = Color.White,
@@ -35,6 +37,11 @@ fun AccountBookTheme(darkTheme: Boolean = isSystemInDarkTheme(), content: @Compo
     } else {
         LightColorPalette
     }
+
+    val systemUiController = rememberSystemUiController()
+    systemUiController.setStatusBarColor(
+        color = colors.background
+    )
 
     MaterialTheme(
         colors = colors,

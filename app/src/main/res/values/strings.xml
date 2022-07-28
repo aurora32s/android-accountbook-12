@@ -1,3 +1,7 @@
 <resources>
     <string name="app_name">AccountBook</string>
+
+    <!-- history -->
+    <string name="type_history_income">수입</string>
+    <string name="type_history_outcome">지출</string>
 </resources>

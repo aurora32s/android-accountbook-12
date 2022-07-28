@@ -11,4 +11,6 @@ object ColorPalette {
     val White50 = Color(0x80FFFFFF)
     val White = Color(0xFFFFFFFF)
     val OffWhite = Color(0xFFF7F6F3)
+    val Background = Color(0xFFBEBEBE)
+    val Green = Color(0xFF4EAABA)
 }
