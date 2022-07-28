@@ -149,22 +149,24 @@ fun HistoryList(
         modifier = modifier
     ) {
         historyGroupedByDate.forEach { (date, histories) ->
-            val filteredHistories = histories.filter { it.type == currentType }
-
-            if (filteredHistories.isNotEmpty()) {
-                item {
-                    HistoryListHeader(date = date, income = 1000, outCome = 2000)
-                }
-                items(items = histories.filter { it.type == currentType }) { history ->
-                    HistoryListItem(history = history)
-                }
-                item {
-                    Divider(
-                        color = ColorPalette.LightPurple,
-                        thickness = 1.dp
-                    )
-                    Spacer(modifier = Modifier.height(16.dp))
-                }
+            item {
+                HistoryListHeader(
+                    date = date,
+                    income = histories.filter { it.type == HistoryType.INCOME }
+                        .sumOf { it.money },
+                    outCome = histories.filter { it.type == HistoryType.OUTCOME }
+                        .sumOf { it.money }
+                )
+            }
+            items(items = histories.filter { it.type == currentType }) { history ->
+                HistoryListItem(history = history)
+            }
+            item {
+                Divider(
+                    color = ColorPalette.LightPurple,
+                    thickness = 1.dp
+                )
+                Spacer(modifier = Modifier.height(16.dp))
             }
         }
     }
@@ -195,7 +197,7 @@ fun HistoryListHeader(
             color = ColorPalette.LightPurple
         )
         Text(
-            text = "수입 $income 지출 $outCome",
+            text = "수입 ${income}원 지출 ${outCome}원",
             style = MaterialTheme.typography.subtitle1,
             color = ColorPalette.LightPurple
         )
