@@ -309,7 +309,7 @@ fun HistoryListItem(
                 )
             }
             Column(
-                modifier = Modifier.padding(start = 8.dp)
+                modifier = Modifier.padding(start = 16.dp)
             ) {
                 Row(
                     modifier = Modifier.fillMaxWidth(),
