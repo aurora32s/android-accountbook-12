@@ -34,15 +34,7 @@ fun HistoryScreen() {
     var currentSelectedTab by remember { mutableStateOf(HistoryType.INCOME) }
     var currentDate by remember { mutableStateOf(Date()) }
 
-    Scaffold(
-        topBar = {
-            // 상단 날짜 tab
-            DateAppBar(
-                currentDate = currentDate,
-                onDateChange = { currentDate = it }
-            )
-        }
-    ) {
+    DateAppBar(currentDate = currentDate, onDateChange = {}) {
         Divider(
             color = ColorPalette.Purple,
             thickness = 2.dp
