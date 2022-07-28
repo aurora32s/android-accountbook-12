@@ -52,6 +52,7 @@ fun HistoryScreen() {
             // 수입 / 지출 리스트
             HistoryList(
                 historyGroupedByDate = histories,
+                currentType = currentSelectedTab,
                 modifier = Modifier.fillMaxWidth()
             )
         }
@@ -141,24 +142,29 @@ fun HistoryTypeItem(
 fun HistoryList(
     // TODO Key 를 String 으로 두는게 맞을까...
     historyGroupedByDate: Map<String, List<History>>,
+    currentType: HistoryType,
     modifier: Modifier = Modifier
 ) {
     LazyColumn(
         modifier = modifier
     ) {
         historyGroupedByDate.forEach { (date, histories) ->
-            item {
-                HistoryListHeader(date = date, income = 1000, outCome = 2000)
-            }
-            items(items = histories) { history ->
-                HistoryListItem(history = history)
-            }
-            item {
-                Divider(
-                    color = ColorPalette.LightPurple,
-                    thickness = 1.dp
-                )
-                Spacer(modifier = Modifier.height(16.dp))
+            val filteredHistories = histories.filter { it.type == currentType }
+
+            if (filteredHistories.isNotEmpty()) {
+                item {
+                    HistoryListHeader(date = date, income = 1000, outCome = 2000)
+                }
+                items(items = histories.filter { it.type == currentType }) { history ->
+                    HistoryListItem(history = history)
+                }
+                item {
+                    Divider(
+                        color = ColorPalette.LightPurple,
+                        thickness = 1.dp
+                    )
+                    Spacer(modifier = Modifier.height(16.dp))
+                }
             }
         }
     }
