@@ -21,7 +21,9 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.seom.accountbook.R
 import com.seom.accountbook.model.history.HistoryType
+import com.seom.accountbook.ui.components.DateAppBar
 import com.seom.accountbook.ui.theme.ColorPalette
+import java.util.*
 
 @Preview(
     name = "HistoryScreen"
@@ -29,13 +31,28 @@ import com.seom.accountbook.ui.theme.ColorPalette
 @Composable
 fun HistoryScreen() {
     var currentSelectedTab by remember { mutableStateOf(HistoryType.INCOME) }
+    var currentDate by remember { mutableStateOf(Date()) }
 
-    HistoryTopTab(
-        currentSelectedTab = currentSelectedTab,
-        onTabSelected = { currentSelectedTab = it },
-        modifier = Modifier
-            .padding(16.dp)
-    )
+    Scaffold(
+        topBar = {
+            // 상단 날짜 tab
+            DateAppBar(
+                currentDate = currentDate,
+                onDateChange = { currentDate = it }
+            )
+        }
+    ) {
+        Divider(
+            color = ColorPalette.Purple
+        )
+        // 수입 / 지출 tab
+        HistoryTopTab(
+            currentSelectedTab = currentSelectedTab,
+            onTabSelected = { currentSelectedTab = it },
+            modifier = Modifier
+                .padding(16.dp)
+        )
+    }
 }
 
 @Composable
