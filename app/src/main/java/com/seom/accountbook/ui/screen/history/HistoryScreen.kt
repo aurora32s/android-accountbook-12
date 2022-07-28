@@ -76,6 +76,15 @@ fun HistoryScreen() {
                 title = "${selectedItem.size}개 선택"
             )
         }
+    }, actionButton = {
+        FloatingActionButton(
+            onClick = {
+                // TODO 내역 추가 화면으로 이동
+            },
+            backgroundColor = ColorPalette.Yellow
+        ) {
+            Image(painter = painterResource(id = R.drawable.ic_plus), contentDescription = null)
+        }
     })
 }
 

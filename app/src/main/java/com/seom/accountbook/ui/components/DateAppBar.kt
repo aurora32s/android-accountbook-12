@@ -34,6 +34,7 @@ fun DateAppBar(
     onDateChange: (Date) -> Unit, // 선택된 날짜 변경 이벤트
     children: @Composable () -> Unit,
     header: (@Composable () -> Unit)?,
+    actionButton: @Composable () -> Unit = {}
 ) {
     val bottomSheetState = rememberModalBottomSheetState(ModalBottomSheetValue.Hidden)
     val coroutineScope = rememberCoroutineScope()
@@ -124,7 +125,8 @@ fun DateAppBar(
                         onChangeDate(newDate)
                     }
                 )
-            }
+            },
+            floatingActionButton = actionButton
         ) {
             children()
         }
