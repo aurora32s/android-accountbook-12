@@ -1,6 +1,8 @@
 package com.seom.accountbook.ui.screen.history
 
+import android.view.View
 import androidx.compose.foundation.*
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -12,6 +14,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -24,6 +27,7 @@ import com.seom.accountbook.model.common.Date
 import com.seom.accountbook.model.history.History
 import com.seom.accountbook.model.history.HistoryType
 import com.seom.accountbook.ui.components.DateAppBar
+import com.seom.accountbook.ui.components.TwoButtonAppBar
 import com.seom.accountbook.ui.theme.ColorPalette
 import java.util.*
 
@@ -32,14 +36,68 @@ import java.util.*
 )
 @Composable
 fun HistoryScreen() {
-    var currentSelectedTab by remember { mutableStateOf(HistoryType.INCOME) }
+    val selectedItem = remember { mutableStateListOf<Int>() }
 
-    DateAppBar(onDateChange = { date ->
-        // TODO 변경된 날짜에 맞는 데이터 요청
-    }) {
+    if (selectedItem.isNullOrEmpty()) {
+        DateAppBar(onDateChange = { date ->
+            // TODO 변경된 날짜에 맞는 데이터 요청
+        }, children = {
+            HistoryBody(
+                selectedItem = selectedItem,
+                onClickItem = {
+                    // TODO 아이템 수정 화면으로 이동
+                },
+                onLongClickItem = {
+                    selectedItem.add(it)
+                }
+            )
+        })
+    } else {
+        TwoButtonAppBar(
+            leftIcon = {
+                Image(
+                    painter = painterResource(id = R.drawable.ic_back),
+                    contentDescription = null,
+                    modifier = Modifier.clickable {
+                        selectedItem.clear()
+                    }
+                )
+            },
+            rightIcon = {
+                Image(
+                    painter = painterResource(id = R.drawable.ic_trash),
+                    contentDescription = null,
+                    modifier = Modifier.clickable {
+                        // TODO 선택된 내역 삭제 요청
+                    }
+                )
+            },
+            title = "${selectedItem.size}개 선택"
+        ) {
+            HistoryBody(
+                selectedItem = selectedItem,
+                onClickItem = {
+                    if (it in selectedItem) selectedItem.remove(it) else selectedItem.add(it)
+                },
+                onLongClickItem = {
+                    if (it in selectedItem) selectedItem.remove(it) else selectedItem.add(it)
+                }
+            )
+        }
+    }
+}
+
+@Composable
+fun HistoryBody(
+    selectedItem: MutableList<Int>,
+    onClickItem: (Int) -> Unit,
+    onLongClickItem: (Int) -> Unit
+) {
+    var currentSelectedTab by remember { mutableStateOf(HistoryType.INCOME) }
+    Column() {
         Divider(
             color = ColorPalette.Purple,
-            thickness = 2.dp
+            thickness = 1.dp
         )
         Column {
             // 수입 / 지출 tab
@@ -52,8 +110,11 @@ fun HistoryScreen() {
             // 수입 / 지출 리스트
             HistoryList(
                 historyGroupedByDate = histories,
+                selectedItem = selectedItem,
                 currentType = currentSelectedTab,
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth(),
+                onClickItem = { onClickItem(it) },
+                onLongClickItem = { onLongClickItem(it) }
             )
         }
     }
@@ -137,13 +198,15 @@ fun HistoryTypeItem(
     }
 }
 
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun HistoryList(
     // TODO Key 를 String 으로 두는게 맞을까...
     historyGroupedByDate: Map<String, List<History>>,
+    selectedItem: MutableList<Int>,
     currentType: HistoryType,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    onClickItem: (Int) -> Unit,
+    onLongClickItem: (Int) -> Unit
 ) {
     LazyColumn(
         modifier = modifier
@@ -159,7 +222,16 @@ fun HistoryList(
                 )
             }
             items(items = histories.filter { it.type == currentType }) { history ->
-                HistoryListItem(history = history)
+                HistoryListItem(
+                    history = history,
+                    modifier = Modifier
+                        .pointerInput(Unit) {
+                            detectTapGestures(
+                                onPress = { onClickItem(history.id) },
+                                onLongPress = { onLongClickItem(history.id) }
+                            )
+                        }
+                )
             }
             item {
                 Divider(
@@ -206,10 +278,11 @@ fun HistoryListHeader(
 
 @Composable
 fun HistoryListItem(
-    history: History
+    history: History,
+    modifier: Modifier = Modifier
 ) {
     Column(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
             .padding(
                 start = 16.dp,
