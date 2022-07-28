@@ -1,19 +1,19 @@
 package com.seom.accountbook.ui.screen.history
 
+import androidx.annotation.StringRes
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.Checkbox
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Scaffold
-import androidx.compose.material.Text
+import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -33,50 +33,35 @@ fun HistoryScreen() {
     HistoryTopTab(
         currentSelectedTab = currentSelectedTab,
         onTabSelected = { currentSelectedTab = it },
-        modifier = Modifier.padding(16.dp)
+        modifier = Modifier
+            .padding(16.dp)
     )
 }
 
 @Composable
 fun HistoryTopTab(
-    income: Int, // 수입 총금액
-    outCome: Int, // 지출 총금액
     currentSelectedTab: HistoryType,
     onTabSelected: (HistoryType) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    Row(
+    Surface(
         modifier = modifier
     ) {
-        HistoryType.values().forEach { type ->
-            Row(
-            ) {
-                if (type == currentSelectedTab) {
-                    Box(
-                        modifier = Modifier
-                            .size(12.dp)
-                            .clip(RoundedCornerShape(2.dp))
-                            .background(ColorPalette.White)
-                    ) {
-                        Image(
-                            painter = painterResource(id = R.drawable.ic_check),
-                            contentDescription = null,
-                            colorFilter = ColorFilter.tint(color = ColorPalette.Purple),
-                        )
-                    }
-                } else {
-                    Image(
-                        painter = painterResource(id = R.drawable.ic_checkbox),
-                        contentDescription = null,
-                        colorFilter = ColorFilter.tint(color = ColorPalette.White),
-                        modifier = Modifier.size(12.dp)
-                    )
-                }
-                Text(
-                    text = stringResource(id = "${type.title} ${income}원"),
-                    style = MaterialTheme.typography.body2,
-                    color = ColorPalette.White,
-                    modifier = Modifier.padding(8.dp, 0.dp, 0.dp, 0.dp)
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .clip(RoundedCornerShape(10.dp))
+        ) {
+            // 수입 tab
+            HistoryType.values().forEach {
+                HistoryTypeItem(
+                    type = it,
+                    selected = it == currentSelectedTab,
+                    modifier = Modifier
+                        .weight(1f)
+                        .clickable {
+                            onTabSelected(it)
+                        }
                 )
             }
         }
@@ -85,7 +70,7 @@ fun HistoryTopTab(
 
 @Composable
 fun HistoryTypeItem(
-    title: String,
+    type: HistoryType,
     selected: Boolean,
     modifier: Modifier = Modifier
 ) {
@@ -94,12 +79,38 @@ fun HistoryTypeItem(
             .background(
                 if (selected) ColorPalette.Purple
                 else ColorPalette.LightPurple
-            ),
+            )
+            .padding(8.dp),
         horizontalArrangement = Arrangement.Center,
         verticalAlignment = Alignment.CenterVertically
     ) {
         Box(
             modifier = Modifier
-                .size(12.dp))
+                .size(12.dp)
+                .clip(RoundedCornerShape(2.dp))
+                .background(if (selected) ColorPalette.White else Color.Transparent)
+                .border(
+                    width = 1.dp,
+                    color = ColorPalette.Purple,
+                    shape = RoundedCornerShape(2.dp)
+                )
+        ) {
+            if (selected) {
+                Image(
+                    painter = painterResource(id = R.drawable.ic_check),
+                    contentDescription = null,
+                    colorFilter = ColorFilter.tint(color = ColorPalette.Purple)
+                )
+            }
+        }
+
+        Text(
+            text = stringResource(id = type.title),
+            style = MaterialTheme.typography.body2,
+            color = ColorPalette.White,
+            modifier = Modifier.padding(
+                start = 5.dp
+            )
+        )
     }
 }
