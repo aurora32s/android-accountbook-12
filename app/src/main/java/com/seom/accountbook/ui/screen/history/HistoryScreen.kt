@@ -62,7 +62,8 @@ fun HistoryTopTab(
     modifier: Modifier = Modifier
 ) {
     Surface(
-        modifier = modifier
+        modifier = modifier,
+        color = Color.Transparent
     ) {
         Row(
             modifier = Modifier

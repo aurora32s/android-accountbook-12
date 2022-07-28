@@ -62,4 +62,6 @@ dependencies {
 
     // navigation
     implementation "androidx.navigation:navigation-compose:$rootProject.composeNavigationVersion"
+    // for changing status bar color
+    implementation "com.google.accompanist:accompanist-systemuicontroller:0.17.0"
 }
