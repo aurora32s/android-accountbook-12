@@ -16,11 +16,13 @@ import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.min
 import com.seom.accountbook.R
 import com.seom.accountbook.model.common.Date
 import com.seom.accountbook.ui.theme.ColorPalette
 import com.seom.accountbook.util.ext.format
 import kotlinx.coroutines.launch
+import java.time.Month
 import java.util.*
 
 /**
@@ -29,26 +31,55 @@ import java.util.*
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun DateAppBar(
-    currentDate: Date, // 현재 선택된 날짜
-    onDateChange: (Int, Int) -> Unit, // 선택된 날짜 변경 이벤트
+    onDateChange: (Date) -> Unit, // 선택된 날짜 변경 이벤트
     children: @Composable () -> Unit
 ) {
-
     val bottomSheetState = rememberModalBottomSheetState(ModalBottomSheetValue.Hidden)
     val coroutineScope = rememberCoroutineScope()
+
+    val current = Calendar.getInstance()
+
+    val year = current.get(Calendar.YEAR)
+    val month = current.get(Calendar.MONTH)
+
+    val maxYear = year
+    val maxMonth = month
+    val minYear = year - 30
+
+    val date = remember { mutableStateOf(Date(year, month)) }
+
+    val selectYear = remember { mutableStateOf(year) }
+    val selectMonth = remember { mutableStateOf(month) }
+
+    val onChangeDate = { newDate: Date ->
+        date.value = newDate
+        selectYear.value = newDate.year
+        selectMonth.value = newDate.month
+
+        onDateChange(newDate)
+    }
 
     ModalBottomSheetLayout(
         sheetState = bottomSheetState,
         sheetContent = {
             DatePickerBottomSheet(
-                currentDate = currentDate,
+                year = selectYear,
+                month = selectMonth,
+                maxYear = maxYear,
+                minYear = minYear,
                 onCloseBottomSheet = {
                     coroutineScope.launch {
                         bottomSheetState.hide()
                     }
                 },
-                onClickConfirmBtn = { year, month ->
-                    onDateChange(year, month)
+                onClickConfirmBtn = {
+                    if (selectMonth.value > maxMonth) {
+                        onChangeDate(date.value)
+                    } else {
+                        onChangeDate(
+                            Date(selectYear.value, selectMonth.value)
+                        )
+                    }
                     coroutineScope.launch {
                         bottomSheetState.hide()
                     }
@@ -58,11 +89,40 @@ fun DateAppBar(
     ) {
         Scaffold(
             topBar = {
-                AppBar(currentDate = currentDate) {
-                    coroutineScope.launch {
-                        bottomSheetState.show()
+                AppBar(
+                    date = date,
+                    onClickDate = {
+                        coroutineScope.launch {
+                            bottomSheetState.show()
+                        }
+                    },
+                    onPrevDate = {
+                        val value = date.value
+                        val newDate = when {
+                            value.month == 1 && value.year == minYear -> Date(
+                                value.year,
+                                value.month
+                            )
+                            value.month == 1 -> Date(value.year - 1, 12)
+                            else -> Date(value.year, value.month - 1)
+                        }
+
+                        onChangeDate(newDate)
+                    },
+                    onPostDate = {
+                        val value = date.value
+                        val newDate = when {
+                            value.month == maxMonth && value.year == maxYear -> Date(
+                                value.year,
+                                value.month
+                            )
+                            value.month == 12 -> Date(value.year + 1, 1)
+                            else -> Date(value.year, value.month + 1)
+                        }
+
+                        onChangeDate(newDate)
                     }
-                }
+                )
             }
         ) {
             children()
@@ -72,8 +132,10 @@ fun DateAppBar(
 
 @Composable
 fun AppBar(
-    currentDate: Date, // 현재 선택된 날짜
-    onClickDate: () -> Unit
+    date: MutableState<Date>,
+    onClickDate: () -> Unit,
+    onPrevDate: () -> Unit,
+    onPostDate: () -> Unit
 ) {
     Surface(
         modifier = Modifier
@@ -84,27 +146,33 @@ fun AppBar(
         Row(
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
-            Image(painter = painterResource(id = R.drawable.ic_left), contentDescription = null)
+            Image(
+                painter = painterResource(id = R.drawable.ic_left),
+                contentDescription = null,
+                modifier = Modifier.clickable { onPrevDate() })
             Text(
-                text = currentDate.format(),
+                text = date.value.format(),
                 style = MaterialTheme.typography.body1,
                 color = ColorPalette.Purple,
                 modifier = Modifier.clickable { onClickDate() }
             )
-            Image(painter = painterResource(id = R.drawable.ic_right), contentDescription = null)
+            Image(
+                painter = painterResource(id = R.drawable.ic_right),
+                contentDescription = null,
+                modifier = Modifier.clickable { onPostDate() })
         }
     }
 }
 
 @Composable
 fun DatePickerBottomSheet(
-    currentDate: Date,
+    year: MutableState<Int>,
+    month: MutableState<Int>,
+    maxYear: Int,
+    minYear: Int,
     onCloseBottomSheet: () -> Unit,
-    onClickConfirmBtn: (Int, Int) -> Unit
+    onClickConfirmBtn: () -> Unit
 ) {
-    var year = currentDate.year
-    var month = currentDate.month
-
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -142,9 +210,8 @@ fun DatePickerBottomSheet(
             verticalAlignment = Alignment.CenterVertically
         ) {
             NumberPicker(
-                state = remember { mutableStateOf(year) },
-                range = 0..year,
-                onStateChanged = { year = it }
+                state = year,
+                range = minYear..maxYear
             )
             Spacer(modifier = Modifier.width(8.dp))
             Text(
@@ -154,9 +221,8 @@ fun DatePickerBottomSheet(
             )
             Spacer(modifier = Modifier.width(8.dp))
             NumberPicker(
-                state = remember { mutableStateOf(month) },
-                range = 1..12,
-                onStateChanged = { month = it }
+                state = month,
+                range = 1..12
             )
             Spacer(modifier = Modifier.width(8.dp))
             Text(
@@ -166,7 +232,7 @@ fun DatePickerBottomSheet(
             )
         }
         Button(
-            onClick = { onClickConfirmBtn(year, month) },
+            onClick = { onClickConfirmBtn() },
             modifier = Modifier
                 .clip(RoundedCornerShape(16.dp))
                 .fillMaxWidth(),

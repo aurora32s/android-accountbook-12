@@ -33,19 +33,9 @@ import java.util.*
 @Composable
 fun HistoryScreen() {
     var currentSelectedTab by remember { mutableStateOf(HistoryType.INCOME) }
-    val date = Calendar.getInstance()
-    var currentDate by remember {
-        mutableStateOf(
-            Date(
-                year = date.get(Calendar.YEAR),
-                month = date.get(Calendar.MONTH)
-            )
-        )
-    }
 
-    DateAppBar(currentDate = currentDate, onDateChange = { year, month ->
+    DateAppBar(onDateChange = { date ->
         // TODO 변경된 날짜에 맞는 데이터 요청
-        currentDate = Date(year = year, month = month)
     }) {
         Divider(
             color = ColorPalette.Purple,

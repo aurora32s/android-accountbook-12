@@ -7,10 +7,7 @@ import androidx.compose.foundation.gestures.draggable
 import androidx.compose.foundation.gestures.rememberDraggableState
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -34,9 +31,11 @@ fun NumberPicker(
     val coroutineScope = rememberCoroutineScope()
     val numbersColumnHeight = 36.dp
     val halvedNumbersColumnHeight = numbersColumnHeight / 2
-    val halvedNumbersColumnHeightPx = with(LocalDensity.current) { halvedNumbersColumnHeight.toPx() }
+    val halvedNumbersColumnHeightPx =
+        with(LocalDensity.current) { halvedNumbersColumnHeight.toPx() }
 
-    fun animatedStateValue(offset: Float): Int = state.value - (offset / halvedNumbersColumnHeightPx).toInt()
+    fun animatedStateValue(offset: Float): Int =
+        state.value - (offset / halvedNumbersColumnHeightPx).toInt()
 
     val animatedOffset = remember { Animatable(0f) }.apply {
         if (range != null) {
@@ -69,9 +68,15 @@ fun NumberPicker(
                             animationSpec = exponentialDecay(frictionMultiplier = 20f),
                             adjustTarget = { target ->
                                 val coercedTarget = target % halvedNumbersColumnHeightPx
-                                val coercedAnchors = listOf(-halvedNumbersColumnHeightPx, 0f, halvedNumbersColumnHeightPx)
-                                val coercedPoint = coercedAnchors.minByOrNull { abs(it - coercedTarget) }!!
-                                val base = halvedNumbersColumnHeightPx * (target / halvedNumbersColumnHeightPx).toInt()
+                                val coercedAnchors = listOf(
+                                    -halvedNumbersColumnHeightPx,
+                                    0f,
+                                    halvedNumbersColumnHeightPx
+                                )
+                                val coercedPoint =
+                                    coercedAnchors.minByOrNull { abs(it - coercedTarget) }!!
+                                val base =
+                                    halvedNumbersColumnHeightPx * (target / halvedNumbersColumnHeightPx).toInt()
                                 coercedPoint + base
                             }
                         ).endState.value
