@@ -21,25 +21,18 @@ import com.seom.accountbook.ui.theme.ColorPalette
 fun TwoButtonAppBar(
     leftIcon: @Composable () -> Unit,
     rightIcon: @Composable () -> Unit,
-    title: String,
-    children: @Composable () -> Unit
+    title: String
 ) {
-    Scaffold(
-        topBar = {
-            Row(
-                modifier = Modifier.fillMaxWidth().padding(16.dp),
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                leftIcon()
-                Text(
-                    text = title,
-                    style = MaterialTheme.typography.body1,
-                    color = ColorPalette.Purple
-                )
-                rightIcon()
-            }
-        }
+    Row(
+        modifier = Modifier.fillMaxWidth().padding(16.dp),
+        horizontalArrangement = Arrangement.SpaceBetween
     ) {
-        children()
+        leftIcon()
+        Text(
+            text = title,
+            style = MaterialTheme.typography.body1,
+            color = ColorPalette.Purple
+        )
+        rightIcon()
     }
 }

@@ -37,54 +37,48 @@ import java.util.*
 @Composable
 fun HistoryScreen() {
     val selectedItem = remember { mutableStateListOf<Int>() }
-
-    if (selectedItem.isNullOrEmpty()) {
-        DateAppBar(onDateChange = { date ->
-            // TODO 변경된 날짜에 맞는 데이터 요청
-        }, children = {
-            HistoryBody(
-                selectedItem = selectedItem,
-                onClickItem = {
-                    // TODO 아이템 수정 화면으로 이동
-                },
-                onLongClickItem = {
-                    selectedItem.add(it)
-                }
-            )
-        })
-    } else {
-        TwoButtonAppBar(
-            leftIcon = {
-                Image(
-                    painter = painterResource(id = R.drawable.ic_back),
-                    contentDescription = null,
-                    modifier = Modifier.clickable {
-                        selectedItem.clear()
-                    }
-                )
-            },
-            rightIcon = {
-                Image(
-                    painter = painterResource(id = R.drawable.ic_trash),
-                    contentDescription = null,
-                    modifier = Modifier.clickable {
-                        // TODO 선택된 내역 삭제 요청
-                    }
-                )
-            },
-            title = "${selectedItem.size}개 선택"
-        ) {
-            HistoryBody(
-                selectedItem = selectedItem,
-                onClickItem = {
-                    if (it in selectedItem) selectedItem.remove(it) else selectedItem.add(it)
-                },
-                onLongClickItem = {
+    DateAppBar(onDateChange = { date ->
+        // TODO 변경된 날짜에 맞는 데이터 요청
+    }, children = {
+        HistoryBody(
+            selectedItem = selectedItem,
+            onClickItem = {
+                if (selectedItem.isNullOrEmpty()) {
+                    // TODO 내역 수정 화면으로 이동
+                } else {
                     if (it in selectedItem) selectedItem.remove(it) else selectedItem.add(it)
                 }
+            },
+            onLongClickItem = {
+                if (it in selectedItem) selectedItem.remove(it) else selectedItem.add(
+                    it
+                )
+            })
+    }, header = if (selectedItem.isNullOrEmpty()) null else {
+        {
+            TwoButtonAppBar(
+                leftIcon = {
+                    Image(
+                        painter = painterResource(id = R.drawable.ic_back),
+                        contentDescription = null,
+                        modifier = Modifier.clickable {
+                            selectedItem.clear()
+                        }
+                    )
+                },
+                rightIcon = {
+                    Image(
+                        painter = painterResource(id = R.drawable.ic_trash),
+                        contentDescription = null,
+                        modifier = Modifier.clickable {
+                            // TODO 선택된 내역 삭제 요청
+                        }
+                    )
+                },
+                title = "${selectedItem.size}개 선택"
             )
         }
-    }
+    })
 }
 
 @Composable
