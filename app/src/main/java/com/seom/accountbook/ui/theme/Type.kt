@@ -2,6 +2,7 @@ package com.seom.accountbook.ui.theme
 
 import androidx.compose.material.Typography
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -17,7 +18,22 @@ val Typography = Typography(
     body2 = TextStyle(
         fontFamily = FontFamily.SansSerif,
         fontWeight = FontWeight(500),
+        fontSize = 16.sp,
+    ),
+    subtitle1 = TextStyle(
+        fontFamily = FontFamily.SansSerif,
+        fontWeight = FontWeight(500),
         fontSize = 10.sp,
+    ),
+    subtitle2 = TextStyle(
+        fontFamily = FontFamily.SansSerif,
+        fontWeight = FontWeight(700),
+        fontSize = 10.sp
+    ),
+    caption = TextStyle(
+        fontFamily = FontFamily.SansSerif,
+        fontWeight = FontWeight(700),
+        fontSize = 14.sp
     )
     /* Other default text styles to override
     button = TextStyle(

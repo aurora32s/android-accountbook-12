@@ -86,7 +86,7 @@ fun AccountTab(
         )
         Text(
             text = title,
-            style = MaterialTheme.typography.body2,
+            style = MaterialTheme.typography.subtitle1,
             color = if (selected) ColorPalette.White else ColorPalette.White50
         )
     }
