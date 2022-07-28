@@ -23,7 +23,7 @@ val histories = hashMapOf<String, List<History>>(
         (0..20).forEach {
             this.add(
                 History(
-                    id = it,
+                    id = it + 20,
                     content = "content $it",
                     money = it * 1000,
                     method = "현대카드",
