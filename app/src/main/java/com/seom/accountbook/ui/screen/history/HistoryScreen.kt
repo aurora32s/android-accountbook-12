@@ -45,8 +45,6 @@ fun HistoryScreen() {
             onClickItem = {
                 if (selectedItem.isNullOrEmpty()) {
                     // TODO 내역 수정 화면으로 이동
-                } else {
-                    if (it in selectedItem) selectedItem.remove(it) else selectedItem.add(it)
                 }
             },
             onLongClickItem = {
@@ -218,6 +216,7 @@ fun HistoryList(
             items(items = histories.filter { it.type == currentType }) { history ->
                 HistoryListItem(
                     history = history,
+                    selected = history.id in selectedItem,
                     modifier = Modifier
                         .pointerInput(Unit) {
                             detectTapGestures(
@@ -273,11 +272,13 @@ fun HistoryListHeader(
 @Composable
 fun HistoryListItem(
     history: History,
+    selected: Boolean,
     modifier: Modifier = Modifier
 ) {
     Column(
         modifier = modifier
             .fillMaxWidth()
+            .background(if (selected) ColorPalette.White else Color.Transparent)
             .padding(
                 start = 16.dp,
                 end = 16.dp,
@@ -288,60 +289,71 @@ fun HistoryListItem(
             color = ColorPalette.Purple40,
             thickness = 1.dp
         )
-
-        Spacer(modifier = Modifier.height(8.dp))
-
         Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween
+            modifier = Modifier.padding(top = 8.dp),
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            Text(
-                text = history.categoryName,
-                modifier = Modifier
-                    .widthIn(56.dp)
-                    .clip(RoundedCornerShape(999.dp))
-                    .background(Color(history.categoryColor))
-                    .padding(
-                        start = 8.dp,
-                        top = 4.dp,
-                        bottom = 4.dp,
-                        end = 8.dp
-                    ),
-                style = MaterialTheme.typography.subtitle2,
-                color = ColorPalette.White,
-                textAlign = TextAlign.Center
-            )
-            Text(
-                text = history.method,
-                style = MaterialTheme.typography.subtitle1,
-                color = ColorPalette.Purple,
-                textAlign = TextAlign.End,
-                modifier = Modifier
-                    .padding(top = 4.dp)
-            )
+            if (selected) {
+                Image(
+                    painter = painterResource(id = R.drawable.ic_checkbox_checked),
+                    contentDescription = null
+                )
+            }
+            Column(
+                modifier = Modifier.padding(start = 8.dp)
+            ) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Text(
+                        text = history.categoryName,
+                        modifier = Modifier
+                            .widthIn(56.dp)
+                            .clip(RoundedCornerShape(999.dp))
+                            .background(Color(history.categoryColor))
+                            .padding(
+                                start = 8.dp,
+                                top = 4.dp,
+                                bottom = 4.dp,
+                                end = 8.dp
+                            ),
+                        style = MaterialTheme.typography.subtitle2,
+                        color = ColorPalette.White,
+                        textAlign = TextAlign.Center
+                    )
+                    Text(
+                        text = history.method,
+                        style = MaterialTheme.typography.subtitle1,
+                        color = ColorPalette.Purple,
+                        textAlign = TextAlign.End,
+                        modifier = Modifier
+                            .padding(top = 4.dp)
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Text(
+                        text = history.content,
+                        style = MaterialTheme.typography.caption,
+                        color = ColorPalette.Purple
+                    )
+                    Text(
+                        text = "${
+                            if (history.type == HistoryType.OUTCOME) -1 * history.money
+                            else history.money
+                        } 원",
+                        style = MaterialTheme.typography.body2,
+                        fontWeight = FontWeight(700),
+                        color = if (history.type == HistoryType.INCOME) ColorPalette.Green else ColorPalette.Red
+                    )
+                }
+            }
         }
-
-        Spacer(modifier = Modifier.height(8.dp))
-
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-            Text(
-                text = history.content,
-                style = MaterialTheme.typography.caption,
-                color = ColorPalette.Purple
-            )
-            Text(
-                text = "${
-                    if (history.type == HistoryType.OUTCOME) -1 * history.money
-                    else history.money
-                } 원",
-                style = MaterialTheme.typography.body2,
-                fontWeight = FontWeight(700),
-                color = if (history.type == HistoryType.INCOME) ColorPalette.Green else ColorPalette.Red
-            )
-        }
-
     }
 }
