@@ -1,22 +1,25 @@
 package com.seom.accountbook.ui.components
 
+import android.widget.NumberPicker
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.seom.accountbook.R
+import com.seom.accountbook.model.common.Date
 import com.seom.accountbook.ui.theme.ColorPalette
 import com.seom.accountbook.util.ext.format
-import com.seom.accountbook.util.ext.toYearAndMonth
 import kotlinx.coroutines.launch
 import java.util.*
 
@@ -27,29 +30,37 @@ import java.util.*
 @Composable
 fun DateAppBar(
     currentDate: Date, // 현재 선택된 날짜
-    onDateChange: (Date) -> Unit, // 선택된 날짜 변경 이벤트
+    onDateChange: (Int, Int) -> Unit, // 선택된 날짜 변경 이벤트
     children: @Composable () -> Unit
 ) {
 
-    val bottomSheetState = rememberBottomSheetScaffoldState(
-        bottomSheetState = BottomSheetState(BottomSheetValue.Collapsed)
-    )
+    val bottomSheetState = rememberModalBottomSheetState(ModalBottomSheetValue.Hidden)
     val coroutineScope = rememberCoroutineScope()
 
-    BottomSheetScaffold(
-        scaffoldState = bottomSheetState,
+    ModalBottomSheetLayout(
+        sheetState = bottomSheetState,
         sheetContent = {
-            Row() {
-                Text(text = "hello world")
-            }
-        },
-        sheetPeekHeight = 0.dp
+            DatePickerBottomSheet(
+                currentDate = currentDate,
+                onCloseBottomSheet = {
+                    coroutineScope.launch {
+                        bottomSheetState.hide()
+                    }
+                },
+                onClickConfirmBtn = { year, month ->
+                    onDateChange(year, month)
+                    coroutineScope.launch {
+                        bottomSheetState.hide()
+                    }
+                }
+            )
+        }
     ) {
         Scaffold(
             topBar = {
                 AppBar(currentDate = currentDate) {
                     coroutineScope.launch {
-                        bottomSheetState.bottomSheetState.expand()
+                        bottomSheetState.show()
                     }
                 }
             }
@@ -75,7 +86,7 @@ fun AppBar(
         ) {
             Image(painter = painterResource(id = R.drawable.ic_left), contentDescription = null)
             Text(
-                text = currentDate.toYearAndMonth(),
+                text = currentDate.format(),
                 style = MaterialTheme.typography.body1,
                 color = ColorPalette.Purple,
                 modifier = Modifier.clickable { onClickDate() }
@@ -87,7 +98,85 @@ fun AppBar(
 
 @Composable
 fun DatePickerBottomSheet(
-
+    currentDate: Date,
+    onCloseBottomSheet: () -> Unit,
+    onClickConfirmBtn: (Int, Int) -> Unit
 ) {
-    
+    var year = currentDate.year
+    var month = currentDate.month
+
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(
+                start = 16.dp,
+                top = 20.dp,
+                bottom = 16.dp,
+                end = 16.dp
+            )
+    ) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            Text(
+                text = "날짜 선택",
+                style = MaterialTheme.typography.body2,
+                color = ColorPalette.Purple,
+                fontWeight = FontWeight(700)
+            )
+            Image(
+                painter = painterResource(id = R.drawable.ic_close),
+                contentDescription = null,
+                colorFilter = ColorFilter.tint(ColorPalette.Purple),
+                modifier = Modifier.clickable {
+                    onCloseBottomSheet()
+                }
+            )
+        }
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(10.dp),
+            horizontalArrangement = Arrangement.Center,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            NumberPicker(
+                state = remember { mutableStateOf(year) },
+                range = 0..year,
+                onStateChanged = { year = it }
+            )
+            Spacer(modifier = Modifier.width(8.dp))
+            Text(
+                text = "년",
+                style = MaterialTheme.typography.caption,
+                color = ColorPalette.LightPurple
+            )
+            Spacer(modifier = Modifier.width(8.dp))
+            NumberPicker(
+                state = remember { mutableStateOf(month) },
+                range = 1..12,
+                onStateChanged = { month = it }
+            )
+            Spacer(modifier = Modifier.width(8.dp))
+            Text(
+                text = "월",
+                style = MaterialTheme.typography.caption,
+                color = ColorPalette.LightPurple
+            )
+        }
+        Button(
+            onClick = { onClickConfirmBtn(year, month) },
+            modifier = Modifier
+                .clip(RoundedCornerShape(16.dp))
+                .fillMaxWidth(),
+            colors = ButtonDefaults.buttonColors(backgroundColor = ColorPalette.Yellow)
+        ) {
+            Text(
+                text = "조회",
+                style = MaterialTheme.typography.caption,
+                color = ColorPalette.White
+            )
+        }
+    }
 }

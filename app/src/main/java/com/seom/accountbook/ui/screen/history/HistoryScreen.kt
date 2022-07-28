@@ -20,6 +20,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.seom.accountbook.R
 import com.seom.accountbook.mock.histories
+import com.seom.accountbook.model.common.Date
 import com.seom.accountbook.model.history.History
 import com.seom.accountbook.model.history.HistoryType
 import com.seom.accountbook.ui.components.DateAppBar
@@ -32,9 +33,20 @@ import java.util.*
 @Composable
 fun HistoryScreen() {
     var currentSelectedTab by remember { mutableStateOf(HistoryType.INCOME) }
-    var currentDate by remember { mutableStateOf(Date()) }
+    val date = Calendar.getInstance()
+    var currentDate by remember {
+        mutableStateOf(
+            Date(
+                year = date.get(Calendar.YEAR),
+                month = date.get(Calendar.MONTH)
+            )
+        )
+    }
 
-    DateAppBar(currentDate = currentDate, onDateChange = {}) {
+    DateAppBar(currentDate = currentDate, onDateChange = { year, month ->
+        // TODO 변경된 날짜에 맞는 데이터 요청
+        currentDate = Date(year = year, month = month)
+    }) {
         Divider(
             color = ColorPalette.Purple,
             thickness = 2.dp
