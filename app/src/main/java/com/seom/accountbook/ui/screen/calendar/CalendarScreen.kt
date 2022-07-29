@@ -37,9 +37,11 @@ public class CalendarState(
 fun CalendarScreen(
     onPushNavigate: (String, String) -> Unit
 ) {
+    val calendarState = rememberCalendarState()
     DateAppBar(
         onDateChange = {
             // TODO 변경된 날짜에 맞는 데이터 요청
+            calendarState.monthState.currentMonth = YearMonth.from(it)
         },
         children = {
             Column {
@@ -48,7 +50,9 @@ fun CalendarScreen(
                     thickness = 1.dp
                 )
                 Spacer(modifier = Modifier.height(5.dp))
-                CalendarContainer()
+                CalendarContainer(
+                    calendarState = calendarState
+                )
             }
         })
 }
@@ -56,7 +60,7 @@ fun CalendarScreen(
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun CalendarContainer(
-    calendarState: CalendarState = rememberCalendarState(),
+    calendarState: CalendarState,
     modifier: Modifier = Modifier,
     firstDayOfWeek: DayOfWeek = WeekFields.of(Locale.getDefault()).firstDayOfWeek,
     today: LocalDate = LocalDate.now(),

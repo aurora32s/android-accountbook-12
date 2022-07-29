@@ -62,7 +62,7 @@ fun DateAppBar(
         selectYear.value = newDate.year
         selectMonth.value = newDate.month
 
-        onDateChange(LocalDate.of(year, month, 1))
+        onDateChange(LocalDate.of(newDate.year, newDate.month, 1))
     }
 
     CustomBottomSheet(

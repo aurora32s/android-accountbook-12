@@ -26,6 +26,7 @@ fun MonthContent(
     weekHeader: @Composable BoxScope.(List<DayOfWeek>) -> Unit,
     monthContainer: @Composable (content: @Composable (PaddingValues) -> Unit) -> Unit
 ) {
+    println(currentMonth.month.value.toString())
     Column {
         Box(
             modifier = modifier
