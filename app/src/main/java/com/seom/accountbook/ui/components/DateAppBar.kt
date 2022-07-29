@@ -1,6 +1,8 @@
 package com.seom.accountbook.ui.components
 
+import android.os.Build
 import android.widget.NumberPicker
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -22,16 +24,18 @@ import com.seom.accountbook.model.common.Date
 import com.seom.accountbook.ui.theme.ColorPalette
 import com.seom.accountbook.util.ext.format
 import kotlinx.coroutines.launch
+import java.time.LocalDate
 import java.time.Month
 import java.util.*
 
 /**
  * 화면 상단에서 일자 변경이 가능한 app bar
  */
+@RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun DateAppBar(
-    onDateChange: (Date) -> Unit, // 선택된 날짜 변경 이벤트
+    onDateChange: (LocalDate) -> Unit, // 선택된 날짜 변경 이벤트
     children: @Composable () -> Unit,
     header: (@Composable () -> Unit)? = null,
     actionButton: @Composable () -> Unit = {}
@@ -39,10 +43,10 @@ fun DateAppBar(
     val bottomSheetState = rememberModalBottomSheetState(ModalBottomSheetValue.Hidden)
     val coroutineScope = rememberCoroutineScope()
 
-    val current = Calendar.getInstance()
+    val current = LocalDate.now()
 
-    val year = current.get(Calendar.YEAR)
-    val month = current.get(Calendar.MONTH)
+    val year = current.year
+    val month = current.month.value
 
     val maxYear = year
     val maxMonth = month
@@ -58,7 +62,7 @@ fun DateAppBar(
         selectYear.value = newDate.year
         selectMonth.value = newDate.month
 
-        onDateChange(newDate)
+        onDateChange(LocalDate.of(year, month, 1))
     }
 
     CustomBottomSheet(
