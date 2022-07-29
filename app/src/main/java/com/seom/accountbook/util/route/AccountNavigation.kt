@@ -32,7 +32,11 @@ fun AccountNavigationHost(
             )
         }
         composable(route = Calendar.route) {
-            CalendarScreen()
+            CalendarScreen(
+                onPushNavigate = { route, argument ->
+                    navController.navigateSingleTop(route, argument)
+                }
+            )
         }
         composable(route = Graph.route) {
             GraphScreen()

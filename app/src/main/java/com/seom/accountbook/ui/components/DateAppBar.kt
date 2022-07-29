@@ -33,7 +33,7 @@ import java.util.*
 fun DateAppBar(
     onDateChange: (Date) -> Unit, // 선택된 날짜 변경 이벤트
     children: @Composable () -> Unit,
-    header: (@Composable () -> Unit)?,
+    header: (@Composable () -> Unit)? = null,
     actionButton: @Composable () -> Unit = {}
 ) {
     val bottomSheetState = rememberModalBottomSheetState(ModalBottomSheetValue.Hidden)
