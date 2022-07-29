@@ -23,16 +23,22 @@ import androidx.navigation.NavController
 import com.seom.accountbook.AccountApp
 import com.seom.accountbook.R
 import com.seom.accountbook.model.history.HistoryType
+import com.seom.accountbook.ui.components.CustomBottomSheet
+import com.seom.accountbook.ui.components.NumberPicker
 import com.seom.accountbook.ui.components.OneButtonAppBar
 import com.seom.accountbook.ui.theme.ColorPalette
 import com.seom.accountbook.util.ext.fullForamt
+import com.seom.accountbook.util.ext.getDateOfWeek
 import com.seom.accountbook.util.ext.toMoney
+import com.seom.accountbook.util.getMaxDate
+import kotlinx.coroutines.launch
 import java.util.*
 
 /**
  * 수입/지출 내역 화면 UI
  */
 
+@OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun PostScreen(
     postId: String? = null,
@@ -41,31 +47,86 @@ fun PostScreen(
     val postMode = postId.isNullOrBlank()
     var currentSelectedTab by remember { mutableStateOf(HistoryType.INCOME) }
 
-    Scaffold(
-        topBar = {
-            OneButtonAppBar(title = if (postMode) "내역 등록" else "내역 수정") {
-                Image(
-                    painter = painterResource(id = R.drawable.ic_back),
-                    contentDescription = null,
-                    modifier = Modifier.clickable {
-                        onBackButtonPressed()
-                    })
+    val bottomSheetState = rememberModalBottomSheetState(ModalBottomSheetValue.Hidden)
+    val coroutineScope = rememberCoroutineScope()
+
+    var current by remember { mutableStateOf(Calendar.getInstance()) }
+    var money by remember { mutableStateOf(0) }
+
+    val year = current.get(Calendar.YEAR)
+    val month = current.get(Calendar.MONTH)
+    val date = current.get(Calendar.DATE)
+
+    val maxYear = year
+    val maxMonth = month
+    val minYear = year - 30
+
+    val selectYear = remember { mutableStateOf(year) }
+    val selectMonth = remember { mutableStateOf(month) }
+    val selectedDate = remember { mutableStateOf(date) }
+
+    CustomBottomSheet(
+        sheetState = bottomSheetState,
+        sheetContent = {
+            DatePickerBottomSheet(
+                year = selectYear,
+                month = selectMonth,
+                date = selectedDate,
+                maxYear = maxYear,
+                minYear = minYear,
+                onCloseBottomSheet = {
+                    coroutineScope.launch {
+                        bottomSheetState.hide()
+                    }
+                },
+                onClickConfirmBtn = {
+                    current = Calendar.getInstance().apply {
+                        set(
+                            selectYear.value,
+                            selectMonth.value,
+                            selectedDate.value
+                        )
+                    }
+                    coroutineScope.launch {
+                        bottomSheetState.hide()
+                    }
+                }
+            )
+        }) {
+        Scaffold(
+            topBar = {
+                OneButtonAppBar(title = if (postMode) "내역 등록" else "내역 수정") {
+                    Image(
+                        painter = painterResource(id = R.drawable.ic_back),
+                        contentDescription = null,
+                        modifier = Modifier.clickable {
+                            onBackButtonPressed()
+                        })
+                }
             }
-        }
-    ) {
-        Column {
-            Divider(
-                color = ColorPalette.Purple,
-                thickness = 1.dp
-            )
-            PostTopTab(
-                currentSelectedTab = currentSelectedTab,
-                onTabSelected = { if (postMode) currentSelectedTab = it },
-                modifier = Modifier.padding(16.dp)
-            )
-            PostBody(
-                modifier = Modifier.fillMaxHeight()
-            )
+        ) {
+            Column {
+                Divider(
+                    color = ColorPalette.Purple,
+                    thickness = 1.dp
+                )
+                PostTopTab(
+                    currentSelectedTab = currentSelectedTab,
+                    onTabSelected = { if (postMode) currentSelectedTab = it },
+                    modifier = Modifier.padding(16.dp)
+                )
+                PostBody(
+                    modifier = Modifier.fillMaxHeight(),
+                    onOpenDatePicker = {
+                        coroutineScope.launch {
+                            bottomSheetState.show()
+                        }
+                    },
+                    date = current,
+                    money = money,
+                    onChangeMoney = { money = it }
+                )
+            }
         }
     }
 }
@@ -128,10 +189,12 @@ fun HistoryTypeItm(
 
 @Composable
 fun PostBody(
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    onOpenDatePicker: () -> Unit,
+    date: Calendar,
+    money: Int,
+    onChangeMoney: (Int) -> Unit
 ) {
-    var date by remember { mutableStateOf(Calendar.getInstance()) }
-    var money by remember { mutableStateOf(0) }
 
     Box(
         modifier = modifier
@@ -141,11 +204,15 @@ fun PostBody(
                 .align(Alignment.TopStart)
                 .padding(start = 16.dp, end = 16.dp, top = 8.dp)
         ) {
-            AccountInputField(title = "일자") { DateInput(selectedDate = date) }
+            AccountInputField(title = "일자") {
+                DateInput(selectedDate = date, modifier = Modifier.clickable {
+                    onOpenDatePicker()
+                })
+            }
             AccountInputField(title = "금액") {
                 MoneyInput(
                     money = money,
-                    onValueChange = { it?.let { money = it } })
+                    onValueChange = { it?.let { onChangeMoney(it) } })
             }
             AccountInputField(title = "결제 수단") {}
             AccountInputField(title = "분류") {}
@@ -209,12 +276,14 @@ fun AccountInputField(
 
 @Composable
 fun DateInput(
-    selectedDate: Calendar
+    selectedDate: Calendar,
+    modifier: Modifier = Modifier
 ) {
     Text(
         text = selectedDate.fullForamt(),
         style = MaterialTheme.typography.caption,
-        color = ColorPalette.Purple
+        color = ColorPalette.Purple,
+        modifier = modifier
     )
 }
 
@@ -233,4 +302,106 @@ fun MoneyInput(
         },
         textStyle = MaterialTheme.typography.caption.copy(color = ColorPalette.Purple),
     )
+}
+
+@Composable
+fun DatePickerBottomSheet(
+    year: MutableState<Int>,
+    month: MutableState<Int>,
+    date: MutableState<Int>,
+    maxYear: Int,
+    minYear: Int,
+    onCloseBottomSheet: () -> Unit,
+    onClickConfirmBtn: () -> Unit
+) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(
+                start = 16.dp,
+                top = 20.dp,
+                bottom = 16.dp,
+                end = 16.dp
+            )
+    ) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            Text(
+                text = "날짜 선택",
+                style = MaterialTheme.typography.body2,
+                color = ColorPalette.Purple,
+                fontWeight = FontWeight(700)
+            )
+            Image(
+                painter = painterResource(id = R.drawable.ic_close),
+                contentDescription = null,
+                colorFilter = ColorFilter.tint(ColorPalette.Purple),
+                modifier = Modifier.clickable {
+                    onCloseBottomSheet()
+                }
+            )
+        }
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(10.dp),
+            horizontalArrangement = Arrangement.Center,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            NumberPicker(
+                state = year,
+                range = minYear..maxYear
+            )
+            Spacer(modifier = Modifier.width(8.dp))
+            Text(
+                text = "년",
+                style = MaterialTheme.typography.caption,
+                color = ColorPalette.LightPurple
+            )
+            Spacer(modifier = Modifier.width(8.dp))
+            NumberPicker(
+                state = month,
+                range = 1..12
+            )
+            Spacer(modifier = Modifier.width(8.dp))
+            Text(
+                text = "월",
+                style = MaterialTheme.typography.caption,
+                color = ColorPalette.LightPurple
+            )
+            Spacer(modifier = Modifier.width(8.dp))
+            NumberPicker(
+                state = date,
+                range = 1..month.value.getMaxDate()
+            )
+            Spacer(modifier = Modifier.width(8.dp))
+            Text(
+                text = "일",
+                style = MaterialTheme.typography.caption,
+                color = ColorPalette.LightPurple
+            )
+            Spacer(modifier = Modifier.width(8.dp))
+            Text(
+                text = "${Calendar.getInstance().apply { set(year.value, month.value, date.value) }
+                    .getDateOfWeek()}요일",
+                style = MaterialTheme.typography.caption,
+                color = ColorPalette.LightPurple
+            )
+        }
+        Button(
+            onClick = { onClickConfirmBtn() },
+            modifier = Modifier
+                .clip(RoundedCornerShape(16.dp))
+                .fillMaxWidth(),
+            colors = ButtonDefaults.buttonColors(backgroundColor = ColorPalette.Yellow)
+        ) {
+            Text(
+                text = "조회",
+                style = MaterialTheme.typography.caption,
+                color = ColorPalette.White
+            )
+        }
+    }
 }
