@@ -1,7 +1,9 @@
 package com.seom.accountbook.model.category
 
+import com.seom.accountbook.model.BaseModel
+
 data class Category(
-    val id: Int,
-    val categoryName: String,
-    val categoryColor: Long
-)
+    override val id: Int,
+    override val name: String,
+    val categoryColor: Long,
+) : BaseModel

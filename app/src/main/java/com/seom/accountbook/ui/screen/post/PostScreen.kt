@@ -3,10 +3,7 @@ package com.seom.accountbook.ui.screen.post
 import android.view.LayoutInflater
 import android.widget.GridLayout
 import androidx.compose.animation.core.exponentialDecay
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
-import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
@@ -16,9 +13,14 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.modifier.modifierLocalConsumer
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -26,14 +28,15 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.toSize
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.navigation.NavController
 import com.seom.accountbook.AccountApp
 import com.seom.accountbook.R
-import com.seom.accountbook.databinding.SpinnerLayoutBinding
+import com.seom.accountbook.model.BaseModel
 import com.seom.accountbook.model.category.Category
 import com.seom.accountbook.model.history.HistoryType
-import com.seom.accountbook.ui.adapter.CategorySpinnerAdapter
+import com.seom.accountbook.model.method.Method
 import com.seom.accountbook.ui.components.CustomBottomSheet
 import com.seom.accountbook.ui.components.NumberPicker
 import com.seom.accountbook.ui.components.OneButtonAppBar
@@ -65,6 +68,7 @@ fun PostScreen(
     var money by remember { mutableStateOf(0) }
     var content by remember { mutableStateOf("") }
     var category by remember { mutableStateOf<Int>(-1) }
+    var method by remember { mutableStateOf<Int>(-1) }
 
     val year = current.get(Calendar.YEAR)
     val month = current.get(Calendar.MONTH)
@@ -139,21 +143,27 @@ fun PostScreen(
                     money = money,
                     content = content,
                     selectedCategory = category,
+                    selectedMethodId = method,
                     categories = listOf(
                         Category(
                             id = 0,
-                            categoryName = "분류 1",
+                            name = "분류 1",
                             categoryColor = 0xFF524D90
                         ),
                         Category(
                             id = 1,
-                            categoryName = "분류 2",
+                            name = "분류 2",
                             categoryColor = 0xFFA79FCB
                         )
                     ),
+                    methods = listOf(
+                        Method(id = 0, name = "방법 1"),
+                        Method(id = 1, name = "방법 2")
+                    ),
                     onChangeMoney = { money = it },
                     onChangeContent = { content = it },
-                    onChangeCategory = { category = it }
+                    onChangeCategory = { category = it },
+                    onChangeMethod = { method = it }
                 )
             }
         }
@@ -223,11 +233,14 @@ fun PostBody(
     date: Calendar,
     money: Int,
     content: String,
+    selectedMethodId: Int,
     selectedCategory: Int,
+    methods: List<Method>,
     categories: List<Category>,
     onChangeMoney: (Int) -> Unit,
     onChangeContent: (String) -> Unit,
-    onChangeCategory: (Int) -> Unit
+    onChangeCategory: (Int) -> Unit,
+    onChangeMethod: (Int) -> Unit
 ) {
 
     Box(
@@ -249,6 +262,11 @@ fun PostBody(
                     onValueChange = { it?.let { onChangeMoney(it) } })
             }
             AccountInputField(title = "결제 수단") {
+                ExposedDropdownBox(
+                    selectedOptionId = selectedMethodId,
+                    onOptionSelected = { onChangeMethod(it) },
+                    options = methods
+                )
             }
             AccountInputField(title = "분류") {
                 ExposedDropdownBox(
@@ -335,17 +353,25 @@ fun MoneyInput(
     money: Int,
     onValueChange: (Int?) -> Unit
 ) {
-    BasicTextField(
-        value = money.toMoney(),
-        onValueChange = {
-            onValueChange(
-                if (it.isNullOrBlank()) 0
-                else it.replace(",", "").toIntOrNull()
+    Box() {
+        BasicTextField(
+            value = if (money != 0) money.toMoney() else "",
+            onValueChange = {
+                onValueChange(
+                    if (it.isNullOrBlank()) 0
+                    else it.replace(",", "").toIntOrNull()
+                )
+            },
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+            textStyle = MaterialTheme.typography.caption.copy(color = ColorPalette.Purple)
+        )
+        if (money == 0) {
+            Text(
+                text = "입력하세요.",
+                style = MaterialTheme.typography.caption.copy(color = ColorPalette.LightPurple)
             )
-        },
-        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-        textStyle = MaterialTheme.typography.caption.copy(color = ColorPalette.Purple)
-    )
+        }
+    }
 }
 
 @Composable
@@ -353,11 +379,19 @@ fun ContentInput(
     content: String,
     onValueChange: (String) -> Unit
 ) {
-    BasicTextField(
-        value = content,
-        onValueChange = { onValueChange(it) },
-        textStyle = MaterialTheme.typography.caption.copy(color = ColorPalette.Purple),
-    )
+    Box() {
+        BasicTextField(
+            value = content,
+            onValueChange = { onValueChange(it) },
+            textStyle = MaterialTheme.typography.caption.copy(color = ColorPalette.Purple),
+        )
+        if (content.isBlank()) {
+            Text(
+                text = "입력하세요.",
+                style = MaterialTheme.typography.caption.copy(color = ColorPalette.LightPurple)
+            )
+        }
+    }
 }
 
 @Composable
@@ -464,66 +498,110 @@ fun DatePickerBottomSheet(
     }
 }
 
-@OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun ExposedDropdownBox(
     selectedOptionId: Int,
     onOptionSelected: (Int) -> Unit,
-    options: List<Category>
+    options: List<BaseModel>
 ) {
     var expanded by remember { mutableStateOf(false) }
     val selectedOption = options.find { it.id == selectedOptionId }
+    var dropDownWidth by remember { mutableStateOf(Size.Zero) }
+    var rotateDegree by remember { mutableStateOf(0f)}
 
-    AndroidView(factory = { context ->
-        val spinnerContainer = SpinnerLayoutBinding.inflate(LayoutInflater.from(context))
-        val adapter = CategorySpinnerAdapter(context, options)
-        spinnerContainer.spinnerCategoryOption.adapter = adapter
-        spinnerContainer.root
-    })
-//    Box(
-//    ) {
-//        CategoryChip(
-//            category = selectedOption,
-//            modifier = Modifier
-//                .clickable { expanded = true })
-//        DropdownMenu(
-//            expanded = expanded,
-//            onDismissRequest = {
-//                expanded = false
-//            },
-//            offset = DpOffset(0.dp, 5.dp),
-//            modifier = Modifier.fillMaxWidth()
-//        ) {
-//            options.forEach { option ->
-//                DropdownMenuItem(
-//                    onClick = {
-//                        onOptionSelected(option.id)
-//                        expanded = false
-//                    },
-//                ) {
-//                    CategoryChip(category = option)
-//                }
-//            }
-//            DropdownMenuItem(onClick = { /*TODO*/ }) {
-//                Row(
-//                    horizontalArrangement = Arrangement.SpaceBetween,
-//                    modifier = Modifier.fillMaxWidth(),
-//                    verticalAlignment = Alignment.CenterVertically
-//                ) {
-//                    Text(
-//                        text = "추가하기",
-//                        style = MaterialTheme.typography.subtitle2,
-//                        color = ColorPalette.Purple
-//                    )
-//                    Image(
-//                        painter = painterResource(id = R.drawable.ic_plus),
-//                        contentDescription = null,
-//                        colorFilter = ColorFilter.tint(ColorPalette.Purple)
-//                    )
-//                }
-//            }
-//        }
-//    }
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .wrapContentSize(Alignment.TopEnd)
+    ) {
+        Row(
+            horizontalArrangement = Arrangement.SpaceBetween,
+            modifier = Modifier
+                .fillMaxWidth()
+                .clickable {
+                    rotateDegree = 180f
+                    expanded = true
+                }
+                .onGloballyPositioned { coordinates ->
+                    // This value is used to assign to
+                    // the DropDown the same width
+                    dropDownWidth = coordinates.size.toSize()
+                },
+        ) {
+            Text(
+                text = selectedOption?.name ?: "선택하세요.",
+                style = MaterialTheme.typography.caption.copy(
+                    color = if (selectedOption == null) ColorPalette.LightPurple
+                    else ColorPalette.Purple
+                )
+            )
+            Image(
+                painter = painterResource(id = R.drawable.ic_arrow_down),
+                contentDescription = null,
+                colorFilter = ColorFilter.tint(color = ColorPalette.Purple),
+                modifier = Modifier.rotate(rotateDegree)
+            )
+        }
+
+        MaterialTheme(shapes = MaterialTheme.shapes.copy(medium = RoundedCornerShape(14.dp))) {
+
+            DropdownMenu(
+                expanded = expanded,
+                onDismissRequest = {
+                    rotateDegree = 0f
+                    expanded = false
+               },
+                offset = DpOffset(x = 0.dp, y = 8.dp),
+                modifier = Modifier
+                    .width(with(LocalDensity.current) { dropDownWidth.width.toDp() })
+                    .border(
+                        width = 1.dp,
+                        color = ColorPalette.Purple,
+                        shape = RoundedCornerShape(14.dp)
+                    )
+            ) {
+                options.forEach {
+                    DropdownMenuItem(
+                        onClick = {
+                            onOptionSelected(it.id)
+                            expanded = false
+                        },
+                        modifier = Modifier
+                            .height(36.dp)
+                            .background(Color.Transparent),
+                    ) {
+                        Text(
+                            text = it.name,
+                            style = MaterialTheme.typography.subtitle1.copy(color = ColorPalette.Purple)
+                        )
+                    }
+                }
+                DropdownMenuItem(
+                    onClick = { /*TODO*/ },
+                    modifier = Modifier
+                        .height(36.dp)
+                        .background(Color.Transparent),
+                ) {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = "추가하기",
+                            style = MaterialTheme.typography.subtitle1.copy(color = ColorPalette.Purple)
+                        )
+                        Image(
+                            painter = painterResource(id = R.drawable.ic_plus),
+                            contentDescription = null,
+                            colorFilter = ColorFilter.tint(color = ColorPalette.Purple),
+                        )
+                    }
+                }
+            }
+        }
+    }
 }
 
 @Composable
@@ -532,7 +610,7 @@ fun CategoryChip(
     modifier: Modifier = Modifier
 ) {
     Text(
-        text = category?.categoryName ?: "옵션을 선택해주세요.",
+        text = category?.name ?: "옵션을 선택해주세요.",
         modifier = modifier
             .widthIn(56.dp)
             .clip(RoundedCornerShape(999.dp))
