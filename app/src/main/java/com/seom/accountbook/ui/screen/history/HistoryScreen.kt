@@ -47,6 +47,10 @@ fun HistoryScreen(
                 if (selectedItem.isNullOrEmpty()) {
                     // TODO 내역 수정 화면으로 이동
                     onPushNavigate(Post.route, it.toString())
+                } else {
+                    if (it in selectedItem) selectedItem.remove(it) else selectedItem.add(
+                        it
+                    )
                 }
             },
             onLongClickItem = {
@@ -200,6 +204,7 @@ fun HistoryTypeItem(
     }
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun HistoryList(
     // TODO Key 를 String 으로 두는게 맞을까...
@@ -228,12 +233,10 @@ fun HistoryList(
                     history = history,
                     selected = history.id in selectedItem,
                     modifier = Modifier
-                        .pointerInput(Unit) {
-                            detectTapGestures(
-                                onPress = { onClickItem(history.id) },
-                                onLongPress = { onLongClickItem(history.id) }
-                            )
-                        }
+                        .combinedClickable(
+                            onClick = { onClickItem(history.id) },
+                            onLongClick = { onLongClickItem(history.id) }
+                        )
                 )
             }
             item {
