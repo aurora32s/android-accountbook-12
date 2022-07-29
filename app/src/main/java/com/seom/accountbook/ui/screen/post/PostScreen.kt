@@ -133,6 +133,7 @@ fun PostScreen(
                     modifier = Modifier.padding(16.dp)
                 )
                 PostBody(
+                    currentSelectedTab = currentSelectedTab,
                     modifier = Modifier.fillMaxHeight(),
                     onOpenDatePicker = {
                         coroutineScope.launch {
@@ -228,6 +229,7 @@ fun HistoryTypeItm(
 
 @Composable
 fun PostBody(
+    currentSelectedTab: HistoryType,
     modifier: Modifier = Modifier,
     onOpenDatePicker: () -> Unit,
     date: Calendar,
@@ -261,12 +263,14 @@ fun PostBody(
                     money = money,
                     onValueChange = { it?.let { onChangeMoney(it) } })
             }
-            AccountInputField(title = "결제 수단") {
-                ExposedDropdownBox(
-                    selectedOptionId = selectedMethodId,
-                    onOptionSelected = { onChangeMethod(it) },
-                    options = methods
-                )
+            if (currentSelectedTab == HistoryType.OUTCOME) {
+                AccountInputField(title = "결제 수단") {
+                    ExposedDropdownBox(
+                        selectedOptionId = selectedMethodId,
+                        onOptionSelected = { onChangeMethod(it) },
+                        options = methods
+                    )
+                }
             }
             AccountInputField(title = "분류") {
                 ExposedDropdownBox(
@@ -507,7 +511,7 @@ fun ExposedDropdownBox(
     var expanded by remember { mutableStateOf(false) }
     val selectedOption = options.find { it.id == selectedOptionId }
     var dropDownWidth by remember { mutableStateOf(Size.Zero) }
-    var rotateDegree by remember { mutableStateOf(0f)}
+    var rotateDegree by remember { mutableStateOf(0f) }
 
     Box(
         modifier = Modifier
@@ -550,7 +554,7 @@ fun ExposedDropdownBox(
                 onDismissRequest = {
                     rotateDegree = 0f
                     expanded = false
-               },
+                },
                 offset = DpOffset(x = 0.dp, y = 8.dp),
                 modifier = Modifier
                     .width(with(LocalDensity.current) { dropDownWidth.width.toDp() })
