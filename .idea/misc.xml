@@ -20,7 +20,12 @@
         <entry key="../../../../../../layout/compose-model-1659035303478.xml" value="0.2014358108108108" />
         <entry key="../../../../../../layout/compose-model-1659051175921.xml" value="0.2014358108108108" />
         <entry key="../../../../../../layout/compose-model-1659051994718.xml" value="0.1" />
+        <entry key="app/src/main/res/drawable/background_category_spinner.xml" value="0.1" />
         <entry key="app/src/main/res/layout/date_picker.xml" value="0.13229166666666667" />
+        <entry key="app/src/main/res/layout/header_category_option.xml" value="0.22395833333333334" />
+        <entry key="app/src/main/res/layout/item_category_option.xml" value="0.22395833333333334" />
+        <entry key="app/src/main/res/layout/layout_spinner.xml" value="0.16666666666666666" />
+        <entry key="app/src/main/res/xml/anim_spinner_click.xml" value="0.22395833333333334" />
       </map>
     </option>
   </component>

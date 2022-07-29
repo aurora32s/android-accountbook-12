@@ -1,6 +1,8 @@
 package com.seom.accountbook.ui.screen.post
 
+import android.view.LayoutInflater
 import android.widget.GridLayout
+import androidx.compose.animation.core.exponentialDecay
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -16,15 +18,22 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.modifier.modifierLocalConsumer
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.viewinterop.AndroidView
 import androidx.navigation.NavController
 import com.seom.accountbook.AccountApp
 import com.seom.accountbook.R
+import com.seom.accountbook.databinding.SpinnerLayoutBinding
+import com.seom.accountbook.model.category.Category
 import com.seom.accountbook.model.history.HistoryType
+import com.seom.accountbook.ui.adapter.CategorySpinnerAdapter
 import com.seom.accountbook.ui.components.CustomBottomSheet
 import com.seom.accountbook.ui.components.NumberPicker
 import com.seom.accountbook.ui.components.OneButtonAppBar
@@ -55,6 +64,7 @@ fun PostScreen(
     var current by remember { mutableStateOf(Calendar.getInstance()) }
     var money by remember { mutableStateOf(0) }
     var content by remember { mutableStateOf("") }
+    var category by remember { mutableStateOf<Int>(-1) }
 
     val year = current.get(Calendar.YEAR)
     val month = current.get(Calendar.MONTH)
@@ -128,8 +138,22 @@ fun PostScreen(
                     date = current,
                     money = money,
                     content = content,
+                    selectedCategory = category,
+                    categories = listOf(
+                        Category(
+                            id = 0,
+                            categoryName = "분류 1",
+                            categoryColor = 0xFF524D90
+                        ),
+                        Category(
+                            id = 1,
+                            categoryName = "분류 2",
+                            categoryColor = 0xFFA79FCB
+                        )
+                    ),
                     onChangeMoney = { money = it },
-                    onChangeContent = { content = it }
+                    onChangeContent = { content = it },
+                    onChangeCategory = { category = it }
                 )
             }
         }
@@ -199,8 +223,11 @@ fun PostBody(
     date: Calendar,
     money: Int,
     content: String,
+    selectedCategory: Int,
+    categories: List<Category>,
     onChangeMoney: (Int) -> Unit,
-    onChangeContent: (String) -> Unit
+    onChangeContent: (String) -> Unit,
+    onChangeCategory: (Int) -> Unit
 ) {
 
     Box(
@@ -221,8 +248,15 @@ fun PostBody(
                     money = money,
                     onValueChange = { it?.let { onChangeMoney(it) } })
             }
-            AccountInputField(title = "결제 수단") {}
-            AccountInputField(title = "분류") {}
+            AccountInputField(title = "결제 수단") {
+            }
+            AccountInputField(title = "분류") {
+                ExposedDropdownBox(
+                    selectedOptionId = selectedCategory,
+                    onOptionSelected = { onChangeCategory(it) },
+                    options = categories
+                )
+            }
             AccountInputField(title = "내용") {
                 ContentInput(content = content, onValueChange = onChangeContent)
             }
@@ -428,4 +462,92 @@ fun DatePickerBottomSheet(
             )
         }
     }
+}
+
+@OptIn(ExperimentalMaterialApi::class)
+@Composable
+fun ExposedDropdownBox(
+    selectedOptionId: Int,
+    onOptionSelected: (Int) -> Unit,
+    options: List<Category>
+) {
+    var expanded by remember { mutableStateOf(false) }
+    val selectedOption = options.find { it.id == selectedOptionId }
+
+    AndroidView(factory = { context ->
+        val spinnerContainer = SpinnerLayoutBinding.inflate(LayoutInflater.from(context))
+        val adapter = CategorySpinnerAdapter(context, options)
+        spinnerContainer.spinnerCategoryOption.adapter = adapter
+        spinnerContainer.root
+    })
+//    Box(
+//    ) {
+//        CategoryChip(
+//            category = selectedOption,
+//            modifier = Modifier
+//                .clickable { expanded = true })
+//        DropdownMenu(
+//            expanded = expanded,
+//            onDismissRequest = {
+//                expanded = false
+//            },
+//            offset = DpOffset(0.dp, 5.dp),
+//            modifier = Modifier.fillMaxWidth()
+//        ) {
+//            options.forEach { option ->
+//                DropdownMenuItem(
+//                    onClick = {
+//                        onOptionSelected(option.id)
+//                        expanded = false
+//                    },
+//                ) {
+//                    CategoryChip(category = option)
+//                }
+//            }
+//            DropdownMenuItem(onClick = { /*TODO*/ }) {
+//                Row(
+//                    horizontalArrangement = Arrangement.SpaceBetween,
+//                    modifier = Modifier.fillMaxWidth(),
+//                    verticalAlignment = Alignment.CenterVertically
+//                ) {
+//                    Text(
+//                        text = "추가하기",
+//                        style = MaterialTheme.typography.subtitle2,
+//                        color = ColorPalette.Purple
+//                    )
+//                    Image(
+//                        painter = painterResource(id = R.drawable.ic_plus),
+//                        contentDescription = null,
+//                        colorFilter = ColorFilter.tint(ColorPalette.Purple)
+//                    )
+//                }
+//            }
+//        }
+//    }
+}
+
+@Composable
+fun CategoryChip(
+    category: Category?,
+    modifier: Modifier = Modifier
+) {
+    Text(
+        text = category?.categoryName ?: "옵션을 선택해주세요.",
+        modifier = modifier
+            .widthIn(56.dp)
+            .clip(RoundedCornerShape(999.dp))
+            .background(
+                if (category != null) Color(category.categoryColor)
+                else ColorPalette.Purple
+            )
+            .padding(
+                start = 8.dp,
+                top = 4.dp,
+                bottom = 4.dp,
+                end = 8.dp
+            ),
+        style = MaterialTheme.typography.subtitle2,
+        color = ColorPalette.White,
+        textAlign = TextAlign.Center
+    )
 }
