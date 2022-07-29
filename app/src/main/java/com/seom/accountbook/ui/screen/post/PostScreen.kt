@@ -1,7 +1,9 @@
 package com.seom.accountbook.ui.screen.post
 
+import android.os.Build
 import android.view.LayoutInflater
 import android.widget.GridLayout
+import androidx.annotation.RequiresApi
 import androidx.compose.animation.core.exponentialDecay
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
@@ -41,17 +43,17 @@ import com.seom.accountbook.ui.components.CustomBottomSheet
 import com.seom.accountbook.ui.components.NumberPicker
 import com.seom.accountbook.ui.components.OneButtonAppBar
 import com.seom.accountbook.ui.theme.ColorPalette
-import com.seom.accountbook.util.ext.fullForamt
-import com.seom.accountbook.util.ext.getDateOfWeek
-import com.seom.accountbook.util.ext.toMoney
+import com.seom.accountbook.util.ext.*
 import com.seom.accountbook.util.getMaxDate
 import kotlinx.coroutines.launch
+import java.time.LocalDate
 import java.util.*
 
 /**
  * 수입/지출 내역 화면 UI
  */
 
+@RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun PostScreen(
@@ -64,15 +66,15 @@ fun PostScreen(
     val bottomSheetState = rememberModalBottomSheetState(ModalBottomSheetValue.Hidden)
     val coroutineScope = rememberCoroutineScope()
 
-    var current by remember { mutableStateOf(Calendar.getInstance()) }
+    var current by remember { mutableStateOf(LocalDate.now()) }
     var money by remember { mutableStateOf(0) }
     var content by remember { mutableStateOf("") }
     var category by remember { mutableStateOf<Int>(-1) }
     var method by remember { mutableStateOf<Int>(-1) }
 
-    val year = current.get(Calendar.YEAR)
-    val month = current.get(Calendar.MONTH)
-    val date = current.get(Calendar.DATE)
+    val year = current.year
+    val month = current.month.value
+    val date = current.dayOfMonth
 
     val maxYear = year
     val maxMonth = month
@@ -97,13 +99,11 @@ fun PostScreen(
                     }
                 },
                 onClickConfirmBtn = {
-                    current = Calendar.getInstance().apply {
-                        set(
-                            selectYear.value,
-                            selectMonth.value,
-                            selectedDate.value
-                        )
-                    }
+                    current = LocalDate.of(
+                        selectYear.value,
+                        selectMonth.value,
+                        selectedDate.value
+                    )
                     coroutineScope.launch {
                         bottomSheetState.hide()
                     }
@@ -230,12 +230,13 @@ fun HistoryTypeItm(
     }
 }
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun PostBody(
     currentSelectedTab: HistoryType,
     modifier: Modifier = Modifier,
     onOpenDatePicker: () -> Unit,
-    date: Calendar,
+    date: LocalDate,
     money: Int,
     content: String,
     selectedMethodId: Int,
@@ -350,13 +351,14 @@ fun AccountInputField(
     Spacer(modifier = Modifier.height(8.dp))
 }
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun DateInput(
-    selectedDate: Calendar,
+    selectedDate: LocalDate,
     modifier: Modifier = Modifier
 ) {
     Text(
-        text = selectedDate.fullForamt(),
+        text = selectedDate.fullFormat(),
         style = MaterialTheme.typography.caption,
         color = ColorPalette.Purple,
         modifier = modifier
@@ -409,6 +411,7 @@ fun ContentInput(
     }
 }
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun DatePickerBottomSheet(
     year: MutableState<Int>,
@@ -490,8 +493,7 @@ fun DatePickerBottomSheet(
             Spacer(modifier = Modifier.width(8.dp))
             Text(
                 text = "${
-                    Calendar.getInstance().apply { set(year.value, month.value, date.value) }
-                        .getDateOfWeek()
+                    LocalDate.of(year.value, month.value, date.value).dayOfWeekText()
                 }요일",
                 style = MaterialTheme.typography.caption,
                 color = ColorPalette.LightPurple
