@@ -1,10 +1,7 @@
 package com.seom.accountbook.ui.screen.calendar.day
 
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.aspectRatio
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.*
 import androidx.compose.material.Card
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
@@ -30,7 +27,8 @@ fun DefaultDate(
 
     Card(
         modifier = Modifier
-            .aspectRatio(1f),
+            .aspectRatio(1f)
+            .heightIn(60.dp),
         border = BorderStroke(1.dp, ColorPalette.Purple40),
         backgroundColor = if (state.isCurrentDay) currentDayColor else ColorPalette.OffWhite,
         shape = RectangleShape
