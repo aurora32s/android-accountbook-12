@@ -103,24 +103,22 @@ fun HistoryBody(
             color = ColorPalette.Purple,
             thickness = 1.dp
         )
-        Column {
-            // 수입 / 지출 tab
-            HistoryTopTab(
-                currentSelectedTab = currentSelectedTab,
-                onTabSelected = { currentSelectedTab = it },
-                modifier = Modifier
-                    .padding(16.dp)
-            )
-            // 수입 / 지출 리스트
-            HistoryList(
-                historyGroupedByDate = histories,
-                selectedItem = selectedItem,
-                currentType = currentSelectedTab,
-                modifier = Modifier.fillMaxWidth(),
-                onClickItem = { onClickItem(it) },
-                onLongClickItem = { onLongClickItem(it) }
-            )
-        }
+        // 수입 / 지출 tab
+        HistoryTopTab(
+            currentSelectedTab = currentSelectedTab,
+            onTabSelected = { currentSelectedTab = it },
+            modifier = Modifier
+                .padding(16.dp)
+        )
+        // 수입 / 지출 리스트
+        HistoryList(
+            historyGroupedByDate = histories,
+            selectedItem = selectedItem,
+            currentType = currentSelectedTab,
+            modifier = Modifier.fillMaxWidth(),
+            onClickItem = { onClickItem(it) },
+            onLongClickItem = { onLongClickItem(it) }
+        )
     }
 }
 
