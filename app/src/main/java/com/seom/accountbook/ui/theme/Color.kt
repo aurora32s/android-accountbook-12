@@ -8,6 +8,7 @@ object ColorPalette {
     val Purple40 = Color(0x66a79fcb)
     val Red = Color(0xFFE75B3F)
     val Yellow = Color(0xFFF5B853)
+    val Yellow50 = Color(0x80F5B853)
     val White50 = Color(0x80FFFFFF)
     val White = Color(0xFFFFFFFF)
     val OffWhite = Color(0xFFF7F6F3)

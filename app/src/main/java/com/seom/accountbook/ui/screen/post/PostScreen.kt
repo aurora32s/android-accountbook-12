@@ -164,7 +164,10 @@ fun PostScreen(
                     onChangeMoney = { money = it },
                     onChangeContent = { content = it },
                     onChangeCategory = { category = it },
-                    onChangeMethod = { method = it }
+                    onChangeMethod = { method = it },
+                    onSubmit = {
+                        onBackButtonPressed()
+                    }
                 )
             }
         }
@@ -242,8 +245,11 @@ fun PostBody(
     onChangeMoney: (Int) -> Unit,
     onChangeContent: (String) -> Unit,
     onChangeCategory: (Int) -> Unit,
-    onChangeMethod: (Int) -> Unit
+    onChangeMethod: (Int) -> Unit,
+    onSubmit: () -> Unit
 ) {
+    val isAbleSubmit =
+        money > 0 && (currentSelectedTab == HistoryType.INCOME || selectedMethodId >= 0)
 
     Box(
         modifier = modifier
@@ -284,13 +290,16 @@ fun PostBody(
             }
         }
         Button(
-            onClick = { /*TODO*/ },
+            onClick = { onSubmit() },
             modifier = Modifier
                 .align(Alignment.BottomStart)
                 .fillMaxWidth()
                 .padding(start = 16.dp, end = 16.dp, bottom = 40.dp),
-            colors = ButtonDefaults.buttonColors(backgroundColor = ColorPalette.Yellow),
-            shape = RoundedCornerShape(14.dp)
+            colors = ButtonDefaults.buttonColors(
+                backgroundColor = ColorPalette.Yellow,
+                disabledBackgroundColor = ColorPalette.Yellow50
+            ),
+            enabled = isAbleSubmit
         ) {
             Text(
                 text = "등록하기",
@@ -298,7 +307,9 @@ fun PostBody(
                     fontWeight = FontWeight(700),
                     color = ColorPalette.White
                 ),
-                modifier = Modifier.padding(top = 8.dp, bottom = 8.dp)
+                modifier = Modifier
+                    .padding(top = 8.dp, bottom = 8.dp)
+                    .background(Color.Transparent),
             )
         }
     }
