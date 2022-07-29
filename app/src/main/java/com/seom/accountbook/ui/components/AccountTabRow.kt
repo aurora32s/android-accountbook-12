@@ -45,7 +45,7 @@ fun AccountTabRow(
                     title = screen.title,
                     icon = screen.icon,
                     onSelected = { onTabSelected(screen) },
-                    selected = currentScreen == screen
+                    selected = currentScreen.group == screen.route
                 )
             }
         }

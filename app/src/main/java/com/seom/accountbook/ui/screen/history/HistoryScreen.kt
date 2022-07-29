@@ -21,6 +21,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
+import com.seom.accountbook.Post
 import com.seom.accountbook.R
 import com.seom.accountbook.mock.histories
 import com.seom.accountbook.model.common.Date
@@ -31,11 +33,10 @@ import com.seom.accountbook.ui.components.TwoButtonAppBar
 import com.seom.accountbook.ui.theme.ColorPalette
 import java.util.*
 
-@Preview(
-    name = "HistoryScreen"
-)
 @Composable
-fun HistoryScreen() {
+fun HistoryScreen(
+    onPushNavigate: (String, String) -> Unit
+) {
     val selectedItem = remember { mutableStateListOf<Int>() }
     DateAppBar(onDateChange = { date ->
         // TODO 변경된 날짜에 맞는 데이터 요청
@@ -45,6 +46,7 @@ fun HistoryScreen() {
             onClickItem = {
                 if (selectedItem.isNullOrEmpty()) {
                     // TODO 내역 수정 화면으로 이동
+                    onPushNavigate(Post.route, it.toString())
                 }
             },
             onLongClickItem = {
@@ -80,6 +82,7 @@ fun HistoryScreen() {
         FloatingActionButton(
             onClick = {
                 // TODO 내역 추가 화면으로 이동
+                onPushNavigate(Post.route, "")
             },
             backgroundColor = ColorPalette.Yellow
         ) {
