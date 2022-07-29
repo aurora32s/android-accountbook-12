@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <com.seom.accountbook.view.CategorySpinner
+        android:id="@+id/spinner_category_option"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@null"
+        android:dropDownWidth="match_parent"
+        android:dropDownVerticalOffset="16dp"
+        android:gravity="end"
+        android:overlapAnchor="false"
+        android:popupBackground="@drawable/background_category_spinner"
+        android:spinnerMode="dropdown"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+</LinearLayout>

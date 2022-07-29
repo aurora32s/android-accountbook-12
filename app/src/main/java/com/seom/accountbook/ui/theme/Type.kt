@@ -23,7 +23,7 @@ val Typography = Typography(
     subtitle1 = TextStyle(
         fontFamily = FontFamily.SansSerif,
         fontWeight = FontWeight(500),
-        fontSize = 10.sp,
+        fontSize = 12.sp,
     ),
     subtitle2 = TextStyle(
         fontFamily = FontFamily.SansSerif,

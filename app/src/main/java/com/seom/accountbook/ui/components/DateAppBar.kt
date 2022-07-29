@@ -61,7 +61,7 @@ fun DateAppBar(
         onDateChange(newDate)
     }
 
-    ModalBottomSheetLayout(
+    CustomBottomSheet(
         sheetState = bottomSheetState,
         sheetContent = {
             DatePickerBottomSheet(
@@ -87,50 +87,51 @@ fun DateAppBar(
                     }
                 }
             )
-        }
-    ) {
-        Scaffold(
-            topBar = header ?: {
-                AppBar(
-                    date = date,
-                    onClickDate = {
-                        coroutineScope.launch {
-                            bottomSheetState.show()
-                        }
-                    },
-                    onPrevDate = {
-                        val value = date.value
-                        val newDate = when {
-                            value.month == 1 && value.year == minYear -> Date(
-                                value.year,
-                                value.month
-                            )
-                            value.month == 1 -> Date(value.year - 1, 12)
-                            else -> Date(value.year, value.month - 1)
-                        }
+        },
+        body = {
+            Scaffold(
+                topBar = header ?: {
+                    AppBar(
+                        date = date,
+                        onClickDate = {
+                            coroutineScope.launch {
+                                bottomSheetState.show()
+                            }
+                        },
+                        onPrevDate = {
+                            val value = date.value
+                            val newDate = when {
+                                value.month == 1 && value.year == minYear -> Date(
+                                    value.year,
+                                    value.month
+                                )
+                                value.month == 1 -> Date(value.year - 1, 12)
+                                else -> Date(value.year, value.month - 1)
+                            }
 
-                        onChangeDate(newDate)
-                    },
-                    onPostDate = {
-                        val value = date.value
-                        val newDate = when {
-                            value.month == maxMonth && value.year == maxYear -> Date(
-                                value.year,
-                                value.month
-                            )
-                            value.month == 12 -> Date(value.year + 1, 1)
-                            else -> Date(value.year, value.month + 1)
-                        }
+                            onChangeDate(newDate)
+                        },
+                        onPostDate = {
+                            val value = date.value
+                            val newDate = when {
+                                value.month == maxMonth && value.year == maxYear -> Date(
+                                    value.year,
+                                    value.month
+                                )
+                                value.month == 12 -> Date(value.year + 1, 1)
+                                else -> Date(value.year, value.month + 1)
+                            }
 
-                        onChangeDate(newDate)
-                    }
-                )
-            },
-            floatingActionButton = actionButton
-        ) {
-            children()
+                            onChangeDate(newDate)
+                        }
+                    )
+                },
+                floatingActionButton = actionButton
+            ) {
+                children()
+            }
         }
-    }
+    )
 }
 
 @Composable

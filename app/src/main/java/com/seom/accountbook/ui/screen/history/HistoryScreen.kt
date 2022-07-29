@@ -21,6 +21,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
+import com.seom.accountbook.Post
 import com.seom.accountbook.R
 import com.seom.accountbook.mock.histories
 import com.seom.accountbook.model.common.Date
@@ -31,11 +33,10 @@ import com.seom.accountbook.ui.components.TwoButtonAppBar
 import com.seom.accountbook.ui.theme.ColorPalette
 import java.util.*
 
-@Preview(
-    name = "HistoryScreen"
-)
 @Composable
-fun HistoryScreen() {
+fun HistoryScreen(
+    onPushNavigate: (String, String) -> Unit
+) {
     val selectedItem = remember { mutableStateListOf<Int>() }
     DateAppBar(onDateChange = { date ->
         // TODO 변경된 날짜에 맞는 데이터 요청
@@ -45,6 +46,11 @@ fun HistoryScreen() {
             onClickItem = {
                 if (selectedItem.isNullOrEmpty()) {
                     // TODO 내역 수정 화면으로 이동
+                    onPushNavigate(Post.route, it.toString())
+                } else {
+                    if (it in selectedItem) selectedItem.remove(it) else selectedItem.add(
+                        it
+                    )
                 }
             },
             onLongClickItem = {
@@ -80,6 +86,7 @@ fun HistoryScreen() {
         FloatingActionButton(
             onClick = {
                 // TODO 내역 추가 화면으로 이동
+                onPushNavigate(Post.route, "")
             },
             backgroundColor = ColorPalette.Yellow
         ) {
@@ -100,24 +107,22 @@ fun HistoryBody(
             color = ColorPalette.Purple,
             thickness = 1.dp
         )
-        Column {
-            // 수입 / 지출 tab
-            HistoryTopTab(
-                currentSelectedTab = currentSelectedTab,
-                onTabSelected = { currentSelectedTab = it },
-                modifier = Modifier
-                    .padding(16.dp)
-            )
-            // 수입 / 지출 리스트
-            HistoryList(
-                historyGroupedByDate = histories,
-                selectedItem = selectedItem,
-                currentType = currentSelectedTab,
-                modifier = Modifier.fillMaxWidth(),
-                onClickItem = { onClickItem(it) },
-                onLongClickItem = { onLongClickItem(it) }
-            )
-        }
+        // 수입 / 지출 tab
+        HistoryTopTab(
+            currentSelectedTab = currentSelectedTab,
+            onTabSelected = { currentSelectedTab = it },
+            modifier = Modifier
+                .padding(16.dp)
+        )
+        // 수입 / 지출 리스트
+        HistoryList(
+            historyGroupedByDate = histories,
+            selectedItem = selectedItem,
+            currentType = currentSelectedTab,
+            modifier = Modifier.fillMaxWidth(),
+            onClickItem = { onClickItem(it) },
+            onLongClickItem = { onLongClickItem(it) }
+        )
     }
 }
 
@@ -199,6 +204,7 @@ fun HistoryTypeItem(
     }
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun HistoryList(
     // TODO Key 를 String 으로 두는게 맞을까...
@@ -227,12 +233,10 @@ fun HistoryList(
                     history = history,
                     selected = history.id in selectedItem,
                     modifier = Modifier
-                        .pointerInput(Unit) {
-                            detectTapGestures(
-                                onPress = { onClickItem(history.id) },
-                                onLongPress = { onLongClickItem(history.id) }
-                            )
-                        }
+                        .combinedClickable(
+                            onClick = { onClickItem(history.id) },
+                            onLongClick = { onLongClickItem(history.id) }
+                        )
                 )
             }
             item {
