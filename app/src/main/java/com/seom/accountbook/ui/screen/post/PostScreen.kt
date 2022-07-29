@@ -8,6 +8,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -18,6 +19,7 @@ import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.seom.accountbook.AccountApp
@@ -52,6 +54,7 @@ fun PostScreen(
 
     var current by remember { mutableStateOf(Calendar.getInstance()) }
     var money by remember { mutableStateOf(0) }
+    var content by remember { mutableStateOf("") }
 
     val year = current.get(Calendar.YEAR)
     val month = current.get(Calendar.MONTH)
@@ -124,7 +127,9 @@ fun PostScreen(
                     },
                     date = current,
                     money = money,
-                    onChangeMoney = { money = it }
+                    content = content,
+                    onChangeMoney = { money = it },
+                    onChangeContent = { content = it }
                 )
             }
         }
@@ -193,7 +198,9 @@ fun PostBody(
     onOpenDatePicker: () -> Unit,
     date: Calendar,
     money: Int,
-    onChangeMoney: (Int) -> Unit
+    content: String,
+    onChangeMoney: (Int) -> Unit,
+    onChangeContent: (String) -> Unit
 ) {
 
     Box(
@@ -216,7 +223,9 @@ fun PostBody(
             }
             AccountInputField(title = "결제 수단") {}
             AccountInputField(title = "분류") {}
-            AccountInputField(title = "내용") {}
+            AccountInputField(title = "내용") {
+                ContentInput(content = content, onValueChange = onChangeContent)
+            }
         }
         Button(
             onClick = { /*TODO*/ },
@@ -300,6 +309,19 @@ fun MoneyInput(
                 else it.replace(",", "").toIntOrNull()
             )
         },
+        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+        textStyle = MaterialTheme.typography.caption.copy(color = ColorPalette.Purple)
+    )
+}
+
+@Composable
+fun ContentInput(
+    content: String,
+    onValueChange: (String) -> Unit
+) {
+    BasicTextField(
+        value = content,
+        onValueChange = { onValueChange(it) },
         textStyle = MaterialTheme.typography.caption.copy(color = ColorPalette.Purple),
     )
 }
@@ -384,8 +406,10 @@ fun DatePickerBottomSheet(
             )
             Spacer(modifier = Modifier.width(8.dp))
             Text(
-                text = "${Calendar.getInstance().apply { set(year.value, month.value, date.value) }
-                    .getDateOfWeek()}요일",
+                text = "${
+                    Calendar.getInstance().apply { set(year.value, month.value, date.value) }
+                        .getDateOfWeek()
+                }요일",
                 style = MaterialTheme.typography.caption,
                 color = ColorPalette.LightPurple
             )
