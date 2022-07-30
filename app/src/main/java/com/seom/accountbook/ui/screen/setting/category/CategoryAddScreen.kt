@@ -1,5 +1,6 @@
 package com.seom.accountbook.ui.screen.setting.category
 
+import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -68,7 +69,7 @@ fun CategoryAddScreen(
     val colorList = if (categoryType == HistoryType.INCOME) incomeColor else outcomeColor
 
     var name by remember { mutableStateOf("") }
-    val selectedIndex by remember { mutableStateOf(0) }
+    var selectedIndex by remember { mutableStateOf(0) }
 
     Scaffold(topBar = {
         OneButtonAppBar(title = "$title 카테고리 $modeTitle") {
@@ -104,7 +105,9 @@ fun CategoryAddScreen(
                     Divider(color = ColorPalette.Purple40, thickness = 1.dp)
                 }
 
-                ColorSelector(colors = colorList, perLine = 10, selectedIndex = selectedIndex)
+                ColorSelector(colors = colorList, perLine = 10, selectedIndex = selectedIndex) {
+                    selectedIndex = it
+                }
                 Spacer(modifier = Modifier.height(5.dp))
                 Divider(color = ColorPalette.LightPurple, thickness = 1.dp)
             }
@@ -142,7 +145,8 @@ fun ColorSelector(
     colors: List<Color>,
     perLine: Int,
     selectedIndex: Int,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    onSelectItem: (Int) -> Unit
 ) {
     var rowNum = colors.size / perLine
     if (colors.size % perLine != 0)
@@ -155,11 +159,13 @@ fun ColorSelector(
                 horizontalArrangement = Arrangement.SpaceAround
             ) {
                 (0 until min(perLine, colors.size)).forEachIndexed { _, column ->
+                    val paddingAnimation by animateDpAsState(targetValue = if (row * perLine + column == selectedIndex) 0.dp else 4.dp)
                     Spacer(
                         modifier = Modifier
                             .size(24.dp)
-                            .padding(if (row * perLine + column == selectedIndex) 0.dp else 4.dp)
+                            .padding(paddingAnimation)
                             .background(colors[row * perLine + column])
+                            .clickable { onSelectItem(row * perLine + column) }
                     )
                 }
             }
