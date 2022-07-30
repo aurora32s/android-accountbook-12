@@ -9,6 +9,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.seom.accountbook.*
 import com.seom.accountbook.ui.screen.calendar.CalendarScreen
+import com.seom.accountbook.ui.screen.detail.DetailScreen
 import com.seom.accountbook.ui.screen.graph.GraphScreen
 import com.seom.accountbook.ui.screen.history.HistoryScreen
 import com.seom.accountbook.ui.screen.post.PostScreen
@@ -39,7 +40,11 @@ fun AccountNavigationHost(
             )
         }
         composable(route = Graph.route) {
-            GraphScreen()
+            GraphScreen(
+                onPushNavigate = { route, argument ->
+                    navController.navigateSingleTop(route, argument)
+                }
+            )
         }
         composable(route = Setting.route) {
             SettingScreen()
@@ -56,6 +61,17 @@ fun AccountNavigationHost(
         }
         composable(route = Post.route) {
             PostScreen(
+                onBackButtonPressed = { navController.popBackStack() }
+            )
+        }
+
+        composable(
+            route = Detail.routeWithArgs,
+            arguments = Detail.arguments
+        ) { navBackStackEntry ->
+            val categoryId = navBackStackEntry.arguments?.getString(Detail.categoryIdArgs)
+            DetailScreen(
+                categoryId = categoryId,
                 onBackButtonPressed = { navController.popBackStack() }
             )
         }
