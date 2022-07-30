@@ -8,12 +8,15 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.seom.accountbook.*
+import com.seom.accountbook.model.history.HistoryType
 import com.seom.accountbook.ui.screen.calendar.CalendarScreen
 import com.seom.accountbook.ui.screen.detail.DetailScreen
 import com.seom.accountbook.ui.screen.graph.GraphScreen
 import com.seom.accountbook.ui.screen.history.HistoryScreen
 import com.seom.accountbook.ui.screen.post.PostScreen
 import com.seom.accountbook.ui.screen.setting.SettingScreen
+import com.seom.accountbook.ui.screen.setting.category.CategoryAddScreen
+import com.seom.accountbook.ui.screen.setting.method.MethodAddScreen
 
 @Composable
 fun AccountNavigationHost(
@@ -47,7 +50,9 @@ fun AccountNavigationHost(
             )
         }
         composable(route = Setting.route) {
-            SettingScreen()
+            SettingScreen { route, args ->
+                navController.navigateSingleTop(route, args)
+            }
         }
         composable(
             route = Post.routeWithArgs,
@@ -74,6 +79,51 @@ fun AccountNavigationHost(
                 categoryId = categoryId,
                 onBackButtonPressed = { navController.popBackStack() }
             )
+        }
+        // 결제 수단 새로 추가
+        composable(
+            route = Method.route
+        ) {
+            MethodAddScreen {
+                navController.popBackStack()
+            }
+        }
+        // 결제 수단 변경
+        composable(
+            route = Method.routeWithArgs,
+            arguments = Method.arguments
+        ) { navBackStackEntry ->
+            val methodId = navBackStackEntry.arguments?.getString(Method.methodIdArgs)
+            MethodAddScreen(methodId) {
+                navController.popBackStack()
+            }
+        }
+        // 카테고리 새로 추가
+        composable(
+            route = Category.routeWithArgs,
+            arguments = Category.arguments
+        ) { navBackStackEntry ->
+            val categoryType = navBackStackEntry.arguments?.getString(Category.categoryTypeArgs)
+            CategoryAddScreen(
+                null,
+                HistoryType.getHistoryType(categoryType?.toInt() ?: 0),
+            ) {
+                navController.popBackStack()
+            }
+        }
+        // 카테고리 변경
+        composable(
+            route = Category.routeWithAllArgs,
+            arguments = Category.allArguments
+        ) { navBackStackEntry ->
+            val categoryId = navBackStackEntry.arguments?.getString(Category.categoryIdArgs)
+            val categoryType = navBackStackEntry.arguments?.getString(Category.categoryTypeArgs)
+            CategoryAddScreen(
+                categoryId,
+                HistoryType.getHistoryType(categoryType?.toInt() ?: 0),
+            ) {
+                navController.popBackStack()
+            }
         }
     }
 }

@@ -5,6 +5,7 @@ package com.seom.accountbook.ui.screen.setting
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -26,6 +27,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.seom.accountbook.R
 import com.seom.accountbook.model.category.Category
+import com.seom.accountbook.model.history.HistoryType
 import com.seom.accountbook.model.method.Method
 import com.seom.accountbook.ui.theme.ColorPalette
 
@@ -51,7 +53,9 @@ val incomeMock = listOf(
 )
 
 @Composable
-fun SettingScreen() {
+fun SettingScreen(
+    onPushNavigate: (String, String) -> Unit
+) {
     Scaffold(
         topBar = {
             Row(
@@ -77,22 +81,64 @@ fun SettingScreen() {
             LazyColumn {
                 stickyHeader { Header(title = "결제수단") }
                 items(items = methodMock) {
-                    MethodItem(method = it)
+                    MethodItem(method = it) {
+                        onPushNavigate(
+                            com.seom.accountbook.Method.route,
+                            it.toString()
+                        )
+                    }
                 }
-                item { AddItem(itemName = "결제수단") {} }
+                item {
+                    AddItem(itemName = "결제수단") {
+                        onPushNavigate(
+                            com.seom.accountbook.Method.route,
+                            ""
+                        )
+                    }
+                }
                 item { Divider(color = ColorPalette.LightPurple, thickness = 1.dp) }
                 stickyHeader { Header(title = "지출 카테고리") }
                 items(items = outcomeMock) {
-                    CategoryItem(category = it)
+                    CategoryItem(category = it) {
+                        onPushNavigate(
+                            com.seom.accountbook.Category.route,
+                            "${HistoryType.OUTCOME.type}/$it"
+                        )
+                    }
                 }
-                item { AddItem(itemName = "지출 카테고리") {} }
+                item {
+                    AddItem(itemName = "지출 카테고리") {
+                        onPushNavigate(
+                            com.seom.accountbook.Category.route,
+                            "${HistoryType.OUTCOME.type}"
+                        )
+                    }
+                }
                 item { Divider(color = ColorPalette.LightPurple, thickness = 1.dp) }
                 stickyHeader { Header(title = "수입 카테고리") }
                 items(items = incomeMock) {
-                    CategoryItem(category = it)
+                    CategoryItem(category = it) {
+                        onPushNavigate(
+                            com.seom.accountbook.Category.route,
+                            "${HistoryType.INCOME.type}/$it"
+                        )
+                    }
                 }
-                item { AddItem(itemName = "수입 카테고리") {} }
-                item { Divider(color = ColorPalette.LightPurple, thickness = 1.dp) }
+                item {
+                    AddItem(itemName = "수입 카테고리") {
+                        onPushNavigate(
+                            com.seom.accountbook.Category.route,
+                            "${HistoryType.INCOME.type}"
+                        )
+                    }
+                }
+                item {
+                    Divider(
+                        color = ColorPalette.LightPurple,
+                        thickness = 1.dp
+                    )
+                    Spacer(modifier = Modifier.height(40.dp))
+                }
             }
         }
     }
@@ -117,7 +163,8 @@ fun Header(
 
 @Composable
 fun MethodItem(
-    method: Method
+    method: Method,
+    onClickItem: (Int) -> Unit
 ) {
     Column(
         modifier = Modifier.padding(start = 16.dp, end = 16.dp)
@@ -126,7 +173,8 @@ fun MethodItem(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(top = 12.dp, bottom = 12.dp),
+                .padding(top = 12.dp, bottom = 12.dp)
+                .clickable { onClickItem(method.id) },
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
@@ -139,7 +187,8 @@ fun MethodItem(
 
 @Composable
 fun CategoryItem(
-    category: Category
+    category: Category,
+    onClickItem: (Int) -> Unit
 ) {
     Column(
         modifier = Modifier.padding(start = 16.dp, end = 16.dp)
@@ -148,7 +197,8 @@ fun CategoryItem(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(top = 12.dp, bottom = 12.dp),
+                .padding(top = 12.dp, bottom = 12.dp)
+                .clickable { onClickItem(category.id) },
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
@@ -185,7 +235,8 @@ fun AddItem(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(top = 12.dp, bottom = 12.dp),
+                .padding(top = 12.dp, bottom = 12.dp)
+                .clickable { onClickAddButton() },
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {

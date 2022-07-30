@@ -64,4 +64,36 @@ object Setting : AccountDestination {
     override val group = "setting"
 }
 
+object Method : AccountDestination {
+    override val icon = R.drawable.ic_settings
+    override val route = "method"
+    override val title = "결제수단"
+    override val group = "setting"
+
+    const val methodIdArgs = "method_id"
+    val routeWithArgs = "${route}/{${methodIdArgs}}"
+    val arguments = listOf(
+        navArgument(methodIdArgs) { type = NavType.StringType }
+    )
+}
+
+object Category : AccountDestination {
+    override val icon = R.drawable.ic_settings
+    override val route = "category"
+    override val title = "카테고리"
+    override val group = "setting"
+
+    const val categoryIdArgs = "category_id"
+    const val categoryTypeArgs = "category_type"
+    val routeWithArgs = "${route}/{${categoryTypeArgs}}"
+    val routeWithAllArgs = "${route}/{${categoryTypeArgs}}/{${categoryIdArgs}}"
+    val allArguments = listOf(
+        navArgument(categoryIdArgs) { type = NavType.StringType },
+        navArgument(categoryTypeArgs) { type = NavType.StringType }
+    )
+    val arguments = listOf(
+        navArgument(categoryTypeArgs) { type = NavType.StringType }
+    )
+}
+
 val accountBottomTabScreens = listOf(History, Calendar, Graph, Setting)
