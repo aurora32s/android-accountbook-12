@@ -5,6 +5,7 @@ import androidx.annotation.RequiresApi
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -27,6 +28,7 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.seom.accountbook.Detail
 import com.seom.accountbook.model.BaseCount
 import com.seom.accountbook.model.graph.OutComeByCategory
 import com.seom.accountbook.ui.components.DateAppBar
@@ -62,7 +64,9 @@ val mockData = listOf(
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun GraphScreen() {
+fun GraphScreen(
+    onPushNavigate: (String, String) -> Unit
+) {
     DateAppBar(
         onDateChange = {
 
@@ -87,7 +91,10 @@ fun GraphScreen() {
                         .fillMaxWidth()
                 )
                 Spacer(modifier = Modifier.height(24.dp))
-                CategoryList(data = mockData, totalCount = 834640)
+                CategoryList(
+                    data = mockData,
+                    totalCount = 834640,
+                    onItemClick = { onPushNavigate(Detail.route, it.toString()) })
             }
         }
     )
@@ -175,12 +182,16 @@ fun CircleGraphByRate(
 @Composable
 fun CategoryList(
     data: List<OutComeByCategory>,
-    totalCount: Long
+    totalCount: Long,
+    onItemClick: (Int) -> Unit
 ) {
     LazyColumn(
     ) {
         items(items = data) { row ->
-            CategoryOutComeItem(data = row, totalCount = totalCount)
+            CategoryOutComeItem(
+                data = row,
+                totalCount = totalCount,
+                modifier = Modifier.clickable { onItemClick(row.id) })
         }
         item {
             Divider(
@@ -195,13 +206,16 @@ fun CategoryList(
 @Composable
 fun CategoryOutComeItem(
     data: OutComeByCategory,
-    totalCount: Long
+    totalCount: Long,
+    modifier: Modifier = Modifier
 ) {
     Column(
-        modifier = Modifier.padding(start = 16.dp, end = 16.dp)
+        modifier = modifier.padding(start = 16.dp, end = 16.dp)
     ) {
         Row(
-            modifier = Modifier.fillMaxWidth().padding(top = 8.dp, bottom = 8.dp),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = 8.dp, bottom = 8.dp),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
@@ -223,7 +237,10 @@ fun CategoryOutComeItem(
                 )
                 Text(
                     text = data.count.toMoney(),
-                    style = MaterialTheme.typography.caption.copy(fontWeight = FontWeight(500), color = ColorPalette.Purple),
+                    style = MaterialTheme.typography.caption.copy(
+                        fontWeight = FontWeight(500),
+                        color = ColorPalette.Purple
+                    ),
                     modifier = Modifier.padding(start = 8.dp)
                 )
             }

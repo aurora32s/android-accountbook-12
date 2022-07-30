@@ -20,14 +20,14 @@ object History : AccountDestination {
 }
 
 object Post : AccountDestination {
-    override val icon = R.drawable.ic_settings
+    override val icon = R.drawable.ic_history
     override val route = "post"
-    override val title = "설정"
+    override val title = "작성"
     override val group = "history"
     const val postIdArg = "post_id"
     val routeWithArgs = "${route}/{${postIdArg}}"
     val arguments = listOf(
-        navArgument(postIdArg){ type = NavType.StringType }
+        navArgument(postIdArg) { type = NavType.StringType }
     )
 }
 
@@ -43,6 +43,18 @@ object Graph : AccountDestination {
     override val route = "graph"
     override val title = "통계"
     override val group = "graph"
+}
+
+object Detail : AccountDestination {
+    override val icon = R.drawable.ic_graph
+    override val route = "detail"
+    override val title = "상세"
+    override val group = "graph"
+    const val categoryIdArgs = "category_id"
+    val routeWithArgs = "${Detail.route}/{${categoryIdArgs}}"
+    val arguments = listOf(
+        navArgument(categoryIdArgs) { type = NavType.StringType }
+    )
 }
 
 object Setting : AccountDestination {
