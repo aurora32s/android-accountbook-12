@@ -146,21 +146,6 @@ fun CircleGraphByRate(
             360f
         }
     }
-    val shift by transition.animateFloat(
-        transitionSpec = {
-            tween(
-                delayMillis = 500,
-                durationMillis = 900,
-                easing = CubicBezierEasing(0f, 0.75f, 0.35f, 0.85f)
-            )
-        }
-    ) { progress ->
-        if (progress == AnimatedCircleProgress.START) {
-            0f
-        } else {
-            30f
-        }
-    }
 
     Canvas(modifier) {
         val innerRadius = (size.minDimension - stroke.width) / 2
