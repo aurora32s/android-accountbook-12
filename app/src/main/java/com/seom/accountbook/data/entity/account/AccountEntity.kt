@@ -8,8 +8,8 @@ data class AccountEntity(
     val month: Int, // 월
     val date: Int, // 일
     val count: Int, // 금액
-    val methodId: Int, // 결제수단 id
-    val categoryId: Int, // 카테고리 id
+    val methodId: Int? = null, // 결제수단 id
+    val categoryId: Int? = null, // 카테고리 id
     val type: Int // 0: 수입, 1: 지출
 ): BaseColumns {
     companion object {

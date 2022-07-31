@@ -58,6 +58,7 @@ import java.util.*
 @Composable
 fun PostScreen(
     postId: String? = null,
+    viewModel: PostViewModel,
     onBackButtonPressed: () -> Unit
 ) {
     val postMode = postId.isNullOrBlank()
@@ -166,7 +167,7 @@ fun PostScreen(
                     onChangeCategory = { category = it },
                     onChangeMethod = { method = it },
                     onSubmit = {
-                        onBackButtonPressed()
+                        viewModel.addAccount()
                     }
                 )
             }
