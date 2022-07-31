@@ -55,7 +55,9 @@ fun AccountNavigationHost(
             )
         }
         composable(route = Setting.route) {
-            SettingScreen { route, args ->
+            SettingScreen(
+                viewModel = viewModel()
+            ) { route, args ->
                 navController.navigateSingleTop(route, args)
             }
         }
@@ -91,7 +93,9 @@ fun AccountNavigationHost(
         composable(
             route = Method.route
         ) {
-            MethodAddScreen {
+            MethodAddScreen(
+                viewModel = viewModel()
+            ) {
                 navController.popBackStack()
             }
         }
@@ -101,7 +105,10 @@ fun AccountNavigationHost(
             arguments = Method.arguments
         ) { navBackStackEntry ->
             val methodId = navBackStackEntry.arguments?.getString(Method.methodIdArgs)
-            MethodAddScreen(methodId) {
+            MethodAddScreen(
+                methodId = methodId,
+                viewModel = viewModel()
+            ) {
                 navController.popBackStack()
             }
         }
@@ -114,6 +121,7 @@ fun AccountNavigationHost(
             CategoryAddScreen(
                 null,
                 HistoryType.getHistoryType(categoryType?.toInt() ?: 0),
+                viewModel = viewModel()
             ) {
                 navController.popBackStack()
             }
@@ -128,6 +136,7 @@ fun AccountNavigationHost(
             CategoryAddScreen(
                 categoryId,
                 HistoryType.getHistoryType(categoryType?.toInt() ?: 0),
+                viewModel = viewModel()
             ) {
                 navController.popBackStack()
             }

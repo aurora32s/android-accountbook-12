@@ -1,8 +1,13 @@
 package com.seom.accountbook.data.local
 
+import android.content.ContentValues
 import android.content.Context
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
+import com.seom.accountbook.data.entity.category.CategoryEntity
+import com.seom.accountbook.data.entity.method.MethodEntity
+import com.seom.accountbook.di.provideAccountDao
+import com.seom.accountbook.di.provideCategoryDao
 
 class AppDatabase(context: Context) :
     SQLiteOpenHelper(context, DATABASE_NAME, null, DATABASE_VERSION) {
@@ -17,6 +22,22 @@ class AppDatabase(context: Context) :
         db.execSQL(MethodDao.CREATE_TABLE)
         db.execSQL(CategoryDao.CREATE_TABLE)
         db.execSQL(AccountDao.CREATE_TABLE)
+
+        // 기본 데이터 추가
+        CategoryDao.INIT_DATA.forEach {
+            val values = ContentValues().apply {
+                put(CategoryEntity.COLUMN_NAME_NAME, it.name)
+                put(CategoryEntity.COLUMN_NAME_COLOR, it.color)
+                put(CategoryEntity.COLUMN_NAME_TYPE, it.type)
+            }
+            db.insertOrThrow(CategoryDao.TABLE_NAME, null, values)
+        }
+        MethodDao.INIT_DATA.forEach {
+            val values = ContentValues().apply {
+                put(MethodEntity.COLUMN_NAME_NAME, it.name)
+            }
+            db.insertOrThrow(MethodDao.TABLE_NAME, null, values)
+        }
     }
 
     override fun onUpgrade(p0: SQLiteDatabase?, p1: Int, p2: Int) {

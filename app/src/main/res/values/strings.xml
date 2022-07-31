@@ -4,6 +4,21 @@
     <!-- history -->
     <string name="type_history_income">수입</string>
     <string name="type_history_outcome">지출</string>
+
+    <!-- post -->
     <string name="error_account_add">정보를 저장하는 도중 문제가 발생했어요.ð</string>
     <string name="error_account_get">정보를 가져오는 도중 문제가 발생했어요.ð</string>
+
+    <!-- category -->
+    <string name="error_category_add">카테고리를 추가하는 도중 문제가 발생했어요.</string>
+    <string name="error_category_get">카테고리 정보를 가져오는 도중 문제가 발생했어요.</string>
+
+    <!-- setting -->
+    <string name="error_setting_method_get">결제수단 정보를 가져오는 도중 문제가 발생하였습니다.</string>
+    <string name="error_setting_category_get">카테고리 정보를 가져오는 도중 문제가 발생하였습니다.</string>
+
+    <!-- method -->
+    <string name="error_method_add">결제 수단 정보를 추가하는 도중 문제가 발생했어요.</string>
+    <string name="error_method_get">결제 수단 정보를 가져오는 도중 문제가 발생했어요.</string>
+
 </resources>

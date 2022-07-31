@@ -28,6 +28,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.toSize
 import com.seom.accountbook.Category
 import com.seom.accountbook.R
+import com.seom.accountbook.data.entity.category.CategoryEntity
+import com.seom.accountbook.data.entity.method.MethodEntity
 import com.seom.accountbook.model.BaseModel
 import com.seom.accountbook.model.category.CategoryModel
 import com.seom.accountbook.model.history.HistoryType
@@ -35,9 +37,6 @@ import com.seom.accountbook.model.method.MethodModel
 import com.seom.accountbook.ui.components.BackButtonAppBar
 import com.seom.accountbook.ui.components.CustomBottomSheet
 import com.seom.accountbook.ui.components.datesheet.FullDateBottomSheet
-import com.seom.accountbook.ui.screen.setting.incomeMock
-import com.seom.accountbook.ui.screen.setting.methodMock
-import com.seom.accountbook.ui.screen.setting.outcomeMock
 import com.seom.accountbook.ui.theme.ColorPalette
 import com.seom.accountbook.util.ext.*
 import kotlinx.coroutines.coroutineScope
@@ -50,7 +49,6 @@ import java.util.*
  */
 
 @RequiresApi(Build.VERSION_CODES.O)
-@OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun PostScreen(
     postId: String? = null,
@@ -59,14 +57,35 @@ fun PostScreen(
 ) {
     val isModifyMode = postId.isNullOrBlank().not()
     val observeData = viewModel.postUiState.collectAsState()
-    when (observeData.value) {
+    when (val result = observeData.value) {
         PostUiState.UnInitialized -> viewModel.fetchAccount(postId = postId?.toLong())
         PostUiState.Loading -> {}
-        PostUiState.Success.FetchAccount -> {}
+        is PostUiState.Success.FetchAccount -> {
+            Body(
+                isModifyMode = isModifyMode,
+                viewModel = viewModel,
+                methods = result.methods,
+                incomeCategories = result.incomeCategories,
+                outcomeCategories = result.outcomeCategories,
+                onBackButtonPressed = onBackButtonPressed
+            )
+        }
         PostUiState.Success.AddAccount -> onBackButtonPressed()
         is PostUiState.Error -> {}
     }
+}
 
+@RequiresApi(Build.VERSION_CODES.O)
+@OptIn(ExperimentalMaterialApi::class)
+@Composable
+fun Body(
+    isModifyMode: Boolean,
+    viewModel: PostViewModel,
+    methods: List<MethodEntity>,
+    incomeCategories: List<CategoryEntity>,
+    outcomeCategories: List<CategoryEntity>,
+    onBackButtonPressed: () -> Unit
+) {
     val bottomSheetState =
         rememberModalBottomSheetState(initialValue = ModalBottomSheetValue.Hidden)
     val coroutineScope = rememberCoroutineScope()
@@ -100,7 +119,7 @@ fun PostScreen(
             topBar = {
                 BackButtonAppBar(
                     title = if (isModifyMode) "내역 수정" else "내역 등록",
-                    onClickBackBtn = { onBackButtonPressed() }
+                    onClickBackBtn = onBackButtonPressed
                 )
             }
         ) {
@@ -115,8 +134,8 @@ fun PostScreen(
                 )
                 PostBody(
                     isModifyMode = isModifyMode,
-                    methods = methodMock,
-                    categories = if (type.value == HistoryType.INCOME) incomeMock else outcomeMock,
+                    methods = methods,
+                    categories = if (type.value == HistoryType.INCOME) incomeCategories else outcomeCategories,
                     currentSelectedTab = type,
                     openDatePicker = {
                         coroutineScope.launch {
@@ -139,6 +158,7 @@ fun PostScreen(
         }
     }
 }
+
 
 // TODO 재활용할 수 있도록 수정하자
 @Composable
@@ -200,17 +220,17 @@ fun HistoryTypeItm(
 @Composable
 fun PostBody(
     isModifyMode: Boolean,
-    methods: List<MethodModel>,
-    categories: List<CategoryModel>,
+    methods: List<MethodEntity>,
+    categories: List<CategoryEntity>,
     currentSelectedTab: State<HistoryType>,
     openDatePicker: () -> Unit,
     date: State<LocalDate>,
     count: State<Int>,
     onChangeCount: (Int) -> Unit,
     methodId: State<Long?>,
-    onChangeMethodId: (Long) -> Unit,
+    onChangeMethodId: (Long?) -> Unit,
     categoryId: State<Long?>,
-    onChangeCategoryId: (Long) -> Unit,
+    onChangeCategoryId: (Long?) -> Unit,
     content: State<String>,
     onChangeContent: (String) -> Unit,
     modifier: Modifier = Modifier,
@@ -381,7 +401,7 @@ fun ContentInput(
 @Composable
 fun ExposedDropdownBox(
     selectedOptionId: Long,
-    onOptionSelected: (Long) -> Unit,
+    onOptionSelected: (Long?) -> Unit,
     options: List<BaseModel>
 ) {
     var expanded by remember { mutableStateOf(false) }

@@ -99,7 +99,7 @@ class AccountDao(
             "1"
         )
 
-        return cursor?.let {
+        return cursor?.use {
             cursor.moveToFirst()
             AccountEntity(
                 id = cursor.getLong(0),
