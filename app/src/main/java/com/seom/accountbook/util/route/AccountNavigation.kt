@@ -93,7 +93,9 @@ fun AccountNavigationHost(
         composable(
             route = Method.route
         ) {
-            MethodAddScreen {
+            MethodAddScreen(
+                viewModel = viewModel()
+            ) {
                 navController.popBackStack()
             }
         }
@@ -103,7 +105,10 @@ fun AccountNavigationHost(
             arguments = Method.arguments
         ) { navBackStackEntry ->
             val methodId = navBackStackEntry.arguments?.getString(Method.methodIdArgs)
-            MethodAddScreen(methodId) {
+            MethodAddScreen(
+                methodId = methodId,
+                viewModel = viewModel()
+            ) {
                 navController.popBackStack()
             }
         }

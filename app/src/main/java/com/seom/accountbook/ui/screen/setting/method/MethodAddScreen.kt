@@ -15,15 +15,42 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.seom.accountbook.R
 import com.seom.accountbook.ui.components.OneButtonAppBar
+import com.seom.accountbook.ui.screen.setting.category.CategoryUiState
+import com.seom.accountbook.ui.screen.setting.category.SettingBody
 import com.seom.accountbook.ui.theme.ColorPalette
 
 @Composable
 fun MethodAddScreen(
     methodId: String? = null,
+    viewModel: MethodViewModel,
     onBackButtonPressed: () -> Unit
 ) {
-    val modeTitle = if (methodId.isNullOrBlank()) "추가하기" else "수정하기"
-    var name by remember { mutableStateOf("") }
+    val observeData = viewModel.methodUiState.collectAsState()
+    when (observeData.value) {
+        MethodUiState.UnInitialized -> viewModel.fetchCategory(
+            methodId = methodId?.toLong()
+        )
+        MethodUiState.Loading -> {}
+        MethodUiState.Success.AddMethod -> onBackButtonPressed()
+        MethodUiState.Success.FetchMethod -> {
+            MethodBody(
+                isModifyMode = methodId.isNullOrBlank().not(),
+                viewModel = viewModel,
+                onBackButtonPressed = onBackButtonPressed
+            )
+        }
+        is MethodUiState.Error -> {}
+    }
+}
+
+@Composable
+fun MethodBody(
+    isModifyMode: Boolean,
+    viewModel: MethodViewModel,
+    onBackButtonPressed: () -> Unit
+) {
+    val modeTitle = if (isModifyMode) "수정하기" else "추가하기"
+    var name = viewModel.name.collectAsState()
 
     Scaffold(topBar = {
         OneButtonAppBar(title = "결제 수단 $modeTitle") {
@@ -39,10 +66,10 @@ fun MethodAddScreen(
                 thickness = 1.dp
             )
             InputField(title = "이름") {
-                Input(content = name, onValueChange = { name = it })
+                Input(content = name.value, onValueChange = viewModel::setName)
             }
             Button(
-                onClick = { onBackButtonPressed() },
+                onClick = viewModel::addCategory,
                 modifier = Modifier
                     .align(Alignment.BottomStart)
                     .fillMaxWidth()
@@ -51,7 +78,7 @@ fun MethodAddScreen(
                     backgroundColor = ColorPalette.Yellow,
                     disabledBackgroundColor = ColorPalette.Yellow50
                 ),
-                enabled = name.isNullOrBlank().not()
+                enabled = name.value.isBlank().not()
             ) {
                 Text(
                     text = "등록하기",
