@@ -14,7 +14,7 @@ import com.seom.accountbook.ui.components.numberpicker.OutlinedNumberPicker
 import com.seom.accountbook.ui.theme.ColorPalette
 import com.seom.accountbook.util.NOW
 import com.seom.accountbook.util.ext.dayOfWeekText
-import com.seom.accountbook.util.getMaxDate
+import com.seom.accountbook.util.ext.getLastDate
 import java.time.LocalDate
 
 /**
@@ -31,6 +31,7 @@ fun FullDateBottomSheet(
     val selectedYear = remember { mutableStateOf(currentDate.year) }
     val selectedMonth = remember { mutableStateOf(currentDate.month.value) }
     val selectedDate = remember { mutableStateOf(currentDate.dayOfMonth) }
+    val lastDate = LocalDate.of(selectedYear.value, selectedMonth.value,1).getLastDate()
 
     BasicDateBottomSheet(
         modifier = modifier,
@@ -59,11 +60,10 @@ fun FullDateBottomSheet(
             spacer = 8,
             text = "월"
         )
-        println(selectedMonth.value.getMaxDate())
         OutlinedNumberPicker(
             state = selectedDate,
             minValue = 1,
-            maxValue = selectedMonth.value.getMaxDate(),
+            maxValue = lastDate,
             spacer = 8,
             text = "일"
         )
@@ -72,8 +72,8 @@ fun FullDateBottomSheet(
                 LocalDate.of(
                     selectedYear.value,
                     selectedMonth.value,
-                    if (selectedDate.value > selectedMonth.value.getMaxDate())
-                        selectedMonth.value.getMaxDate()
+                    if (selectedDate.value > lastDate)
+                        lastDate
                     else selectedDate.value
                 ).dayOfWeekText()
             }요일",

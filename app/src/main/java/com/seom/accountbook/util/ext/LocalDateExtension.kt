@@ -18,3 +18,6 @@ fun LocalDate.fullFormat(): String {
 
 @RequiresApi(Build.VERSION_CODES.O)
 fun LocalDate.dayOfWeekText() = this.dayOfWeek.getDisplayName(TextStyle.SHORT, Locale.getDefault())
+
+@RequiresApi(Build.VERSION_CODES.O)
+fun LocalDate.getLastDate() = this.withDayOfMonth(lengthOfMonth()).dayOfMonth
