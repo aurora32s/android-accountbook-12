@@ -21,35 +21,34 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.seom.accountbook.R
-import com.seom.accountbook.model.category.Category
+import com.seom.accountbook.model.category.CategoryModel
 import com.seom.accountbook.model.history.HistoryType
-import com.seom.accountbook.model.method.Method
+import com.seom.accountbook.model.method.MethodModel
 import com.seom.accountbook.ui.theme.ColorPalette
 
 val methodMock = listOf(
-    Method(id = 0, name = "현대카드"),
-    Method(id = 1, name = "카카오뱅크 체크카드")
+    MethodModel(id = 0, name = "현대카드"),
+    MethodModel(id = 1, name = "카카오뱅크 체크카드")
 )
 
 val outcomeMock = listOf(
-    Category(id = 0, name = "교통", categoryColor = 0xFF94D3CC),
-    Category(id = 0, name = "문화/여가", categoryColor = 0xFFD092E2),
-    Category(id = 0, name = "미분류", categoryColor = 0xFF817DCE),
-    Category(id = 0, name = "생활", categoryColor = 0xFF4A6CC3),
-    Category(id = 0, name = "쇼핑/뷰티", categoryColor = 0xFF4CB8B8),
-    Category(id = 0, name = "식비", categoryColor = 0xFF4CA1DE),
-    Category(id = 0, name = "의료/건강", categoryColor = 0xFF6ED5EB)
+    CategoryModel(id = 0, name = "교통", categoryColor = 0xFF94D3CC),
+    CategoryModel(id = 1, name = "문화/여가", categoryColor = 0xFFD092E2),
+    CategoryModel(id = 2, name = "미분류", categoryColor = 0xFF817DCE),
+    CategoryModel(id = 3, name = "생활", categoryColor = 0xFF4A6CC3),
+    CategoryModel(id = 4, name = "쇼핑/뷰티", categoryColor = 0xFF4CB8B8),
+    CategoryModel(id = 5, name = "식비", categoryColor = 0xFF4CA1DE),
+    CategoryModel(id = 6, name = "의료/건강", categoryColor = 0xFF6ED5EB)
 )
 
 val incomeMock = listOf(
-    Category(id = 0, name = "월급", categoryColor = 0xFF9BD182),
-    Category(id = 0, name = "용돈", categoryColor = 0xFFEDCF65),
-    Category(id = 0, name = "기타", categoryColor = 0xFFE29C4D)
+    CategoryModel(id = 0, name = "월급", categoryColor = 0xFF9BD182),
+    CategoryModel(id = 1, name = "용돈", categoryColor = 0xFFEDCF65),
+    CategoryModel(id = 2, name = "기타", categoryColor = 0xFFE29C4D)
 )
 
 @Composable
@@ -163,8 +162,8 @@ fun Header(
 
 @Composable
 fun MethodItem(
-    method: Method,
-    onClickItem: (Int) -> Unit
+    method: MethodModel,
+    onClickItem: (Long) -> Unit
 ) {
     Column(
         modifier = Modifier.padding(start = 16.dp, end = 16.dp)
@@ -187,8 +186,8 @@ fun MethodItem(
 
 @Composable
 fun CategoryItem(
-    category: Category,
-    onClickItem: (Int) -> Unit
+    category: CategoryModel,
+    onClickItem: (Long) -> Unit
 ) {
     Column(
         modifier = Modifier.padding(start = 16.dp, end = 16.dp)

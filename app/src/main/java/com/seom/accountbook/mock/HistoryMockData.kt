@@ -29,7 +29,7 @@ val histories = hashMapOf<String, List<History>>(
                     method = "현대카드",
                     categoryName = "미분류",
                     categoryColor = 0xFFECECEC,
-                    type = HistoryType.getHistoryType(it % 2)
+                    type = HistoryType.OUTCOME
                 )
             )
         }

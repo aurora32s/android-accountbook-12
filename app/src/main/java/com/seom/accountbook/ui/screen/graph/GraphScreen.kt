@@ -183,7 +183,7 @@ fun CircleGraphByRate(
 fun CategoryList(
     data: List<OutComeByCategory>,
     totalCount: Long,
-    onItemClick: (Int) -> Unit
+    onItemClick: (Long) -> Unit
 ) {
     LazyColumn(
     ) {

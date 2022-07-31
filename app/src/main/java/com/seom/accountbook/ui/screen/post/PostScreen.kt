@@ -1,10 +1,7 @@
 package com.seom.accountbook.ui.screen.post
 
 import android.os.Build
-import android.view.LayoutInflater
-import android.widget.GridLayout
 import androidx.annotation.RequiresApi
-import androidx.compose.animation.core.exponentialDecay
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -16,12 +13,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
-import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.onGloballyPositioned
-import androidx.compose.ui.modifier.modifierLocalConsumer
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -31,20 +26,21 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.toSize
-import androidx.compose.ui.viewinterop.AndroidView
-import androidx.navigation.NavController
-import com.seom.accountbook.AccountApp
+import com.seom.accountbook.Category
 import com.seom.accountbook.R
 import com.seom.accountbook.model.BaseModel
-import com.seom.accountbook.model.category.Category
+import com.seom.accountbook.model.category.CategoryModel
 import com.seom.accountbook.model.history.HistoryType
-import com.seom.accountbook.model.method.Method
+import com.seom.accountbook.model.method.MethodModel
+import com.seom.accountbook.ui.components.BackButtonAppBar
 import com.seom.accountbook.ui.components.CustomBottomSheet
-import com.seom.accountbook.ui.components.NumberPicker
-import com.seom.accountbook.ui.components.OneButtonAppBar
+import com.seom.accountbook.ui.components.datesheet.FullDateBottomSheet
+import com.seom.accountbook.ui.screen.setting.incomeMock
+import com.seom.accountbook.ui.screen.setting.methodMock
+import com.seom.accountbook.ui.screen.setting.outcomeMock
 import com.seom.accountbook.ui.theme.ColorPalette
 import com.seom.accountbook.util.ext.*
-import com.seom.accountbook.util.getMaxDate
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import java.time.LocalDate
 import java.util.*
@@ -58,52 +54,42 @@ import java.util.*
 @Composable
 fun PostScreen(
     postId: String? = null,
+    viewModel: PostViewModel,
     onBackButtonPressed: () -> Unit
 ) {
-    val postMode = postId.isNullOrBlank()
-    var currentSelectedTab by remember { mutableStateOf(HistoryType.INCOME) }
+    val isModifyMode = postId.isNullOrBlank().not()
+    val observeData = viewModel.postUiState.collectAsState()
+    when (observeData.value) {
+        PostUiState.UnInitialized -> viewModel.fetchAccount(postId = postId?.toLong())
+        PostUiState.Loading -> {}
+        PostUiState.Success.FetchAccount -> {}
+        PostUiState.Success.AddAccount -> onBackButtonPressed()
+        is PostUiState.Error -> {}
+    }
 
-    val bottomSheetState = rememberModalBottomSheetState(ModalBottomSheetValue.Hidden)
+    val bottomSheetState =
+        rememberModalBottomSheetState(initialValue = ModalBottomSheetValue.Hidden)
     val coroutineScope = rememberCoroutineScope()
 
-    var current by remember { mutableStateOf(LocalDate.now()) }
-    var money by remember { mutableStateOf(0) }
-    var content by remember { mutableStateOf("") }
-    var category by remember { mutableStateOf<Int>(-1) }
-    var method by remember { mutableStateOf<Int>(-1) }
-
-    val year = current.year
-    val month = current.month.value
-    val date = current.dayOfMonth
-
-    val maxYear = year
-    val maxMonth = month
-    val minYear = year - 30
-
-    val selectYear = remember { mutableStateOf(year) }
-    val selectMonth = remember { mutableStateOf(month) }
-    val selectedDate = remember { mutableStateOf(date) }
+    val type = viewModel.type.collectAsState()
+    val date = viewModel.date.collectAsState()
+    val count = viewModel.count.collectAsState()
+    val methodId = viewModel.methodId.collectAsState()
+    val categoryId = viewModel.categoryId.collectAsState()
+    val content = viewModel.content.collectAsState()
 
     CustomBottomSheet(
         sheetState = bottomSheetState,
         sheetContent = {
-            DatePickerBottomSheet(
-                year = selectYear,
-                month = selectMonth,
-                date = selectedDate,
-                maxYear = maxYear,
-                minYear = minYear,
-                onCloseBottomSheet = {
+            FullDateBottomSheet(
+                currentDate = date.value,
+                onClickCloseBtn = {
                     coroutineScope.launch {
                         bottomSheetState.hide()
                     }
                 },
-                onClickConfirmBtn = {
-                    current = LocalDate.of(
-                        selectYear.value,
-                        selectMonth.value,
-                        selectedDate.value
-                    )
+                onChangeDate = {
+                    viewModel.setDate(it)
                     coroutineScope.launch {
                         bottomSheetState.hide()
                     }
@@ -112,62 +98,42 @@ fun PostScreen(
         }) {
         Scaffold(
             topBar = {
-                OneButtonAppBar(title = if (postMode) "내역 등록" else "내역 수정") {
-                    Image(
-                        painter = painterResource(id = R.drawable.ic_back),
-                        contentDescription = null,
-                        modifier = Modifier.clickable {
-                            onBackButtonPressed()
-                        })
-                }
+                BackButtonAppBar(
+                    title = if (isModifyMode) "내역 수정" else "내역 등록",
+                    onClickBackBtn = { onBackButtonPressed() }
+                )
             }
         ) {
             Column {
-                Divider(
-                    color = ColorPalette.Purple,
-                    thickness = 1.dp
-                )
                 PostTopTab(
-                    currentSelectedTab = currentSelectedTab,
-                    onTabSelected = { if (postMode) currentSelectedTab = it },
+                    currentSelectedTab = type,
+                    onTabSelected = {
+                        viewModel.setType(it)
+                        viewModel.setCategoryId(null)
+                    },
                     modifier = Modifier.padding(16.dp)
                 )
                 PostBody(
-                    currentSelectedTab = currentSelectedTab,
-                    modifier = Modifier.fillMaxHeight(),
-                    onOpenDatePicker = {
+                    isModifyMode = isModifyMode,
+                    methods = methodMock,
+                    categories = if (type.value == HistoryType.INCOME) incomeMock else outcomeMock,
+                    currentSelectedTab = type,
+                    openDatePicker = {
                         coroutineScope.launch {
                             bottomSheetState.show()
                         }
                     },
-                    date = current,
-                    money = money,
+                    date = date,
+                    count = count,
+                    onChangeCount = viewModel::setCount,
+                    methodId = methodId,
+                    onChangeMethodId = viewModel::setMethodID,
+                    categoryId = categoryId,
+                    onChangeCategoryId = viewModel::setCategoryId,
                     content = content,
-                    selectedCategory = category,
-                    selectedMethodId = method,
-                    categories = listOf(
-                        Category(
-                            id = 0,
-                            name = "분류 1",
-                            categoryColor = 0xFF524D90
-                        ),
-                        Category(
-                            id = 1,
-                            name = "분류 2",
-                            categoryColor = 0xFFA79FCB
-                        )
-                    ),
-                    methods = listOf(
-                        Method(id = 0, name = "방법 1"),
-                        Method(id = 1, name = "방법 2")
-                    ),
-                    onChangeMoney = { money = it },
-                    onChangeContent = { content = it },
-                    onChangeCategory = { category = it },
-                    onChangeMethod = { method = it },
-                    onSubmit = {
-                        onBackButtonPressed()
-                    }
+                    onChangeContent = viewModel::setContent,
+                    onSubmit = { viewModel.addAccount() },
+                    modifier = Modifier.fillMaxSize()
                 )
             }
         }
@@ -177,7 +143,7 @@ fun PostScreen(
 // TODO 재활용할 수 있도록 수정하자
 @Composable
 fun PostTopTab(
-    currentSelectedTab: HistoryType,
+    currentSelectedTab: State<HistoryType>,
     onTabSelected: (HistoryType) -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -194,7 +160,7 @@ fun PostTopTab(
             HistoryType.values().forEach {
                 HistoryTypeItm(
                     type = it,
-                    selected = it == currentSelectedTab,
+                    selected = it == currentSelectedTab.value,
                     modifier = Modifier
                         .weight(1f)
                         .clickable { onTabSelected(it) })
@@ -233,24 +199,25 @@ fun HistoryTypeItm(
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun PostBody(
-    currentSelectedTab: HistoryType,
-    modifier: Modifier = Modifier,
-    onOpenDatePicker: () -> Unit,
-    date: LocalDate,
-    money: Int,
-    content: String,
-    selectedMethodId: Int,
-    selectedCategory: Int,
-    methods: List<Method>,
-    categories: List<Category>,
-    onChangeMoney: (Int) -> Unit,
+    isModifyMode: Boolean,
+    methods: List<MethodModel>,
+    categories: List<CategoryModel>,
+    currentSelectedTab: State<HistoryType>,
+    openDatePicker: () -> Unit,
+    date: State<LocalDate>,
+    count: State<Int>,
+    onChangeCount: (Int) -> Unit,
+    methodId: State<Long?>,
+    onChangeMethodId: (Long) -> Unit,
+    categoryId: State<Long?>,
+    onChangeCategoryId: (Long) -> Unit,
+    content: State<String>,
     onChangeContent: (String) -> Unit,
-    onChangeCategory: (Int) -> Unit,
-    onChangeMethod: (Int) -> Unit,
+    modifier: Modifier = Modifier,
     onSubmit: () -> Unit
 ) {
     val isAbleSubmit =
-        money > 0 && (currentSelectedTab == HistoryType.INCOME || selectedMethodId >= 0)
+        count.value > 0 && (currentSelectedTab.value == HistoryType.INCOME || methodId.value != null)
 
     Box(
         modifier = modifier
@@ -261,28 +228,28 @@ fun PostBody(
                 .padding(start = 16.dp, end = 16.dp, top = 8.dp)
         ) {
             AccountInputField(title = "일자") {
-                DateInput(selectedDate = date, modifier = Modifier.clickable {
-                    onOpenDatePicker()
+                DateInput(selectedDate = date.value, modifier = Modifier.clickable {
+                    openDatePicker()
                 })
             }
             AccountInputField(title = "금액") {
                 MoneyInput(
-                    money = money,
-                    onValueChange = { it?.let { onChangeMoney(it) } })
+                    money = count.value,
+                    onValueChange = { it?.let { onChangeCount(it) } })
             }
-            if (currentSelectedTab == HistoryType.OUTCOME) {
+            if (currentSelectedTab.value == HistoryType.OUTCOME) {
                 AccountInputField(title = "결제 수단") {
                     ExposedDropdownBox(
-                        selectedOptionId = selectedMethodId,
-                        onOptionSelected = { onChangeMethod(it) },
+                        selectedOptionId = methodId.value ?: -1,
+                        onOptionSelected = onChangeMethodId,
                         options = methods
                     )
                 }
             }
             AccountInputField(title = "분류") {
                 ExposedDropdownBox(
-                    selectedOptionId = selectedCategory,
-                    onOptionSelected = { onChangeCategory(it) },
+                    selectedOptionId = categoryId.value ?: -1,
+                    onOptionSelected = onChangeCategoryId,
                     options = categories
                 )
             }
@@ -303,7 +270,7 @@ fun PostBody(
             enabled = isAbleSubmit
         ) {
             Text(
-                text = "등록하기",
+                text = if (isModifyMode) "수정하기" else "등록하기",
                 style = MaterialTheme.typography.caption.copy(
                     fontWeight = FontWeight(700),
                     color = ColorPalette.White
@@ -393,16 +360,16 @@ fun MoneyInput(
 
 @Composable
 fun ContentInput(
-    content: String,
+    content: State<String>,
     onValueChange: (String) -> Unit
 ) {
     Box() {
         BasicTextField(
-            value = content,
+            value = content.value,
             onValueChange = { onValueChange(it) },
             textStyle = MaterialTheme.typography.caption.copy(color = ColorPalette.Purple),
         )
-        if (content.isBlank()) {
+        if (content.value.isBlank()) {
             Text(
                 text = "입력하세요.",
                 style = MaterialTheme.typography.caption.copy(color = ColorPalette.LightPurple)
@@ -411,114 +378,10 @@ fun ContentInput(
     }
 }
 
-@RequiresApi(Build.VERSION_CODES.O)
-@Composable
-fun DatePickerBottomSheet(
-    year: MutableState<Int>,
-    month: MutableState<Int>,
-    date: MutableState<Int>,
-    maxYear: Int,
-    minYear: Int,
-    onCloseBottomSheet: () -> Unit,
-    onClickConfirmBtn: () -> Unit
-) {
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(
-                start = 16.dp,
-                top = 20.dp,
-                bottom = 16.dp,
-                end = 16.dp
-            )
-    ) {
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-            Text(
-                text = "날짜 선택",
-                style = MaterialTheme.typography.body2,
-                color = ColorPalette.Purple,
-                fontWeight = FontWeight(700)
-            )
-            Image(
-                painter = painterResource(id = R.drawable.ic_close),
-                contentDescription = null,
-                colorFilter = ColorFilter.tint(ColorPalette.Purple),
-                modifier = Modifier.clickable {
-                    onCloseBottomSheet()
-                }
-            )
-        }
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(10.dp),
-            horizontalArrangement = Arrangement.Center,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            NumberPicker(
-                state = year,
-                range = minYear..maxYear
-            )
-            Spacer(modifier = Modifier.width(8.dp))
-            Text(
-                text = "년",
-                style = MaterialTheme.typography.caption,
-                color = ColorPalette.LightPurple
-            )
-            Spacer(modifier = Modifier.width(8.dp))
-            NumberPicker(
-                state = month,
-                range = 1..12
-            )
-            Spacer(modifier = Modifier.width(8.dp))
-            Text(
-                text = "월",
-                style = MaterialTheme.typography.caption,
-                color = ColorPalette.LightPurple
-            )
-            Spacer(modifier = Modifier.width(8.dp))
-            NumberPicker(
-                state = date,
-                range = 1..month.value.getMaxDate()
-            )
-            Spacer(modifier = Modifier.width(8.dp))
-            Text(
-                text = "일",
-                style = MaterialTheme.typography.caption,
-                color = ColorPalette.LightPurple
-            )
-            Spacer(modifier = Modifier.width(8.dp))
-            Text(
-                text = "${
-                    LocalDate.of(year.value, month.value, date.value).dayOfWeekText()
-                }요일",
-                style = MaterialTheme.typography.caption,
-                color = ColorPalette.LightPurple
-            )
-        }
-        Button(
-            onClick = { onClickConfirmBtn() },
-            modifier = Modifier
-                .clip(RoundedCornerShape(16.dp))
-                .fillMaxWidth(),
-            colors = ButtonDefaults.buttonColors(backgroundColor = ColorPalette.Yellow)
-        ) {
-            Text(
-                text = "조회",
-                style = MaterialTheme.typography.caption,
-                color = ColorPalette.White
-            )
-        }
-    }
-}
-
 @Composable
 fun ExposedDropdownBox(
-    selectedOptionId: Int,
-    onOptionSelected: (Int) -> Unit,
+    selectedOptionId: Long,
+    onOptionSelected: (Long) -> Unit,
     options: List<BaseModel>
 ) {
     var expanded by remember { mutableStateOf(false) }
@@ -623,7 +486,7 @@ fun ExposedDropdownBox(
 
 @Composable
 fun CategoryChip(
-    category: Category?,
+    category: CategoryModel?,
     modifier: Modifier = Modifier
 ) {
     Text(

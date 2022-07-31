@@ -1,7 +1,10 @@
 package com.seom.accountbook.util
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavArgument
 import androidx.navigation.NavController
 import androidx.navigation.NavHostController
@@ -14,10 +17,12 @@ import com.seom.accountbook.ui.screen.detail.DetailScreen
 import com.seom.accountbook.ui.screen.graph.GraphScreen
 import com.seom.accountbook.ui.screen.history.HistoryScreen
 import com.seom.accountbook.ui.screen.post.PostScreen
+import com.seom.accountbook.ui.screen.post.PostViewModel
 import com.seom.accountbook.ui.screen.setting.SettingScreen
 import com.seom.accountbook.ui.screen.setting.category.CategoryAddScreen
 import com.seom.accountbook.ui.screen.setting.method.MethodAddScreen
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun AccountNavigationHost(
     navController: NavHostController,
@@ -61,11 +66,13 @@ fun AccountNavigationHost(
             val postId = navBackStackEntry.arguments?.getString(Post.postIdArg)
             PostScreen(
                 postId = postId,
+                viewModel = viewModel(),
                 onBackButtonPressed = { navController.popBackStack() }
             )
         }
         composable(route = Post.route) {
             PostScreen(
+                viewModel = viewModel(),
                 onBackButtonPressed = { navController.popBackStack() }
             )
         }
