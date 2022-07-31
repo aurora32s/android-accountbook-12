@@ -55,7 +55,9 @@ fun AccountNavigationHost(
             )
         }
         composable(route = Setting.route) {
-            SettingScreen { route, args ->
+            SettingScreen(
+                viewModel = viewModel()
+            ) { route, args ->
                 navController.navigateSingleTop(route, args)
             }
         }

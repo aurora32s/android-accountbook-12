@@ -15,6 +15,7 @@ import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Scaffold
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -25,34 +26,40 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.seom.accountbook.R
+import com.seom.accountbook.data.entity.category.CategoryEntity
+import com.seom.accountbook.data.entity.method.MethodEntity
 import com.seom.accountbook.model.category.CategoryModel
 import com.seom.accountbook.model.history.HistoryType
 import com.seom.accountbook.model.method.MethodModel
 import com.seom.accountbook.ui.theme.ColorPalette
 
-val methodMock = listOf(
-    MethodModel(id = 0, name = "현대카드"),
-    MethodModel(id = 1, name = "카카오뱅크 체크카드")
-)
-
-val outcomeMock = listOf(
-    CategoryModel(id = 0, name = "교통", categoryColor = 0xFF94D3CC),
-    CategoryModel(id = 1, name = "문화/여가", categoryColor = 0xFFD092E2),
-    CategoryModel(id = 2, name = "미분류", categoryColor = 0xFF817DCE),
-    CategoryModel(id = 3, name = "생활", categoryColor = 0xFF4A6CC3),
-    CategoryModel(id = 4, name = "쇼핑/뷰티", categoryColor = 0xFF4CB8B8),
-    CategoryModel(id = 5, name = "식비", categoryColor = 0xFF4CA1DE),
-    CategoryModel(id = 6, name = "의료/건강", categoryColor = 0xFF6ED5EB)
-)
-
-val incomeMock = listOf(
-    CategoryModel(id = 0, name = "월급", categoryColor = 0xFF9BD182),
-    CategoryModel(id = 1, name = "용돈", categoryColor = 0xFFEDCF65),
-    CategoryModel(id = 2, name = "기타", categoryColor = 0xFFE29C4D)
-)
-
 @Composable
 fun SettingScreen(
+    viewModel: SettingViewModel,
+    onPushNavigate: (String, String) -> Unit
+) {
+    val observeData = viewModel.settingUiState.collectAsState()
+    when (val result = observeData.value) {
+        SettingUiState.UnInitialized -> viewModel.fetchData()
+        SettingUiState.Loading -> {}
+        is SettingUiState.Success -> {
+            Body(
+                methods = result.methods,
+                incomeCategories = result.incomeCategories,
+                outcomeCategories = result.outcomeCategories,
+                onPushNavigate = onPushNavigate
+            )
+        }
+        is SettingUiState.Error -> {}
+    }
+
+}
+
+@Composable
+fun Body(
+    methods: List<MethodEntity>,
+    incomeCategories: List<CategoryEntity>,
+    outcomeCategories: List<CategoryEntity>,
     onPushNavigate: (String, String) -> Unit
 ) {
     Scaffold(
@@ -79,7 +86,7 @@ fun SettingScreen(
 
             LazyColumn {
                 stickyHeader { Header(title = "결제수단") }
-                items(items = methodMock) {
+                items(items = methods) {
                     MethodItem(method = it) {
                         onPushNavigate(
                             com.seom.accountbook.Method.route,
@@ -97,7 +104,7 @@ fun SettingScreen(
                 }
                 item { Divider(color = ColorPalette.LightPurple, thickness = 1.dp) }
                 stickyHeader { Header(title = "지출 카테고리") }
-                items(items = outcomeMock) {
+                items(items = outcomeCategories) {
                     CategoryItem(category = it) {
                         onPushNavigate(
                             com.seom.accountbook.Category.route,
@@ -115,7 +122,7 @@ fun SettingScreen(
                 }
                 item { Divider(color = ColorPalette.LightPurple, thickness = 1.dp) }
                 stickyHeader { Header(title = "수입 카테고리") }
-                items(items = incomeMock) {
+                items(items = incomeCategories) {
                     CategoryItem(category = it) {
                         onPushNavigate(
                             com.seom.accountbook.Category.route,
@@ -162,8 +169,8 @@ fun Header(
 
 @Composable
 fun MethodItem(
-    method: MethodModel,
-    onClickItem: (Long) -> Unit
+    method: MethodEntity,
+    onClickItem: (Long?) -> Unit
 ) {
     Column(
         modifier = Modifier.padding(start = 16.dp, end = 16.dp)
@@ -186,8 +193,8 @@ fun MethodItem(
 
 @Composable
 fun CategoryItem(
-    category: CategoryModel,
-    onClickItem: (Long) -> Unit
+    category: CategoryEntity,
+    onClickItem: (Long?) -> Unit
 ) {
     Column(
         modifier = Modifier.padding(start = 16.dp, end = 16.dp)
@@ -214,7 +221,7 @@ fun CategoryItem(
                 modifier = Modifier
                     .widthIn(56.dp)
                     .clip(RoundedCornerShape(999.dp))
-                    .background(Color(category.categoryColor))
+                    .background(Color(category.color))
                     .padding(start = 8.dp, top = 4.dp, end = 8.dp, bottom = 4.dp),
                 textAlign = TextAlign.Center
             )

@@ -26,7 +26,7 @@ class MethodRepositoryImpl(
             }
         }
 
-    override suspend fun updateMethod(method: MethodEntity): Result<Int>  =
+    override suspend fun updateMethod(method: MethodEntity): Result<Int> =
         withContext(ioDispatcher) {
             try {
                 val result = methodDao.updateMethod(method)
@@ -49,13 +49,12 @@ class MethodRepositoryImpl(
                 Result.Error(exception.toString())
             }
         }
+
     override suspend fun getAllMethods(): Result<List<MethodEntity>> =
         withContext(ioDispatcher) {
             try {
                 val methods = methodDao.getAllMethods()
-
-                if (methods.isNotEmpty()) Result.Success(methods)
-                else throw Exception()
+                Result.Success(methods)
             } catch (exception: Exception) {
                 Result.Error(exception.toString())
             }

@@ -13,9 +13,12 @@ import androidx.lifecycle.viewModelScope
 import com.seom.accountbook.R
 import com.seom.accountbook.data.entity.Result
 import com.seom.accountbook.data.entity.account.AccountEntity
+import com.seom.accountbook.data.entity.category.CategoryEntity
+import com.seom.accountbook.data.entity.method.MethodEntity
 import com.seom.accountbook.data.repository.AccountRepository
 import com.seom.accountbook.data.repository.impl.AccountRepositoryImpl
 import com.seom.accountbook.model.history.HistoryType
+import com.seom.accountbook.usecase.GetPostDataUseCase
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -26,6 +29,7 @@ import java.util.concurrent.Flow
 
 @RequiresApi(Build.VERSION_CODES.O)
 class PostViewModel(
+    private val getPostDataUseCase: GetPostDataUseCase = GetPostDataUseCase(),
     private val accountRepository: AccountRepository = AccountRepositoryImpl()
 ) : ViewModel() {
     private val _postUIState = MutableStateFlow<PostUiState>(PostUiState.UnInitialized)
@@ -55,7 +59,7 @@ class PostViewModel(
 
     private val _methodId = MutableStateFlow<Long?>(null)
     var methodId = _methodId.asStateFlow()
-    fun setMethodID(newMethodId: Long) {
+    fun setMethodID(newMethodId: Long?) {
         _methodId.value = newMethodId
     }
 
@@ -74,28 +78,47 @@ class PostViewModel(
 
     // 수입/지출 내역 작성 시 필요한 데이터
     fun fetchAccount(postId: Long?) = viewModelScope.launch {
-        if (postId == null) {
-            _postUIState.value = PostUiState.Success.FetchAccount
-        } else {
+        _postUIState.value = PostUiState.Loading
 
-            _postUIState.value = PostUiState.Loading
-            when (val result = accountRepository.getAccount(postId)) {
-                is Result.Error -> _postUIState.value =
-                    PostUiState.Error(R.string.error_account_get)
-                is Result.Success -> {
-                    val account = result.data
-                    accountId = account.id
-                    _type.value = HistoryType.getHistoryType(account.type)
-                    _date.value = LocalDate.of(account.year, account.month, account.date)
-                    _count.value = account.count
-                    _methodId.value = account.methodId
-                    _categoryId.value = account.categoryId
-                    _content.value = account.content ?: ""
+        val result = getPostDataUseCase(postId)
 
-                    _postUIState.value = PostUiState.Success.FetchAccount
-                }
+        when (val accountResult = result.account) {
+            is Result.Error -> _postUIState.value =
+                PostUiState.Error(R.string.error_account_get)
+            is Result.Success -> {
+                val account = accountResult.data
+                accountId = account.id
+                _type.value = HistoryType.getHistoryType(account.type)
+                _date.value = LocalDate.of(account.year, account.month, account.date)
+                _count.value = account.count
+                _methodId.value = account.methodId
+                _categoryId.value = account.categoryId
+                _content.value = account.content ?: ""
             }
+            null -> {}
         }
+        val methods = when (val methodResult = result.settingModel.methods) {
+            is Result.Error -> {
+                _postUIState.value =
+                    PostUiState.Error(R.string.error_account_get)
+                emptyList()
+            }
+            is Result.Success -> methodResult.data
+        }
+        val categories = when (val categoryResult = result.settingModel.categories) {
+            is Result.Error -> {
+                _postUIState.value =
+                    PostUiState.Error(R.string.error_account_get)
+                emptyList()
+            }
+            is Result.Success -> categoryResult.data
+        }
+
+        _postUIState.value = PostUiState.Success.FetchAccount(
+            methods = methods,
+            incomeCategories = categories.filter { it.type == HistoryType.INCOME.type },
+            outcomeCategories = categories.filter { it.type == HistoryType.OUTCOME.type }
+        )
     }
 
     fun addAccount() = viewModelScope.launch {
@@ -128,7 +151,11 @@ sealed interface PostUiState {
     object Loading : PostUiState
     object Success {
         object AddAccount : PostUiState
-        object FetchAccount : PostUiState
+        data class FetchAccount(
+            val methods: List<MethodEntity>,
+            val incomeCategories: List<CategoryEntity>,
+            val outcomeCategories: List<CategoryEntity>
+        ) : PostUiState
     }
 
     data class Error(

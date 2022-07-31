@@ -12,4 +12,8 @@
     <!-- category -->
     <string name="error_category_add">카테고리를 추가하는 도중 문제가 발생했어요.</string>
     <string name="error_category_get">카테고리 정보를 가져오는 도중 문제가 발생했어요.</string>
+
+    <!-- setting -->
+    <string name="error_setting_method_get">결제수단 정보를 가져오는 도중 문제가 발생하였습니다.</string>
+    <string name="error_setting_category_get">카테고리 정보를 가져오는 도중 문제가 발생하였습니다.</string>
 </resources>

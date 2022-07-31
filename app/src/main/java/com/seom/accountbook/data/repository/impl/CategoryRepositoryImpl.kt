@@ -53,9 +53,7 @@ class CategoryRepositoryImpl(
         withContext(ioDispatcher) {
             try {
                 val categories = categoryDao.getAllCategory()
-
-                if (categories.isNotEmpty()) Result.Success(categories)
-                else throw Exception()
+                Result.Success(categories)
             } catch (exception: Exception) {
                 Result.Error(exception.toString())
             }
