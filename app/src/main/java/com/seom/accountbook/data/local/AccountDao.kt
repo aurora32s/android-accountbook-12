@@ -45,6 +45,32 @@ class AccountDao(
         return db?.insert(TABLE_NAME, null, values)
     }
 
+    fun updateAccount(account: AccountEntity): Int {
+        val db = appDatabase.writable
+        val values = ContentValues().apply {
+            put(AccountEntity.COLUMN_NAME_CONTENT, account.content)
+            put(AccountEntity.COLUMN_NAME_YEAR, account.year)
+            put(AccountEntity.COLUMN_NAME_MONTH, account.month)
+            put(AccountEntity.COLUMN_NAME_DATE, account.date)
+            put(AccountEntity.COLUMN_NAME_COUNT, account.count)
+            put(AccountEntity.COLUMN_NAME_METHOD, account.methodId)
+            put(AccountEntity.COLUMN_NAME_CATEGORY, account.categoryId)
+            put(AccountEntity.COLUMN_NAME_TYPE, account.type)
+        }
+
+        val selection = "${AccountEntity.COLUMN_NAME_ID} = ?"
+        val selectionArgs = arrayOf(account.id.toString())
+
+        val result = db.update(
+            TABLE_NAME,
+            values,
+            selection,
+            selectionArgs
+        )
+
+        return result
+    }
+
     fun getAccount(id: Long): AccountEntity? {
         val db = appDatabase.readable
 

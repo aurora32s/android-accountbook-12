@@ -99,20 +99,23 @@ class PostViewModel(
     }
 
     fun addAccount() = viewModelScope.launch {
-        val result = accountRepository.addAccount(
-            AccountEntity(
-                year = date.value.year,
-                month = date.value.month.value,
-                date = date.value.dayOfMonth,
-                count = count.value,
-                methodId = methodId.value,
-                categoryId = categoryId.value,
-                content = content.value,
-                type = type.value.type
-            )
+        val account = AccountEntity(
+            id = accountId,
+            year = date.value.year,
+            month = date.value.month.value,
+            date = date.value.dayOfMonth,
+            count = count.value,
+            methodId = methodId.value,
+            categoryId = categoryId.value,
+            content = content.value,
+            type = type.value.type
         )
+        val result = accountId?.let {
+            accountRepository.updateAccount(account)
+        } ?: kotlin.run {
+            accountRepository.addAccount(account)
+        }
 
-        println(result)
         when (result) {
             is Result.Error -> _postUIState.value = PostUiState.Error(R.string.error_account_add)
             is Result.Success -> _postUIState.value = PostUiState.Success.AddAccount

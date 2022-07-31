@@ -57,6 +57,7 @@ fun PostScreen(
     viewModel: PostViewModel,
     onBackButtonPressed: () -> Unit
 ) {
+    val isModifyMode = postId.isNullOrBlank().not()
     val observeData = viewModel.postUiState.collectAsState()
     when (observeData.value) {
         PostUiState.UnInitialized -> viewModel.fetchAccount(postId = postId?.toLong())
@@ -98,7 +99,7 @@ fun PostScreen(
         Scaffold(
             topBar = {
                 BackButtonAppBar(
-                    title = if (postId.isNullOrBlank()) "내역 등록" else "내역 수정",
+                    title = if (isModifyMode) "내역 수정" else "내역 등록",
                     onClickBackBtn = { onBackButtonPressed() }
                 )
             }
@@ -113,6 +114,7 @@ fun PostScreen(
                     modifier = Modifier.padding(16.dp)
                 )
                 PostBody(
+                    isModifyMode = isModifyMode,
                     methods = methodMock,
                     categories = if (type.value == HistoryType.INCOME) incomeMock else outcomeMock,
                     currentSelectedTab = type,
@@ -197,6 +199,7 @@ fun HistoryTypeItm(
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun PostBody(
+    isModifyMode: Boolean,
     methods: List<MethodModel>,
     categories: List<CategoryModel>,
     currentSelectedTab: State<HistoryType>,
@@ -267,7 +270,7 @@ fun PostBody(
             enabled = isAbleSubmit
         ) {
             Text(
-                text = "등록하기",
+                text = if (isModifyMode) "수정하기" else "등록하기",
                 style = MaterialTheme.typography.caption.copy(
                     fontWeight = FontWeight(700),
                     color = ColorPalette.White

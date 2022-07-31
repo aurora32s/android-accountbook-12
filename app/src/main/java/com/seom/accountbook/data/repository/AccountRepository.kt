@@ -9,4 +9,7 @@ interface AccountRepository {
 
     // 특정 수입/지출 내역 요청
     suspend fun getAccount(id: Long): Result<AccountEntity>
+
+    // 특정 수입/지출 내역 업데이트
+    suspend fun updateAccount(account: AccountEntity): Result<Int>
 }

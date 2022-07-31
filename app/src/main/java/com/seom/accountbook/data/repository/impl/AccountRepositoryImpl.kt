@@ -35,4 +35,16 @@ class AccountRepositoryImpl(
             Result.Error(exception.toString())
         }
     }
+
+    override suspend fun updateAccount(account: AccountEntity): Result<Int> =
+        withContext(ioDispatcher) {
+            try {
+                val result = accountDao.updateAccount(account)
+
+                if (result > 0) Result.Success(result)
+                else throw Exception("")
+            } catch (exception: Exception) {
+                Result.Error(exception.toString())
+            }
+        }
 }
