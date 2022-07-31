@@ -100,7 +100,7 @@ fun PostScreen(
             topBar = {
                 BackButtonAppBar(
                     title = if (isModifyMode) "내역 수정" else "내역 등록",
-                    onClickBackBtn = { onBackButtonPressed() }
+                    onClickBackBtn = onBackButtonPressed
                 )
             }
         ) {

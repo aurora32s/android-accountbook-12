@@ -114,6 +114,7 @@ fun AccountNavigationHost(
             CategoryAddScreen(
                 null,
                 HistoryType.getHistoryType(categoryType?.toInt() ?: 0),
+                viewModel = viewModel()
             ) {
                 navController.popBackStack()
             }
@@ -128,6 +129,7 @@ fun AccountNavigationHost(
             CategoryAddScreen(
                 categoryId,
                 HistoryType.getHistoryType(categoryType?.toInt() ?: 0),
+                viewModel = viewModel()
             ) {
                 navController.popBackStack()
             }

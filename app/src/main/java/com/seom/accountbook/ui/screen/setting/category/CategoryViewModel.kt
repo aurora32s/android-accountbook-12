@@ -9,6 +9,8 @@ import com.seom.accountbook.data.entity.Result
 import com.seom.accountbook.data.entity.category.CategoryEntity
 import com.seom.accountbook.data.repository.CategoryRepository
 import com.seom.accountbook.data.repository.impl.CategoryRepositoryImpl
+import com.seom.accountbook.model.category.incomeColor
+import com.seom.accountbook.model.category.outcomeColor
 import com.seom.accountbook.model.history.HistoryType
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -24,7 +26,10 @@ class CategoryViewModel(
         get() = _categoryUiState
 
     private var currentCategoryId: Long? = null
-    private var currentCategoryType: HistoryType? = null
+    private var currentCategoryType = HistoryType.INCOME
+
+    val colorList
+        get() = currentCategoryType.colorList
 
     // 카테고리 페이지에 필요한 데이터
     private val _name = MutableStateFlow("")
@@ -33,7 +38,7 @@ class CategoryViewModel(
         _name.value = newName
     }
 
-    private val _color = MutableStateFlow(0L)
+    private val _color = MutableStateFlow<Long>(0L)
     var color = _color.asStateFlow()
     fun setColor(newColor: Long) {
         _color.value = newColor
@@ -42,6 +47,7 @@ class CategoryViewModel(
     fun fetchCategory(categoryId: Long?, categoryType: HistoryType) = viewModelScope.launch {
         currentCategoryType = categoryType
         if (categoryId == null) {
+            _color.value = colorList[0]
             _categoryUiState.value = CategoryUiState.Success.FetchCategory
         } else {
             _categoryUiState.value = CategoryUiState.Loading
@@ -64,7 +70,7 @@ class CategoryViewModel(
         val category = CategoryEntity(
             id = currentCategoryId,
             name = name.value,
-            color = color.value,
+            color = color.value!!,
             type = currentCategoryType?.type ?: HistoryType.INCOME.type
         )
 
