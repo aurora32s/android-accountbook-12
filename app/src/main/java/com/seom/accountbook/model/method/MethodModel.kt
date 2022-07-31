@@ -2,7 +2,7 @@ package com.seom.accountbook.model.method
 
 import com.seom.accountbook.model.BaseModel
 
-data class Method(
-    override val id: Int,
+data class MethodModel(
+    override val id: Long,
     override val name: String
 ): BaseModel

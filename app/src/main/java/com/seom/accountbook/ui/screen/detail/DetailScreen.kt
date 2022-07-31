@@ -26,19 +26,13 @@ import androidx.compose.ui.unit.sp
 import com.seom.accountbook.R
 import com.seom.accountbook.mock.histories
 import com.seom.accountbook.model.BaseCount
-import com.seom.accountbook.model.category.Category
 import com.seom.accountbook.model.graph.OutComeByMonth
 import com.seom.accountbook.model.history.History
 import com.seom.accountbook.model.history.HistoryType
-import com.seom.accountbook.model.method.Method
 import com.seom.accountbook.ui.components.OneButtonAppBar
-import com.seom.accountbook.ui.screen.history.HistoryList
 import com.seom.accountbook.ui.screen.history.HistoryListHeader
-import com.seom.accountbook.ui.screen.post.PostBody
-import com.seom.accountbook.ui.screen.post.PostTopTab
 import com.seom.accountbook.ui.theme.ColorPalette
 import com.seom.accountbook.util.ext.toMoney
-import kotlinx.coroutines.launch
 
 val mockData = listOf(
     OutComeByMonth(

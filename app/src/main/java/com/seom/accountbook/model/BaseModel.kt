@@ -1,6 +1,6 @@
 package com.seom.accountbook.model
 
 interface BaseModel{
-    val id: Int
+    val id: Long
     val name: String
 }

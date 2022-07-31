@@ -4,13 +4,13 @@ import android.provider.BaseColumns
 
 data class AccountEntity(
     val id: Long? = null,
-    val content: String, // 내용
+    val content: String?, // 내용
     val year: Int, // 연도
     val month: Int, // 월
     val date: Int, // 일
     val count: Int, // 금액
-    val methodId: Int? = null, // 결제수단 id
-    val categoryId: Int? = null, // 카테고리 id
+    val methodId: Long? = null, // 결제수단 id
+    val categoryId: Long? = null, // 카테고리 id
     val type: Int // 0: 수입, 1: 지출
 ) {
     companion object {

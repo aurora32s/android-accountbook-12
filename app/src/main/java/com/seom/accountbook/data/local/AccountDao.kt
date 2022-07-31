@@ -3,6 +3,7 @@ package com.seom.accountbook.data.local
 import android.content.ContentValues
 import android.provider.BaseColumns
 import androidx.core.database.getIntOrNull
+import androidx.core.database.getLongOrNull
 import com.seom.accountbook.data.entity.account.AccountEntity
 import com.seom.accountbook.data.entity.category.CategoryEntity
 import com.seom.accountbook.data.entity.method.MethodEntity
@@ -81,8 +82,8 @@ class AccountDao(
                 month = cursor.getInt(3),
                 date = cursor.getInt(4),
                 count = cursor.getInt(5),
-                methodId = cursor.getIntOrNull(6),
-                categoryId = cursor.getIntOrNull(7),
+                methodId = cursor.getLongOrNull(6),
+                categoryId = cursor.getLongOrNull(7),
                 type = cursor.getInt(8)
             )
         } ?: kotlin.run {
