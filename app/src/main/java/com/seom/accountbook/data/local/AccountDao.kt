@@ -2,6 +2,7 @@ package com.seom.accountbook.data.local
 
 import android.content.ContentValues
 import android.provider.BaseColumns
+import androidx.core.database.getIntOrNull
 import com.seom.accountbook.data.entity.account.AccountEntity
 import com.seom.accountbook.data.entity.category.CategoryEntity
 import com.seom.accountbook.data.entity.method.MethodEntity
@@ -14,7 +15,7 @@ class AccountDao(
         private val TABLE_NAME = "ACCOUNT"
         val CREATE_TABLE = "" +
                 "CREATE TABLE $TABLE_NAME (" +
-                "${BaseColumns._ID} INTEGER PRIMARY KEY AUTOINCREMENT," +
+                "${AccountEntity.COLUMN_NAME_ID} INTEGER PRIMARY KEY AUTOINCREMENT," +
                 "${AccountEntity.COLUMN_NAME_CONTENT} TEXT DEFAULT \"\"," +
                 "${AccountEntity.COLUMN_NAME_YEAR} INTEGER NOT NULL," +
                 "${AccountEntity.COLUMN_NAME_MONTH} INTEGER NOT NULL," +
@@ -27,7 +28,7 @@ class AccountDao(
                 "FOREIGN KEY (${AccountEntity.COLUMN_NAME_CATEGORY}) REFERENCES ${CategoryDao.TABLE_NAME} (${BaseColumns._ID}))"
     }
 
-    fun addAccount(account: AccountEntity): Long?{
+    fun addAccount(account: AccountEntity): Long? {
         val db = appDatabase.writable
         val values = ContentValues().apply {
             put(AccountEntity.COLUMN_NAME_CONTENT, account.content)
@@ -41,5 +42,51 @@ class AccountDao(
         }
 
         return db?.insert(TABLE_NAME, null, values)
+    }
+
+    fun getAccount(id: Long): AccountEntity? {
+        val db = appDatabase.readable
+
+        val projection = arrayOf(
+            AccountEntity.COLUMN_NAME_ID,
+            AccountEntity.COLUMN_NAME_CONTENT,
+            AccountEntity.COLUMN_NAME_YEAR,
+            AccountEntity.COLUMN_NAME_MONTH,
+            AccountEntity.COLUMN_NAME_DATE,
+            AccountEntity.COLUMN_NAME_COUNT,
+            AccountEntity.COLUMN_NAME_METHOD,
+            AccountEntity.COLUMN_NAME_CATEGORY,
+            AccountEntity.COLUMN_NAME_TYPE
+        )
+        val selection = "${AccountEntity.COLUMN_NAME_ID} = ?"
+        val selectionArgs = arrayOf(id.toString())
+
+        val cursor = db.query(
+            TABLE_NAME,
+            projection,
+            selection,
+            selectionArgs,
+            null,
+            null,
+            null,
+            "1"
+        )
+
+        return cursor?.let {
+            cursor.moveToFirst()
+            AccountEntity(
+                id = cursor.getLong(0),
+                content = cursor.getString(1),
+                year = cursor.getInt(2),
+                month = cursor.getInt(3),
+                date = cursor.getInt(4),
+                count = cursor.getInt(5),
+                methodId = cursor.getIntOrNull(6),
+                categoryId = cursor.getIntOrNull(7),
+                type = cursor.getInt(8)
+            )
+        } ?: kotlin.run {
+            null
+        }
     }
 }

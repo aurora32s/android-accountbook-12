@@ -67,6 +67,10 @@ fun PostScreen(
     val bottomSheetState = rememberModalBottomSheetState(ModalBottomSheetValue.Hidden)
     val coroutineScope = rememberCoroutineScope()
 
+    if (postId != null) {
+        viewModel.fetchAccount(postId = postId.toLong())
+    }
+
     var current by remember { mutableStateOf(LocalDate.now()) }
     var money by remember { mutableStateOf(0) }
     var content by remember { mutableStateOf("") }

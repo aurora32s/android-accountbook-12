@@ -5,4 +5,5 @@
     <string name="type_history_income">수입</string>
     <string name="type_history_outcome">지출</string>
     <string name="error_account_add">정보를 저장하는 도중 문제가 발생했어요.ð</string>
+    <string name="error_account_get">정보를 가져오는 도중 문제가 발생했어요.ð</string>
 </resources>

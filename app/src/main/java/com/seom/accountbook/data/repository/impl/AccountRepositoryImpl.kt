@@ -24,4 +24,15 @@ class AccountRepositoryImpl(
             Result.Error(exception.toString())
         }
     }
+
+    override suspend fun getAccount(id: Long): Result<AccountEntity> = withContext(ioDispatcher) {
+        try {
+            val account = accountDao.getAccount(id)
+
+            if (account != null) Result.Success(account)
+            else throw Exception("")
+        } catch (exception: Exception) {
+            Result.Error(exception.toString())
+        }
+    }
 }

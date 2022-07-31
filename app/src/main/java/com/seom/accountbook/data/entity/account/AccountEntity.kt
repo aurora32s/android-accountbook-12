@@ -3,6 +3,7 @@ package com.seom.accountbook.data.entity.account
 import android.provider.BaseColumns
 
 data class AccountEntity(
+    val id: Long? = null,
     val content: String, // 내용
     val year: Int, // 연도
     val month: Int, // 월
@@ -11,8 +12,9 @@ data class AccountEntity(
     val methodId: Int? = null, // 결제수단 id
     val categoryId: Int? = null, // 카테고리 id
     val type: Int // 0: 수입, 1: 지출
-): BaseColumns {
+) {
     companion object {
+        const val COLUMN_NAME_ID = "ID"
         const val COLUMN_NAME_CONTENT = "CONTENT"
         const val COLUMN_NAME_YEAR = "YEAR"
         const val COLUMN_NAME_MONTH= "MONTH"

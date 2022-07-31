@@ -28,6 +28,16 @@ class PostViewModel(
     val postUiState: StateFlow<PostUiState>
         get() = _postUIState
 
+    // 수입/지출 내역 작성 시 필요한 데이터
+    fun fetchAccount(postId: Long) = viewModelScope.launch {
+        val result = accountRepository.getAccount(postId)
+        println(result)
+        when (result) {
+            is Result.Error -> _postUIState.value = PostUiState.Error(R.string.error_account_get)
+            is Result.Success -> _postUIState.value = PostUiState.Success.FetchAccount
+        }
+    }
+
     fun addAccount() = viewModelScope.launch {
         val result = accountRepository.addAccount(
             AccountEntity(
