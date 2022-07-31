@@ -44,10 +44,9 @@ fun CategoryAddScreen(
         CategoryUiState.Success.FetchCategory -> SettingBody(
             viewModel = viewModel,
             isModifyMode = categoryId.isNullOrBlank().not(),
-            categoryType = categoryType
-        ) {
-
-        }
+            categoryType = categoryType,
+            onBackButtonPressed = onBackButtonPressed
+        )
         is CategoryUiState.Error -> {}
     }
 

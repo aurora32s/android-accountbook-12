@@ -16,6 +16,11 @@ class MethodDao(
                 "CREATE TABLE $TABLE_NAME (" +
                 "${MethodEntity.COLUMN_NAME_ID} INTEGER PRIMARY KEY AUTOINCREMENT," +
                 "${MethodEntity.COLUMN_NAME_NAME} TEXT NOT NULL)"
+
+        val INIT_DATA = listOf(
+            MethodEntity(name = "현대카드"),
+            MethodEntity(name = "카카오뱅크 체크카드")
+        )
     }
 
     fun addMethod(method: MethodEntity): Long? {
