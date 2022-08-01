@@ -2,13 +2,15 @@ package com.seom.accountbook.ui.screen.detail
 
 import android.graphics.Paint
 import android.graphics.Typeface
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -30,59 +32,53 @@ import com.seom.accountbook.model.graph.OutComeByMonth
 import com.seom.accountbook.model.history.HistoryModel
 import com.seom.accountbook.model.history.HistoryType
 import com.seom.accountbook.ui.components.OneButtonAppBar
+import com.seom.accountbook.ui.screen.graph.GraphUiState
 import com.seom.accountbook.ui.screen.history.HistoryListHeader
 import com.seom.accountbook.ui.theme.ColorPalette
+import com.seom.accountbook.util.ext.fullFormat
 import com.seom.accountbook.util.ext.toMoney
+import java.time.LocalDate
 
-val mockData = listOf(
-    OutComeByMonth(
-        id = 0,
-        count = 509637,
-        color = 0xFF524D90,
-        name = "2"
-    ),
-    OutComeByMonth(
-        id = 1,
-        count = 563283,
-        color = 0xFFA79FCB,
-        name = "3"
-    ),
-    OutComeByMonth(
-        id = 2,
-        count = 590106,
-        color = 0xFFE75B3F,
-        name = "4"
-    ),
-    OutComeByMonth(
-        id = 3,
-        count = 643752,
-        color = 0xFFF5B853,
-        name = "5"
-    ),
-    OutComeByMonth(
-        id = 4,
-        count = 568647,
-        color = 0xFF4EAABA,
-        name = "6"
-    ),
-    OutComeByMonth(
-        id = 5,
-        count = 536460,
-        color = 0xFFA79FCB,
-        name = "7"
-    )
-)
-
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun DetailScreen(
-    categoryId: String? = null,
+    year: Int,
+    month: Int,
+    categoryId: String,
+    viewModel: DetailViewModel,
     onBackButtonPressed: () -> Unit
 ) {
-    val categoryName = "생활"
+    val observer = viewModel.detailUiState.collectAsState()
+    when (val result = observer.value) {
+        DetailUiState.UnInitialized -> {
+            viewModel.fetchData(categoryId = categoryId.toLong(), year, month)
+        }
+        DetailUiState.Loading -> {}
+        is DetailUiState.SuccessFetch -> {
+            DetailBody(
+                title = result.accounts[0].categoryName ?: "UnKnown",
+                accounts = result.accounts,
+                month = month,
+                outComeByMonth = result.outComeByMonth,
+                onBackButtonPressed = onBackButtonPressed
+            )
+        }
+        is DetailUiState.Error -> {}
+    }
+}
 
+@RequiresApi(Build.VERSION_CODES.O)
+@Composable
+fun DetailBody(
+    title: String,
+    month: Int,
+    accounts: List<HistoryModel>,
+    outComeByMonth: List<OutComeByMonth>,
+    onBackButtonPressed: () -> Unit
+) {
     Scaffold(
         topBar = {
-            OneButtonAppBar(title = categoryName) {
+            OneButtonAppBar(title = title) {
                 Image(
                     painter = painterResource(id = R.drawable.ic_back),
                     contentDescription = null,
@@ -97,7 +93,7 @@ fun DetailScreen(
                 thickness = 1.dp
             )
             LinearGraph(
-                data = mockData,
+                data = outComeByMonth,
                 modifier = Modifier.fillMaxWidth(),
                 backgroundColor = ColorPalette.White,
                 lineColor = Brush.verticalGradient(
@@ -107,7 +103,12 @@ fun DetailScreen(
                     )
                 ),
                 primaryTextColor = ColorPalette.Purple,
-                secondaryTextColor = ColorPalette.LightPurple
+                secondaryTextColor = ColorPalette.LightPurple,
+                keys = (5 downTo 0).map { index ->
+                    (
+                        if (month - index > 0) month - index else 12 + month - index
+                    ).toString()
+                }
             )
             Divider(
                 color = ColorPalette.LightPurple,
@@ -115,7 +116,7 @@ fun DetailScreen(
             )
             Spacer(modifier = Modifier.height(16.dp))
             OutComeList(
-                historyGroupedByDate = histories
+                historyGroupedByDate = accounts.groupBy { LocalDate.of(it.year, it.month, it.date) }
             )
         }
     }
@@ -126,62 +127,66 @@ val linearGraphPadding = 80f
 
 @Composable
 fun LinearGraph(
-    data: List<BaseCount>,
+    data: List<OutComeByMonth>,
+    keys: List<String>,
     modifier: Modifier = Modifier,
     backgroundColor: Color, // 배경 색
     lineColor: Brush, // 선 색
     primaryTextColor: Color, // 강조 글자 색
     secondaryTextColor: Color // 일반 글자 색
 ) {
+    val usedData = keys.map { name -> data.find { it.name == name }?.count ?: 0  }
     Column(
         modifier = Modifier
             .height(130.dp)
             .background(backgroundColor)
             .padding(7.dp)
     ) {
-        Canvas(
-            modifier
-                .weight(1f)
-                .padding(top = 40.dp, bottom = 40.dp)
-        ) {
-            val canvasWidth = size.width
-            val canvasHeight = size.height
+        if (data.isNotEmpty()) {
+            Canvas(
+                modifier
+                    .weight(1f)
+                    .padding(top = 20.dp, bottom = 20.dp)
+            ) {
+                val canvasWidth = size.width
+                val canvasHeight = size.height
 
-            val minValue = data.minOf { it.count }
-            val maxValue = data.maxOf { it.count }
-            val diff = (maxValue - minValue)
+                val minValue = usedData.minOf { it }
+                val maxValue = usedData.maxOf { it }
+                val diff = (maxValue - minValue)
 
-            val blockWidth = canvasWidth / (blockNum * 2)
-            val pointX = data.mapIndexed { index, row -> (blockWidth) * (index * 2 + 1) }
-            val pointY =
-                data.map { canvasHeight - (it.count - minValue) / (diff / canvasHeight) }
+                val blockWidth = canvasWidth / (blockNum * 2)
+                val pointX = (0..5).map { index -> (blockWidth) * (index * 2 + 1) }
+                val pointY = usedData.map { canvasHeight - (it - minValue) / (diff / canvasHeight) }
 
-            for (index in 1 until data.size) {
-                val start = Offset(x = pointX[index], y = pointY[index])
-                val end = Offset(x = pointX[index - 1], y = pointY[index - 1])
-                drawLine(
-                    start = start,
-                    end = end,
-                    brush = lineColor,
-                    strokeWidth = (2.0).toFloat().dp.toPx()
-                )
-            }
-
-            data.forEachIndexed { index, row ->
-                drawIntoCanvas {
-                    it.nativeCanvas.drawText(
-                        row.count.toMoney(),
-                        pointX[index],
-                        pointY[index] - (8.sp).toPx(),
-                        Paint().apply {
-                            textSize = (10.sp).toPx()
-                            color =
-                                (if (index == data.size - 1) primaryTextColor else secondaryTextColor).toArgb()
-                            typeface =
-                                Typeface.create(Typeface.DEFAULT, Typeface.BOLD)
-                            textAlign = Paint.Align.CENTER
-                        }
+                for (index in 1 until usedData.size) {
+                    val start = Offset(x = pointX[index], y = pointY[index])
+                    val end = Offset(x = pointX[index - 1], y = pointY[index - 1])
+                    drawLine(
+                        start = start,
+                        end = end,
+                        brush = lineColor,
+                        strokeWidth = (2.0).toFloat().dp.toPx()
                     )
+                }
+
+                keys.forEachIndexed { index, name  ->
+                    drawIntoCanvas {
+                        val count = data.find { it.name == name }?.count ?: 0
+                        it.nativeCanvas.drawText(
+                            count.toString(),
+                            pointX[index],
+                            pointY[index] - (8.sp).toPx(),
+                            Paint().apply {
+                                textSize = (10.sp).toPx()
+                                color =
+                                    (if (index == keys.size - 1) primaryTextColor else secondaryTextColor).toArgb()
+                                typeface =
+                                    Typeface.create(Typeface.DEFAULT, Typeface.BOLD)
+                                textAlign = Paint.Align.CENTER
+                            }
+                        )
+                    }
                 }
             }
         }
@@ -191,12 +196,12 @@ fun LinearGraph(
             horizontalArrangement = Arrangement.SpaceAround,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            data.forEachIndexed { index, row ->
+            keys.forEachIndexed { index, row ->
                 Text(
-                    text = row.name,
+                    text = row,
                     style = MaterialTheme.typography.subtitle1.copy(
                         fontWeight = FontWeight(700),
-                        color = if (index == data.size - 1) primaryTextColor else secondaryTextColor
+                        color = if (index == keys.size - 1) primaryTextColor else secondaryTextColor
                     )
                 )
             }
@@ -204,11 +209,12 @@ fun LinearGraph(
     }
 }
 
+@RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun OutComeList(
     // TODO Key 를 String 으로 두는게 맞을까...
-    historyGroupedByDate: Map<String, List<HistoryModel>>,
+    historyGroupedByDate: Map<LocalDate, List<HistoryModel>>,
     modifier: Modifier = Modifier
 ) {
     LazyColumn(
@@ -217,7 +223,7 @@ fun OutComeList(
         historyGroupedByDate.forEach { (date, histories) ->
             stickyHeader {
                 HistoryListHeader(
-                    date = date,
+                    date = date.fullFormat(),
                     income = histories.filter { it.type == HistoryType.INCOME }
                         .sumOf { it.money },
                     outCome = histories.filter { it.type == HistoryType.OUTCOME }
@@ -264,7 +270,6 @@ fun OutComeListItem(
             verticalAlignment = Alignment.CenterVertically
         ) {
             Column(
-                modifier = Modifier.padding(start = 16.dp)
             ) {
                 Row(
                     modifier = Modifier.fillMaxWidth(),

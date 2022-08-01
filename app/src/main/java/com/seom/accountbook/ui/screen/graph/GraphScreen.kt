@@ -98,8 +98,12 @@ fun GraphScreen(
                             CategoryList(
                                 data = accounts,
                                 totalCount = totalCount,
-                                onItemClick = { onPushNavigate(Detail.route, it.toString()) })
-
+                                onItemClick = {
+                                    onPushNavigate(
+                                        Detail.route,
+                                        "$it,${viewModel.currentYear},${viewModel.currentMonth}"
+                                    )
+                                })
                         }
                     }
                 }

@@ -38,9 +38,9 @@ fun AccountApp() {
     val currentBackStack by navController.currentBackStackEntryAsState()
     val currentDestination = currentBackStack?.destination
     val currentScreen =
-        allScreens.find { it.route == currentDestination?.route } ?: History
+        allScreens.find { currentDestination?.route?.startsWith(it.route) ?: false } ?: History
 
-    println(currentScreen.route)
+    println(currentDestination?.route)
     AccountBookTheme() {
         Scaffold(
             bottomBar = {

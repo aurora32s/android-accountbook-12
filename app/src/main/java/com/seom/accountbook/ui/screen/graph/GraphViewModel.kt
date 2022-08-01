@@ -21,13 +21,20 @@ class GraphViewModel(
     val graphUiState: StateFlow<GraphUiState>
         get() = _graphUiState
 
+    var currentYear = 0
+    var currentMonth = 0
+
     fun fetchData(year: Int, month: Int) = viewModelScope.launch {
         _graphUiState.value = GraphUiState.Loading
         when (val result = accountRepository.getOutComeOnCategory(year, month)) {
             is Result.Error -> _graphUiState.value =
                 GraphUiState.Error(R.string.error_history_get)
-            is Result.Success -> _graphUiState.value =
-                GraphUiState.SuccessFetch(result.data)
+            is Result.Success -> {
+                currentYear = year
+                currentMonth = month
+                _graphUiState.value =
+                    GraphUiState.SuccessFetch(result.data)
+            }
         }
     }
 }
