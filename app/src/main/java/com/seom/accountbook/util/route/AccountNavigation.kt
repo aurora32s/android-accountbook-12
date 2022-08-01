@@ -51,6 +51,7 @@ fun AccountNavigationHost(
         }
         composable(route = Graph.route) {
             GraphScreen(
+                viewModel = viewModel(),
                 onPushNavigate = { route, argument ->
                     navController.navigateSingleTop(route, argument)
                 }

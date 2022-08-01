@@ -13,9 +13,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Divider
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -36,65 +34,75 @@ import com.seom.accountbook.ui.screen.calendar.CalendarContainer
 import com.seom.accountbook.ui.screen.calendar.RowData
 import com.seom.accountbook.ui.theme.ColorPalette
 import com.seom.accountbook.util.ext.toMoney
-
-val mockData = listOf(
-    OutComeByCategory(id = 0, name = "생활", color = 0xFF4A6CC3, count = 536460),
-    OutComeByCategory(
-        id = 1,
-        name = "의료/건강",
-        color = 0xFF6ED5EB,
-        count = 125300
-    ),
-    OutComeByCategory(
-        id = 2,
-        name = "쇼핑/뷰티",
-        color = 0xFF4CB8B8,
-        count = 56000
-    ),
-    OutComeByCategory(id = 3, name = "교통", color = 0xFF94D3CC, count = 45340),
-    OutComeByCategory(id = 4, name = "식비", color = 0xFF4CA1DE, count = 40540),
-    OutComeByCategory(
-        id = 5,
-        name = "문화/여가",
-        color = 0xFFD092E2,
-        count = 20800
-    ),
-    OutComeByCategory(id = 6, name = "미분류", color = 0xFF817DCE, count = 10200)
-)
+import java.time.LocalDate
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun GraphScreen(
+    viewModel: GraphViewModel,
     onPushNavigate: (String, String) -> Unit
 ) {
+    var accounts by remember { mutableStateOf<List<OutComeByCategory>>(emptyList()) }
+
+    val observer = viewModel.graphUiState.collectAsState()
+    when (val result = observer.value) {
+        GraphUiState.UnInitialized -> {
+            val current = LocalDate.now()
+
+            val year = current.year
+            val month = current.month.value
+            viewModel.fetchData(year, month)
+        }
+        GraphUiState.Loading -> {}
+        is GraphUiState.SuccessFetch -> {
+            accounts = result.accounts
+        }
+        is GraphUiState.Error -> {}
+    }
+
+    val totalCount = accounts.sumOf { it.count }
+
     DateAppBar(
         onDateChange = {
-
+            viewModel.fetchData(it.year, it.month.value)
         },
         children = {
-            Column {
+            Column(modifier = Modifier.fillMaxSize()) {
                 Divider(
                     color = ColorPalette.Purple,
                     thickness = 1.dp
                 )
-                TopRow(totalCount = 834640)
+                TopRow(totalCount = totalCount)
                 Divider(
                     color = ColorPalette.LightPurple,
                     thickness = 1.dp
                 )
-                Spacer(modifier = Modifier.height(24.dp))
-                CircleGraphByRate(
-                    date = mockData,
-                    totalCount = 834640,
-                    modifier = Modifier
-                        .height(254.dp)
-                        .fillMaxWidth()
-                )
-                Spacer(modifier = Modifier.height(24.dp))
-                CategoryList(
-                    data = mockData,
-                    totalCount = 834640,
-                    onItemClick = { onPushNavigate(Detail.route, it.toString()) })
+                Box(modifier = Modifier.fillMaxSize()) {
+                    if (accounts.isNullOrEmpty()) {
+                        Text(
+                            text = "내역이 없습니다.",
+                            style = MaterialTheme.typography.subtitle1.copy(color = ColorPalette.Purple),
+                            modifier = Modifier.align(Alignment.Center)
+                        )
+                    } else {
+                        Column() {
+                            Spacer(modifier = Modifier.height(24.dp))
+                            CircleGraphByRate(
+                                date = accounts,
+                                totalCount = totalCount,
+                                modifier = Modifier
+                                    .height(254.dp)
+                                    .fillMaxWidth()
+                            )
+                            Spacer(modifier = Modifier.height(24.dp))
+                            CategoryList(
+                                data = accounts,
+                                totalCount = totalCount,
+                                onItemClick = { onPushNavigate(Detail.route, it.toString()) })
+
+                        }
+                    }
+                }
             }
         }
     )
@@ -102,7 +110,7 @@ fun GraphScreen(
 
 @Composable
 fun TopRow(
-    totalCount: Int
+    totalCount: Long
 ) {
     Row(
         modifier = Modifier
@@ -116,13 +124,13 @@ fun TopRow(
             style = MaterialTheme.typography.caption.copy(color = ColorPalette.Purple)
         )
         Text(
-            text = totalCount.toMoney(),
+            text = "${totalCount.toMoney()} 원",
             style = MaterialTheme.typography.caption.copy(color = ColorPalette.Red)
         )
     }
 }
 
-private const val DividerLengthInDegrees = 1.8f
+private const val DividerLengthInDegrees = 0f
 
 private enum class AnimatedCircleProgress { START, END }
 
@@ -166,8 +174,8 @@ fun CircleGraphByRate(
         date.forEachIndexed { index, rate ->
             val sweep = (rate.count / totalCount.toFloat()) * angleOffset
             drawArc(
-                color = Color(rate.color),
-                startAngle = startAngle + DividerLengthInDegrees / 2,
+                color = Color(if(rate.color == 0L) 0xFF2E2E2E else rate.color),
+                startAngle = startAngle + DividerLengthInDegrees,
                 sweepAngle = sweep - DividerLengthInDegrees,
                 topLeft = topLeft,
                 size = size,
@@ -231,7 +239,7 @@ fun CategoryOutComeItem(
                     modifier = Modifier
                         .widthIn(56.dp)
                         .clip(RoundedCornerShape(999.dp))
-                        .background(Color(data.color))
+                        .background(Color(if (data.color == 0L) 0xFF2E2E2E else data.color))
                         .padding(start = 8.dp, top = 4.dp, end = 8.dp, bottom = 4.dp),
                     textAlign = TextAlign.Center
                 )

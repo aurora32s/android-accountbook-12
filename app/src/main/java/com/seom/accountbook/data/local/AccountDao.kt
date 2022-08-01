@@ -9,6 +9,7 @@ import com.seom.accountbook.data.entity.calendar.CalendarEntity
 import com.seom.accountbook.data.entity.category.CategoryEntity
 import com.seom.accountbook.data.entity.method.MethodEntity
 import com.seom.accountbook.di.provideAppDatabase
+import com.seom.accountbook.model.graph.OutComeByCategory
 import com.seom.accountbook.model.history.HistoryModel
 import com.seom.accountbook.model.history.HistoryType
 
@@ -199,6 +200,42 @@ class AccountDao(
                         date = cursor.getInt(0),
                         count = cursor.getInt(1),
                         type = cursor.getInt(2)
+                    )
+                )
+            } while (cursor.moveToNext())
+        }
+
+        return accounts.toList()
+    }
+
+    fun getOutComeOnCategory(year: Int, month: Int): List<OutComeByCategory> {
+        val db = appDatabase.writable
+        val query = "" +
+                "SELECT " +
+                "C.${CategoryEntity.COLUMN_NAME_ID}," +
+                "C.${CategoryEntity.COLUMN_NAME_NAME}," +
+                "C.${CategoryEntity.COLUMN_NAME_COLOR}," +
+                "SUM(${AccountEntity.COLUMN_NAME_COUNT}) AS S " +
+                "FROM ${TABLE_NAME} A " +
+                "LEFT JOIN ${CategoryDao.TABLE_NAME} C " +
+                "ON A.${AccountEntity.COLUMN_NAME_CATEGORY} = C.${CategoryEntity.COLUMN_NAME_ID} " +
+                "WHERE A.${AccountEntity.COLUMN_NAME_TYPE} = ${HistoryType.OUTCOME.type} " +
+                "AND A.${AccountEntity.COLUMN_NAME_YEAR} = $year " +
+                "AND A.${AccountEntity.COLUMN_NAME_MONTH} = $month " +
+                "GROUP BY A.${AccountEntity.COLUMN_NAME_CATEGORY} " +
+                "ORDER BY S DESC"
+
+        val cursor = db.rawQuery(query, null)
+
+        val accounts = mutableListOf<OutComeByCategory>()
+        if (cursor.moveToFirst()) {
+            do {
+                accounts.add(
+                    OutComeByCategory(
+                        id = cursor.getLong(0),
+                        name = cursor.getString(1) ?: "UnKnown",
+                        color = cursor.getLong(2) ?: 0xFFECECEC,
+                        count = cursor.getLong(3)
                     )
                 )
             } while (cursor.moveToNext())
