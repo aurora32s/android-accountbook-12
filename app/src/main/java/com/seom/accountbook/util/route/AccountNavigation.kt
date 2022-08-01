@@ -92,11 +92,19 @@ fun AccountNavigationHost(
             route = Detail.routeWithArgs,
             arguments = Detail.arguments
         ) { navBackStackEntry ->
+            val year = navBackStackEntry.arguments?.getInt(Detail.yearArgs)
+            val month = navBackStackEntry.arguments?.getInt(Detail.monthArgs)
             val categoryId = navBackStackEntry.arguments?.getString(Detail.categoryIdArgs)
-            DetailScreen(
-                categoryId = categoryId,
-                onBackButtonPressed = { navController.popBackStack() }
-            )
+
+            if (year != null && month != null && categoryId != null) {
+                DetailScreen(
+                    year = year,
+                    month = month,
+                    categoryId = categoryId,
+                    viewModel = viewModel(),
+                    onBackButtonPressed = { navController.popBackStack() }
+                )
+            }
         }
         // 결제 수단 새로 추가
         composable(
@@ -154,7 +162,7 @@ fun AccountNavigationHost(
 }
 
 fun NavController.navigateSingleTop(route: String, argument: String = "") {
-    navigate("$route${if (argument.isNullOrBlank()) "" else "/${argument}"}") {
+    navigate("$route${if (argument.isBlank()) "" else "/${argument}"}") {
         // back button 클릭 시에는 이전 tab 으로 이도할 수 있도록 하기 위해 popUpTo는 지정하지 않음
         launchSingleTop = true
     }

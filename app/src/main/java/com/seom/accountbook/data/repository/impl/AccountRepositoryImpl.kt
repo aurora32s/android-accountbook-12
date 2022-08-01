@@ -10,6 +10,7 @@ import kotlinx.coroutines.withContext
 import com.seom.accountbook.data.entity.Result
 import com.seom.accountbook.data.entity.calendar.CalendarEntity
 import com.seom.accountbook.model.graph.OutComeByCategory
+import com.seom.accountbook.model.graph.OutComeByMonth
 import com.seom.accountbook.model.history.HistoryModel
 
 class AccountRepositoryImpl(
@@ -88,6 +89,34 @@ class AccountRepositoryImpl(
     ): Result<List<OutComeByCategory>> = withContext(ioDispatcher) {
         try {
             val result = accountDao.getOutComeOnCategory(year, month)
+            Result.Success(result)
+        } catch (exception: Exception) {
+            println(exception.toString())
+            Result.Error(exception.toString())
+        }
+    }
+
+    override suspend fun getOutComeOnMonth(
+        categoryId: Long,
+        year: Int,
+        month: Int
+    ): Result<List<OutComeByMonth>> = withContext(ioDispatcher) {
+        try {
+            val result = accountDao.getOutComeOnMonth(categoryId, year, month)
+            Result.Success(result)
+        } catch (exception: Exception) {
+            println(exception.toString())
+            Result.Error(exception.toString())
+        }
+    }
+
+    override suspend fun getDetailOutComeOnCategory(
+        categoryId: Long,
+        year: Int,
+        month: Int
+    ): Result<List<HistoryModel>>  = withContext(ioDispatcher) {
+        try {
+            val result = accountDao.getDetailOutComeOnCategory(categoryId, year, month)
             Result.Success(result)
         } catch (exception: Exception) {
             println(exception.toString())

@@ -10,6 +10,7 @@ import com.seom.accountbook.data.entity.category.CategoryEntity
 import com.seom.accountbook.data.entity.method.MethodEntity
 import com.seom.accountbook.di.provideAppDatabase
 import com.seom.accountbook.model.graph.OutComeByCategory
+import com.seom.accountbook.model.graph.OutComeByMonth
 import com.seom.accountbook.model.history.HistoryModel
 import com.seom.accountbook.model.history.HistoryType
 
@@ -208,8 +209,96 @@ class AccountDao(
         return accounts.toList()
     }
 
+    fun getDetailOutComeOnCategory(categoryId: Long, year: Int, month: Int): List<HistoryModel> {
+        val db = appDatabase.readable
+
+        val minYear = if (month < 6) year - 1 else year
+        val minMonth = if (month < 6) month else month - 5
+        val maxMonth = if (month < 6) 7 + month else month
+
+        val query = "SELECT " +
+                "A.${AccountEntity.COLUMN_NAME_ID}," +
+                "A.${AccountEntity.COLUMN_NAME_CONTENT}," +
+                "A.${AccountEntity.COLUMN_NAME_YEAR}," +
+                "A.${AccountEntity.COLUMN_NAME_MONTH}," +
+                "A.${AccountEntity.COLUMN_NAME_DATE}," +
+                "A.${AccountEntity.COLUMN_NAME_COUNT}," +
+                "M.${MethodEntity.COLUMN_NAME_NAME}," +
+                "C.${CategoryEntity.COLUMN_NAME_NAME}," +
+                "C.${CategoryEntity.COLUMN_NAME_COLOR}," +
+                "A.${AccountEntity.COLUMN_NAME_TYPE} " +
+                "FROM ${TABLE_NAME} A " +
+                "LEFT JOIN ${MethodDao.TABLE_NAME} M " +
+                "ON A.${AccountEntity.COLUMN_NAME_METHOD} = M.${MethodEntity.COLUMN_NAME_ID} " +
+                "LEFT JOIN ${CategoryDao.TABLE_NAME} C " +
+                "ON A.${AccountEntity.COLUMN_NAME_CATEGORY} = C.${CategoryEntity.COLUMN_NAME_ID} " +
+                "WHERE ${AccountEntity.COLUMN_NAME_YEAR} BETWEEN $minYear AND $year " +
+                "AND ${AccountEntity.COLUMN_NAME_MONTH} BETWEEN $minMonth AND $maxMonth " +
+                "AND ${AccountEntity.COLUMN_NAME_CATEGORY} = $categoryId "
+
+        val cursor = db.rawQuery(query, null)
+
+        val accounts = mutableListOf<HistoryModel>()
+        if (cursor.moveToFirst()) {
+            do {
+                accounts.add(
+                    HistoryModel(
+                        id = cursor.getLong(0),
+                        content = cursor.getString(1),
+                        year = cursor.getInt(2),
+                        month = cursor.getInt(3),
+                        date = cursor.getInt(4),
+                        money = cursor.getInt(5),
+                        method = cursor.getString(6),
+                        categoryName = cursor.getString(7),
+                        categoryColor = cursor.getLong(8),
+                        type = HistoryType.getHistoryType(cursor.getInt(9))
+                    )
+                )
+            } while (cursor.moveToNext())
+        }
+
+        return accounts.toList()
+    }
+
+    fun getOutComeOnMonth(categoryId: Long, year: Int, month: Int): List<OutComeByMonth> {
+        val db = appDatabase.readable
+
+        val minYear = if (month < 6) year - 1 else year
+        val minMonth = if (month < 6) month else month - 5
+        val maxMonth = if (month < 6) 7 + month else month
+
+        val query = "" +
+                "SELECT " +
+                "SUM(${AccountEntity.COLUMN_NAME_COUNT})," +
+                "${AccountEntity.COLUMN_NAME_MONTH} " +
+                "FROM $TABLE_NAME " +
+                "WHERE ${AccountEntity.COLUMN_NAME_YEAR} BETWEEN $minYear AND $year " +
+                "AND ${AccountEntity.COLUMN_NAME_MONTH} BETWEEN $minMonth AND $maxMonth " +
+                "AND ${AccountEntity.COLUMN_NAME_CATEGORY} = $categoryId " +
+                "GROUP BY ${AccountEntity.COLUMN_NAME_MONTH} " +
+                "ORDER BY ${AccountEntity.COLUMN_NAME_YEAR}, ${AccountEntity.COLUMN_NAME_MONTH}"
+
+
+        val cursor = db.rawQuery(query, null)
+
+        val accounts = mutableListOf<OutComeByMonth>()
+        if (cursor.moveToFirst()) {
+            do {
+                accounts.add(
+                    OutComeByMonth(
+                        count = cursor.getLong(0),
+                        name = cursor.getInt(1).toString()
+                    )
+                )
+            } while (cursor.moveToNext())
+        }
+
+        return accounts.toList()
+    }
+
     fun getOutComeOnCategory(year: Int, month: Int): List<OutComeByCategory> {
-        val db = appDatabase.writable
+        val db = appDatabase.readable
         val query = "" +
                 "SELECT " +
                 "C.${CategoryEntity.COLUMN_NAME_ID}," +

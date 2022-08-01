@@ -51,9 +51,13 @@ object Detail : AccountDestination {
     override val title = "상세"
     override val group = "graph"
     const val categoryIdArgs = "category_id"
-    val routeWithArgs = "${Detail.route}/{${categoryIdArgs}}"
+    const val yearArgs = "year"
+    const val monthArgs = "month"
+    val routeWithArgs = "${route}/{${categoryIdArgs}},{${yearArgs}},{${monthArgs}}"
     val arguments = listOf(
-        navArgument(categoryIdArgs) { type = NavType.StringType }
+        navArgument(categoryIdArgs) { type = NavType.StringType },
+        navArgument(yearArgs) { type = NavType.IntType },
+        navArgument(monthArgs) { type = NavType.IntType }
     )
 }
 
