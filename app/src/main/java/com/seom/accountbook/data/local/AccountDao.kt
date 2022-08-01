@@ -215,12 +215,15 @@ class AccountDao(
                 "C.${CategoryEntity.COLUMN_NAME_ID}," +
                 "C.${CategoryEntity.COLUMN_NAME_NAME}," +
                 "C.${CategoryEntity.COLUMN_NAME_COLOR}," +
-                "SUM(${AccountEntity.COLUMN_NAME_COUNT}) " +
+                "SUM(${AccountEntity.COLUMN_NAME_COUNT}) AS S " +
                 "FROM ${TABLE_NAME} A " +
                 "LEFT JOIN ${CategoryDao.TABLE_NAME} C " +
                 "ON A.${AccountEntity.COLUMN_NAME_CATEGORY} = C.${CategoryEntity.COLUMN_NAME_ID} " +
                 "WHERE A.${AccountEntity.COLUMN_NAME_TYPE} = ${HistoryType.OUTCOME.type} " +
-                "GROUP BY A.${AccountEntity.COLUMN_NAME_CATEGORY}"
+                "AND A.${AccountEntity.COLUMN_NAME_YEAR} = $year " +
+                "AND A.${AccountEntity.COLUMN_NAME_MONTH} = $month " +
+                "GROUP BY A.${AccountEntity.COLUMN_NAME_CATEGORY} " +
+                "ORDER BY S DESC"
 
         val cursor = db.rawQuery(query, null)
 
