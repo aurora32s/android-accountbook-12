@@ -27,6 +27,7 @@ import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.toSize
 import com.seom.accountbook.Category
+import com.seom.accountbook.Method
 import com.seom.accountbook.R
 import com.seom.accountbook.data.entity.category.CategoryEntity
 import com.seom.accountbook.data.entity.method.MethodEntity
@@ -53,7 +54,8 @@ import java.util.*
 fun PostScreen(
     postId: String? = null,
     viewModel: PostViewModel,
-    onBackButtonPressed: () -> Unit
+    onBackButtonPressed: () -> Unit,
+    onPushNavigation: (String, String) -> Unit,
 ) {
     val isModifyMode = postId.isNullOrBlank().not()
     val observeData = viewModel.postUiState.collectAsState()
@@ -67,7 +69,8 @@ fun PostScreen(
                 methods = result.methods,
                 incomeCategories = result.incomeCategories,
                 outcomeCategories = result.outcomeCategories,
-                onBackButtonPressed = onBackButtonPressed
+                onBackButtonPressed = onBackButtonPressed,
+                onPushNavigation = onPushNavigation
             )
         }
         PostUiState.Success.AddAccount -> onBackButtonPressed()
@@ -84,7 +87,8 @@ fun Body(
     methods: List<MethodEntity>,
     incomeCategories: List<CategoryEntity>,
     outcomeCategories: List<CategoryEntity>,
-    onBackButtonPressed: () -> Unit
+    onBackButtonPressed: () -> Unit,
+    onPushNavigation: (String, String) -> Unit
 ) {
     val bottomSheetState =
         rememberModalBottomSheetState(initialValue = ModalBottomSheetValue.Hidden)
@@ -152,7 +156,8 @@ fun Body(
                     content = content,
                     onChangeContent = viewModel::setContent,
                     onSubmit = { viewModel.addAccount() },
-                    modifier = Modifier.fillMaxSize()
+                    modifier = Modifier.fillMaxSize(),
+                    onPushNavigation = onPushNavigation
                 )
             }
         }
@@ -234,7 +239,8 @@ fun PostBody(
     content: State<String>,
     onChangeContent: (String) -> Unit,
     modifier: Modifier = Modifier,
-    onSubmit: () -> Unit
+    onSubmit: () -> Unit,
+    onPushNavigation: (String, String) -> Unit
 ) {
     val isAbleSubmit =
         count.value > 0 && (currentSelectedTab.value == HistoryType.INCOME || methodId.value != null)
@@ -262,6 +268,12 @@ fun PostBody(
                     ExposedDropdownBox(
                         selectedOptionId = methodId.value ?: -1,
                         onOptionSelected = onChangeMethodId,
+                        onPushAddButton = {
+                            onPushNavigation(
+                                Method.route,
+                                ""
+                            )
+                        },
                         options = methods
                     )
                 }
@@ -270,6 +282,12 @@ fun PostBody(
                 ExposedDropdownBox(
                     selectedOptionId = categoryId.value ?: -1,
                     onOptionSelected = onChangeCategoryId,
+                    onPushAddButton = {
+                        onPushNavigation(
+                            Category.route,
+                            "${currentSelectedTab.value.type}"
+                        )
+                    },
                     options = categories
                 )
             }
@@ -402,6 +420,7 @@ fun ContentInput(
 fun ExposedDropdownBox(
     selectedOptionId: Long,
     onOptionSelected: (Long?) -> Unit,
+    onPushAddButton: () -> Unit,
     options: List<BaseModel>
 ) {
     var expanded by remember { mutableStateOf(false) }
@@ -477,7 +496,7 @@ fun ExposedDropdownBox(
                     }
                 }
                 DropdownMenuItem(
-                    onClick = { /*TODO*/ },
+                    onClick = { onPushAddButton() },
                     modifier = Modifier
                         .height(36.dp)
                         .background(Color.Transparent),
