@@ -1,5 +1,7 @@
 package com.seom.accountbook.ui.screen.calendar.day
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.Card
@@ -15,15 +17,24 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.seom.accountbook.data.entity.calendar.CalendarEntity
+import com.seom.accountbook.model.history.HistoryType
 import com.seom.accountbook.ui.theme.ColorPalette
+import com.seom.accountbook.util.ext.toMoney
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun DefaultDate(
+    account: Map<Int, List<CalendarEntity>>,
     state: DayState,
     modifier: Modifier = Modifier,
     currentDayColor: Color = ColorPalette.White
 ) {
     val date = state.date
+
+    val come = account[date.dayOfMonth]
+    val income = come?.find { it.type == HistoryType.INCOME.type }?.count ?: 0
+    val outcome = come?.find { it.type == HistoryType.OUTCOME.type }?.count ?: 0
 
     Card(
         modifier = Modifier
@@ -41,19 +52,19 @@ fun DefaultDate(
                     modifier = Modifier.align(Alignment.TopStart)
                 ) {
                     Text(
-                        text = "1,500",
+                        text = income.toMoney(),
                         fontWeight = FontWeight(500),
                         color = ColorPalette.Green,
                         fontSize = 8.sp
                     )
                     Text(
-                        text = "-900",
+                        text = (-1 * outcome).toMoney(),
                         fontWeight = FontWeight(500),
                         color = ColorPalette.Red,
                         fontSize = 8.sp
                     )
                     Text(
-                        text = "2,400",
+                        text = (income - outcome).toMoney(),
                         fontWeight = FontWeight(500),
                         color = ColorPalette.Purple,
                         fontSize = 8.sp

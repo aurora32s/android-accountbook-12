@@ -8,6 +8,7 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import com.seom.accountbook.data.entity.Result
+import com.seom.accountbook.data.entity.calendar.CalendarEntity
 import com.seom.accountbook.model.history.HistoryModel
 
 class AccountRepositoryImpl(
@@ -65,6 +66,17 @@ class AccountRepositoryImpl(
                 val deletedRowNum = accountDao.removeAccount(accountItems)
                 Result.Success(deletedRowNum)
             } catch (exception: Exception) {
+                Result.Error(exception.toString())
+            }
+        }
+
+    override suspend fun getAllAccountOnDate(year: Int, month: Int): Result<List<CalendarEntity>> =
+        withContext(ioDispatcher) {
+            try {
+                val result = accountDao.getAllAccountOnDate(year, month)
+                Result.Success(result)
+            } catch (exception: Exception) {
+                println(exception.toString())
                 Result.Error(exception.toString())
             }
         }
