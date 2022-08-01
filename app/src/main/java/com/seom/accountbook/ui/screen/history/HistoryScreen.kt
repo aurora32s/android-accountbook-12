@@ -248,36 +248,48 @@ fun HistoryList(
     onClickItem: (Long) -> Unit,
     onLongClickItem: (Long) -> Unit
 ) {
-    LazyColumn(
-        modifier = modifier
+    Box(
+        modifier = Modifier.fillMaxSize()
     ) {
-        historyGroupedByDate.forEach { (date, histories) ->
-            item {
-                HistoryListHeader(
-                    date = date.fullFormat(),
-                    income = histories.filter { it.type == HistoryType.INCOME }
-                        .sumOf { it.money },
-                    outCome = histories.filter { it.type == HistoryType.OUTCOME }
-                        .sumOf { it.money }
-                )
-            }
-            items(items = histories) { history ->
-                HistoryListItem(
-                    history = history,
-                    selected = history.id in selectedItem,
-                    modifier = Modifier
-                        .combinedClickable(
-                            onClick = { onClickItem(history.id) },
-                            onLongClick = { onLongClickItem(history.id) }
+        if (historyGroupedByDate.size == 0) {
+            Text(
+                text = "내역이 없습니다.",
+                style = MaterialTheme.typography.subtitle1.copy(color = ColorPalette.Purple),
+                modifier = Modifier.align(Alignment.Center)
+            )
+        } else {
+            LazyColumn(
+                modifier = modifier
+            ) {
+                historyGroupedByDate.forEach { (date, histories) ->
+                    item {
+                        HistoryListHeader(
+                            date = date.fullFormat(),
+                            income = histories.filter { it.type == HistoryType.INCOME }
+                                .sumOf { it.money },
+                            outCome = histories.filter { it.type == HistoryType.OUTCOME }
+                                .sumOf { it.money }
                         )
-                )
-            }
-            item {
-                Divider(
-                    color = ColorPalette.LightPurple,
-                    thickness = 1.dp
-                )
-                Spacer(modifier = Modifier.height(16.dp))
+                    }
+                    items(items = histories) { history ->
+                        HistoryListItem(
+                            history = history,
+                            selected = history.id in selectedItem,
+                            modifier = Modifier
+                                .combinedClickable(
+                                    onClick = { onClickItem(history.id) },
+                                    onLongClick = { onLongClickItem(history.id) }
+                                )
+                        )
+                    }
+                    item {
+                        Divider(
+                            color = ColorPalette.LightPurple,
+                            thickness = 1.dp
+                        )
+                        Spacer(modifier = Modifier.height(16.dp))
+                    }
+                }
             }
         }
     }
