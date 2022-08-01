@@ -3,6 +3,7 @@ package com.seom.accountbook.data.repository
 import com.seom.accountbook.data.entity.Result
 import com.seom.accountbook.data.entity.account.AccountEntity
 import com.seom.accountbook.data.entity.calendar.CalendarEntity
+import com.seom.accountbook.model.graph.OutComeByCategory
 import com.seom.accountbook.model.history.HistoryModel
 
 interface AccountRepository {
@@ -23,4 +24,7 @@ interface AccountRepository {
 
     // 일별 수입/지출 내역 가져오기
     suspend fun getAllAccountOnDate(year: Int, month: Int): Result<List<CalendarEntity>>
+
+    // 특정 월의 카테고리별 지출 내역 가져오기
+    suspend fun getOutComeOnCategory(year: Int, month: Int): Result<List<OutComeByCategory>>
 }

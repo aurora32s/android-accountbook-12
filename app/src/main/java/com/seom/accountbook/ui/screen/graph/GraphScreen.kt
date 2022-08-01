@@ -13,9 +13,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Divider
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -36,6 +34,7 @@ import com.seom.accountbook.ui.screen.calendar.CalendarContainer
 import com.seom.accountbook.ui.screen.calendar.RowData
 import com.seom.accountbook.ui.theme.ColorPalette
 import com.seom.accountbook.util.ext.toMoney
+import java.time.LocalDate
 
 val mockData = listOf(
     OutComeByCategory(id = 0, name = "생활", color = 0xFF4A6CC3, count = 536460),
@@ -65,8 +64,28 @@ val mockData = listOf(
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun GraphScreen(
+    viewModel: GraphViewModel,
     onPushNavigate: (String, String) -> Unit
 ) {
+    var accounts by remember { mutableStateOf<List<OutComeByCategory>>(emptyList()) }
+
+    val observer = viewModel.graphUiState.collectAsState()
+    when (val result = observer.value) {
+        GraphUiState.UnInitialized -> {
+            val current = LocalDate.now()
+
+            val year = current.year
+            val month = current.month.value
+            viewModel.fetchData(year, month)
+        }
+        GraphUiState.Loading -> {}
+        is GraphUiState.SuccessFetch -> {
+            accounts = result.accounts
+            println(accounts)
+        }
+        is GraphUiState.Error -> {}
+    }
+
     DateAppBar(
         onDateChange = {
 
