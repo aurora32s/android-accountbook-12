@@ -1,8 +1,8 @@
 package com.seom.accountbook.data.local
 
 import android.content.ContentValues
+import android.database.sqlite.SQLiteDatabase
 import android.provider.BaseColumns
-import androidx.core.database.getIntOrNull
 import androidx.core.database.getLongOrNull
 import com.seom.accountbook.data.entity.account.AccountEntity
 import com.seom.accountbook.data.entity.category.CategoryEntity
@@ -10,6 +10,7 @@ import com.seom.accountbook.data.entity.method.MethodEntity
 import com.seom.accountbook.di.provideAppDatabase
 import com.seom.accountbook.model.history.HistoryModel
 import com.seom.accountbook.model.history.HistoryType
+
 
 class AccountDao(
     val appDatabase: AppDatabase = provideAppDatabase()
@@ -122,22 +123,6 @@ class AccountDao(
     fun getAllAccountByDate(year: Int, month: Int): List<HistoryModel> {
         val db = appDatabase.readable
 
-        val projection = arrayOf(
-            AccountEntity.COLUMN_NAME_ID,
-            AccountEntity.COLUMN_NAME_CONTENT,
-            AccountEntity.COLUMN_NAME_YEAR,
-            AccountEntity.COLUMN_NAME_MONTH,
-            AccountEntity.COLUMN_NAME_DATE,
-            AccountEntity.COLUMN_NAME_COUNT,
-            MethodEntity.COLUMN_NAME_NAME,
-            CategoryEntity.COLUMN_NAME_NAME,
-            CategoryEntity.COLUMN_NAME_COLOR,
-            AccountEntity.COLUMN_NAME_TYPE
-        )
-        val selection =
-            "${AccountEntity.COLUMN_NAME_YEAR} = ? and ${AccountEntity.COLUMN_NAME_MONTH} = ?"
-        val selectionArgs = arrayOf(year.toString(), month.toString())
-
         val query = "SELECT " +
                 "A.${AccountEntity.COLUMN_NAME_ID}," +
                 "A.${AccountEntity.COLUMN_NAME_CONTENT}," +
@@ -179,5 +164,16 @@ class AccountDao(
         }
 
         return accounts.toList()
+    }
+
+    fun removeAccount(accountItems: List<Long>): Int {
+        val db = appDatabase.writable
+
+        val whereClause =
+            "${AccountEntity.COLUMN_NAME_ID} IN (${accountItems.map { "?" }.joinToString(",")})"
+        val whereArgs = accountItems.map { it.toString() }.toTypedArray()
+
+        val numRowsDeleted = db.delete(TABLE_NAME, whereClause, whereArgs)
+        return numRowsDeleted
     }
 }

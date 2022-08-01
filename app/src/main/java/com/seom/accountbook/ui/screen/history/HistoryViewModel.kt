@@ -24,10 +24,12 @@ class HistoryViewModel(
     private val _selectedItem = mutableStateListOf<Long>()
     val selectedItem: MutableList<Long>
         get() = _selectedItem
+
     fun addSelectedItem(id: Long) {
         _selectedItem.add(id)
     }
-    fun removeSelectedItem(id: Long){
+
+    fun removeSelectedItem(id: Long) {
         _selectedItem.remove(id)
     }
 
@@ -36,7 +38,17 @@ class HistoryViewModel(
         when (val result = accountRepository.getAllAccountByDate(year, month)) {
             is Result.Error -> _historyUiState.value =
                 HistoryUiState.Error(R.string.error_history_get)
-            is Result.Success -> _historyUiState.value = HistoryUiState.Success(result.data)
+            is Result.Success -> _historyUiState.value =
+                HistoryUiState.Success.SuccessFetch(result.data)
+        }
+    }
+
+    fun removeItems() = viewModelScope.launch {
+        _historyUiState.value = HistoryUiState.Loading
+        when (accountRepository.removeAccounts(selectedItem)) {
+            is Result.Error -> _historyUiState.value =
+                HistoryUiState.Error(R.string.error_history_remove)
+            is Result.Success -> _historyUiState.value = HistoryUiState.Success.SuccessRemove
         }
     }
 }
@@ -45,9 +57,13 @@ sealed interface HistoryUiState {
     object UnInitialized : HistoryUiState
     object Loading : HistoryUiState
 
-    data class Success(
-        val histories: List<HistoryModel>
-    ) : HistoryUiState
+    sealed interface Success : HistoryUiState {
+        data class SuccessFetch(
+            val histories: List<HistoryModel>
+        ) : Success
+
+        object SuccessRemove : Success
+    }
 
     data class Error(
         @StringRes

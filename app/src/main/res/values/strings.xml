@@ -5,6 +5,7 @@
     <string name="type_history_income">수입</string>
     <string name="type_history_outcome">지출</string>
     <string name="error_history_get">내역 정보를 가져오는 도중 문제가 발생했어요.</string>
+    <string name="error_history_remove">삭제하지 못했어요. ð</string>
 
     <!-- post -->
     <string name="error_account_add">정보를 저장하는 도중 문제가 발생했어요.ð</string>

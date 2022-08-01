@@ -58,4 +58,14 @@ class AccountRepositoryImpl(
                 Result.Error(exception.toString())
             }
         }
+
+    override suspend fun removeAccounts(accountItems: List<Long>): Result<Int> =
+        withContext(ioDispatcher) {
+            try {
+                val deletedRowNum = accountDao.removeAccount(accountItems)
+                Result.Success(deletedRowNum)
+            } catch (exception: Exception) {
+                Result.Error(exception.toString())
+            }
+        }
 }

@@ -16,4 +16,7 @@ interface AccountRepository {
 
     // 월별 수입/지출 내역 요청
     suspend fun getAllAccountByDate(year: Int, month: Int): Result<List<HistoryModel>>
+
+    // 특정 수입/지출 내역 제거
+    suspend fun removeAccounts(accountItems: List<Long>): Result<Int>
 }

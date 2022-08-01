@@ -38,16 +38,19 @@ fun HistoryScreen(
     viewModel: HistoryViewModel,
     onPushNavigate: (String, String) -> Unit
 ) {
-    val histories = remember { mutableStateListOf<HistoryModel>() }
+    var histories by remember { mutableStateOf<List<HistoryModel>>(emptyList()) }
     val selectedItem = remember { viewModel.selectedItem }
 
     val observer = viewModel.historyUiState.collectAsState()
     when (val result = observer.value) {
         HistoryUiState.Loading -> {}
         is HistoryUiState.Error -> {}
-        is HistoryUiState.Success -> {
-            histories.clear()
-            histories.addAll(result.histories)
+        is HistoryUiState.Success.SuccessFetch -> {
+            histories = result.histories
+        }
+        is HistoryUiState.Success.SuccessRemove -> {
+            histories = histories.filter { (it.id in selectedItem).not() }
+            selectedItem.clear()
         }
         HistoryUiState.UnInitialized -> {
             val current = LocalDate.now()
@@ -97,6 +100,7 @@ fun HistoryScreen(
                             contentDescription = null,
                             modifier = Modifier.clickable {
                                 // TODO 선택된 내역 삭제 요청
+                                viewModel.removeItems()
                             }
                         )
                     },
@@ -129,7 +133,6 @@ fun HistoryBody(
             (2.0).pow(HistoryType.INCOME.type).toInt()
         )
     }
-    println(currentSelectedTab)
     Column() {
         Divider(
             color = ColorPalette.Purple,
@@ -365,7 +368,8 @@ fun HistoryListItem(
             if (selected) {
                 Image(
                     painter = painterResource(id = R.drawable.ic_checkbox_checked),
-                    contentDescription = null
+                    contentDescription = null,
+                    modifier = Modifier.padding(end = 16.dp)
                 )
             }
             Column(
