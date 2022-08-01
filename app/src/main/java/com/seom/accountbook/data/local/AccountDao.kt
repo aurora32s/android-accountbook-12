@@ -5,6 +5,7 @@ import android.database.sqlite.SQLiteDatabase
 import android.provider.BaseColumns
 import androidx.core.database.getLongOrNull
 import com.seom.accountbook.data.entity.account.AccountEntity
+import com.seom.accountbook.data.entity.calendar.CalendarEntity
 import com.seom.accountbook.data.entity.category.CategoryEntity
 import com.seom.accountbook.data.entity.method.MethodEntity
 import com.seom.accountbook.di.provideAppDatabase
@@ -175,5 +176,34 @@ class AccountDao(
 
         val numRowsDeleted = db.delete(TABLE_NAME, whereClause, whereArgs)
         return numRowsDeleted
+    }
+
+    fun getAllAccountOnDate(year: Int, month: Int): List<CalendarEntity> {
+        val db = appDatabase.writable
+        val query = "SELECT " +
+                "${AccountEntity.COLUMN_NAME_DATE}," +
+                "SUM(${AccountEntity.COLUMN_NAME_COUNT})," +
+                "${AccountEntity.COLUMN_NAME_TYPE} " +
+                "FROM ${TABLE_NAME} " +
+                "WHERE ${AccountEntity.COLUMN_NAME_YEAR} = $year " +
+                "AND ${AccountEntity.COLUMN_NAME_MONTH} = $month " +
+                "GROUP BY ${AccountEntity.COLUMN_NAME_TYPE}, ${AccountEntity.COLUMN_NAME_DATE}"
+
+        val cursor = db.rawQuery(query, null)
+
+        val accounts = mutableListOf<CalendarEntity>()
+        if (cursor.moveToFirst()) {
+            do {
+                accounts.add(
+                    CalendarEntity(
+                        date = cursor.getInt(0),
+                        count = cursor.getInt(1),
+                        type = cursor.getInt(2)
+                    )
+                )
+            } while (cursor.moveToNext())
+        }
+
+        return accounts.toList()
     }
 }

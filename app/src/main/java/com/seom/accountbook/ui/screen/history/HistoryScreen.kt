@@ -141,6 +141,7 @@ fun HistoryBody(
         // 수입 / 지출 tab
         HistoryTopTab(
             currentSelectedTab = currentSelectedTab,
+            histories = histories,
             onTabSelected = {
                 currentSelectedTab = currentSelectedTab xor (2.0).pow(it.type).toInt()
             },
@@ -164,6 +165,7 @@ fun HistoryBody(
 @Composable
 fun HistoryTopTab(
     currentSelectedTab: Int,
+    histories: List<HistoryModel>,
     onTabSelected: (HistoryType) -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -177,14 +179,16 @@ fun HistoryTopTab(
                 .clip(RoundedCornerShape(10.dp))
         ) {
             // 수입 tab
-            HistoryType.values().forEach {
+            HistoryType.values().forEach { type ->
                 HistoryTypeItem(
-                    type = it,
-                    selected = ((2.0).pow(it.type).toInt() and currentSelectedTab) > 0,
+                    type = type,
+                    count = histories.filter { history -> type == history.type }
+                        .sumOf { it.money }.toLong(),
+                    selected = ((2.0).pow(type.type).toInt() and currentSelectedTab) > 0,
                     modifier = Modifier
                         .weight(1f)
                         .clickable {
-                            onTabSelected(it)
+                            onTabSelected(type)
                         }
                 )
             }
@@ -195,6 +199,7 @@ fun HistoryTopTab(
 @Composable
 fun HistoryTypeItem(
     type: HistoryType,
+    count: Long,
     selected: Boolean,
     modifier: Modifier = Modifier
 ) {
@@ -229,7 +234,7 @@ fun HistoryTypeItem(
         }
 
         Text(
-            text = stringResource(id = type.title),
+            text = "${stringResource(id = type.title)} ${count.toMoney()}원",
             style = MaterialTheme.typography.subtitle1,
             color = ColorPalette.White,
             modifier = Modifier.padding(
