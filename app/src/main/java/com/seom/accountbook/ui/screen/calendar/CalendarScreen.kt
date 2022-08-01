@@ -44,6 +44,7 @@ fun CalendarScreen(
     onPushNavigate: (String, String) -> Unit
 ) {
     var histories by remember { mutableStateOf<List<CalendarEntity>>(emptyList()) }
+    val calendarState = rememberCalendarState()
 
     val observer = viewModel.categoryUiState.collectAsState()
     when (val result = observer.value) {
@@ -57,12 +58,10 @@ fun CalendarScreen(
         CalendarUiState.Loading -> {}
         is CalendarUiState.SuccessFetch -> {
             histories = result.accounts
-            println(histories)
         }
         is CalendarUiState.Error -> {}
     }
 
-    val calendarState = rememberCalendarState()
     val calendarDate = histories.groupBy { it.date }
     val income = histories.filter { it.type == HistoryType.INCOME.type }.sumOf { it.count }
     val outcome = histories.filter { it.type == HistoryType.OUTCOME.type }.sumOf { it.count }
@@ -70,6 +69,7 @@ fun CalendarScreen(
     DateAppBar(
         onDateChange = {
             // TODO 변경된 날짜에 맞는 데이터 요청
+            viewModel.fetchData(it.year, it.month.value)
             calendarState.monthState.currentMonth = YearMonth.from(it)
         },
         children = {
@@ -167,7 +167,7 @@ fun RowData(
                 )
             )
             Text(
-                text = data.toMoney(),
+                text = "${data.toMoney()} 원",
                 style = MaterialTheme.typography.caption.copy(
                     color = dateColor
                 )
