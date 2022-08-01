@@ -28,7 +28,9 @@ import com.seom.accountbook.ui.components.DateAppBar
 import com.seom.accountbook.ui.components.TwoButtonAppBar
 import com.seom.accountbook.ui.theme.ColorPalette
 import com.seom.accountbook.util.ext.fullFormat
+import com.seom.accountbook.util.ext.toMoney
 import java.time.LocalDate
+import kotlin.math.pow
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
@@ -62,7 +64,7 @@ fun HistoryScreen(
             viewModel.fetchData(date.year, date.month.value)
         }, children = {
             HistoryBody(
-                histories = histories.groupBy { LocalDate.of(it.year, it.month, it.date) },
+                histories = histories,
                 selectedItem = selectedItem,
                 onClickItem = {
                     if (selectedItem.isEmpty()) {
@@ -117,12 +119,17 @@ fun HistoryScreen(
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun HistoryBody(
-    histories: Map<LocalDate, List<HistoryModel>>,
+    histories: List<HistoryModel>,
     selectedItem: MutableList<Long>,
     onClickItem: (Long) -> Unit,
     onLongClickItem: (Long) -> Unit
 ) {
-    var currentSelectedTab by remember { mutableStateOf(HistoryType.INCOME) }
+    var currentSelectedTab by remember {
+        mutableStateOf(
+            (2.0).pow(HistoryType.INCOME.type).toInt()
+        )
+    }
+    println(currentSelectedTab)
     Column() {
         Divider(
             color = ColorPalette.Purple,
@@ -131,13 +138,17 @@ fun HistoryBody(
         // 수입 / 지출 tab
         HistoryTopTab(
             currentSelectedTab = currentSelectedTab,
-            onTabSelected = { currentSelectedTab = it },
+            onTabSelected = {
+                currentSelectedTab = currentSelectedTab xor (2.0).pow(it.type).toInt()
+            },
             modifier = Modifier
                 .padding(16.dp)
         )
         // 수입 / 지출 리스트
         HistoryList(
-            historyGroupedByDate = histories,
+            historyGroupedByDate = histories.filter {
+                currentSelectedTab and (2.0).pow(it.type.type).toInt() > 0
+            }.groupBy { LocalDate.of(it.year, it.month, it.date) },
             selectedItem = selectedItem,
             currentType = currentSelectedTab,
             modifier = Modifier.fillMaxWidth(),
@@ -149,7 +160,7 @@ fun HistoryBody(
 
 @Composable
 fun HistoryTopTab(
-    currentSelectedTab: HistoryType,
+    currentSelectedTab: Int,
     onTabSelected: (HistoryType) -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -166,7 +177,7 @@ fun HistoryTopTab(
             HistoryType.values().forEach {
                 HistoryTypeItem(
                     type = it,
-                    selected = it == currentSelectedTab,
+                    selected = ((2.0).pow(it.type).toInt() and currentSelectedTab) > 0,
                     modifier = Modifier
                         .weight(1f)
                         .clickable {
@@ -232,7 +243,7 @@ fun HistoryList(
     // TODO Key 를 String 으로 두는게 맞을까...
     historyGroupedByDate: Map<LocalDate, List<HistoryModel>>,
     selectedItem: MutableList<Long>,
-    currentType: HistoryType,
+    currentType: Int,
     modifier: Modifier = Modifier,
     onClickItem: (Long) -> Unit,
     onLongClickItem: (Long) -> Unit
@@ -250,7 +261,7 @@ fun HistoryList(
                         .sumOf { it.money }
                 )
             }
-            items(items = histories.filter { it.type == currentType }) { history ->
+            items(items = histories) { history ->
                 HistoryListItem(
                     history = history,
                     selected = history.id in selectedItem,
@@ -296,11 +307,22 @@ fun HistoryListHeader(
             style = MaterialTheme.typography.body2,
             color = ColorPalette.LightPurple
         )
-        Text(
-            text = "수입 ${income}원 지출 ${outCome}원",
-            style = MaterialTheme.typography.subtitle1,
-            color = ColorPalette.LightPurple
-        )
+        Spacer(modifier = Modifier.weight(1f))
+        if (income > 0) {
+            Text(
+                text = "수입 ${income.toMoney()}원",
+                style = MaterialTheme.typography.subtitle1,
+                color = ColorPalette.LightPurple
+            )
+        }
+        Spacer(modifier = Modifier.width(2.dp))
+        if (outCome > 0) {
+            Text(
+                text = "지출 ${outCome.toMoney()}원",
+                style = MaterialTheme.typography.subtitle1,
+                color = ColorPalette.LightPurple
+            )
+        }
     }
 }
 
@@ -384,8 +406,8 @@ fun HistoryListItem(
                     )
                     Text(
                         text = "${
-                            if (history.type == HistoryType.OUTCOME) -1 * history.money
-                            else history.money
+                            if (history.type == HistoryType.OUTCOME) (-1 * history.money).toMoney()
+                            else history.money.toMoney()
                         } 원",
                         style = MaterialTheme.typography.body2,
                         fontWeight = FontWeight(700),
