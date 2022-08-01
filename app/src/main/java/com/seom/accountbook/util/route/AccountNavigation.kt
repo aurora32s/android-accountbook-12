@@ -35,6 +35,7 @@ fun AccountNavigationHost(
     ) {
         composable(route = History.route) {
             HistoryScreen(
+                viewModel = viewModel(),
                 onPushNavigate = { route, argument ->
                     navController.navigateSingleTop(route, argument)
                 }
@@ -69,12 +70,18 @@ fun AccountNavigationHost(
             PostScreen(
                 postId = postId,
                 viewModel = viewModel(),
+                onPushNavigation = { route, argument ->
+                    navController.navigateSingleTop(route, argument)
+                },
                 onBackButtonPressed = { navController.popBackStack() }
             )
         }
         composable(route = Post.route) {
             PostScreen(
                 viewModel = viewModel(),
+                onPushNavigation = { route, argument ->
+                    navController.navigateSingleTop(route, argument)
+                },
                 onBackButtonPressed = { navController.popBackStack() }
             )
         }

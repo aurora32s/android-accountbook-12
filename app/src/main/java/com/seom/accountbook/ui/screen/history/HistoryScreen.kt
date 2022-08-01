@@ -1,8 +1,8 @@
 package com.seom.accountbook.ui.screen.history
 
-import android.view.View
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.*
-import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -14,94 +14,125 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
-import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavController
 import com.seom.accountbook.Post
 import com.seom.accountbook.R
 import com.seom.accountbook.mock.histories
-import com.seom.accountbook.model.common.Date
-import com.seom.accountbook.model.history.History
+import com.seom.accountbook.model.history.HistoryModel
 import com.seom.accountbook.model.history.HistoryType
 import com.seom.accountbook.ui.components.DateAppBar
 import com.seom.accountbook.ui.components.TwoButtonAppBar
 import com.seom.accountbook.ui.theme.ColorPalette
-import java.util.*
+import com.seom.accountbook.util.ext.fullFormat
+import com.seom.accountbook.util.ext.toMoney
+import java.time.LocalDate
+import kotlin.math.pow
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun HistoryScreen(
+    viewModel: HistoryViewModel,
     onPushNavigate: (String, String) -> Unit
 ) {
-    val selectedItem = remember { mutableStateListOf<Int>() }
-    DateAppBar(onDateChange = { date ->
-        // TODO 변경된 날짜에 맞는 데이터 요청
-    }, children = {
-        HistoryBody(
-            selectedItem = selectedItem,
-            onClickItem = {
-                if (selectedItem.isNullOrEmpty()) {
-                    // TODO 내역 수정 화면으로 이동
-                    onPushNavigate(Post.route, it.toString())
-                } else {
-                    if (it in selectedItem) selectedItem.remove(it) else selectedItem.add(
-                        it
-                    )
-                }
-            },
-            onLongClickItem = {
-                if (it in selectedItem) selectedItem.remove(it) else selectedItem.add(
-                    it
+    var histories by remember { mutableStateOf<List<HistoryModel>>(emptyList()) }
+    val selectedItem = remember { viewModel.selectedItem }
+
+    val observer = viewModel.historyUiState.collectAsState()
+    when (val result = observer.value) {
+        HistoryUiState.Loading -> {}
+        is HistoryUiState.Error -> {}
+        is HistoryUiState.Success.SuccessFetch -> {
+            histories = result.histories
+        }
+        is HistoryUiState.Success.SuccessRemove -> {
+            histories = histories.filter { (it.id in selectedItem).not() }
+            selectedItem.clear()
+        }
+        HistoryUiState.UnInitialized -> {
+            val current = LocalDate.now()
+
+            val year = current.year
+            val month = current.month.value
+            viewModel.fetchData(year, month)
+        }
+    }
+
+    DateAppBar(
+        onDateChange = { date ->
+            // TODO 변경된 날짜에 맞는 데이터 요청
+            viewModel.fetchData(date.year, date.month.value)
+        }, children = {
+            HistoryBody(
+                histories = histories,
+                selectedItem = selectedItem,
+                onClickItem = {
+                    if (selectedItem.isEmpty()) {
+                        // TODO 내역 수정 화면으로 이동
+                        onPushNavigate(Post.route, it.toString())
+                    } else {
+                        if (it in selectedItem) viewModel.removeSelectedItem(it)
+                        else viewModel.addSelectedItem(it)
+                    }
+                },
+                onLongClickItem = {
+                    if (it in selectedItem) viewModel.removeSelectedItem(it)
+                    else viewModel.addSelectedItem(it)
+                })
+        }, header = if (selectedItem.isEmpty()) null else {
+            {
+                TwoButtonAppBar(
+                    leftIcon = {
+                        Image(
+                            painter = painterResource(id = R.drawable.ic_back),
+                            contentDescription = null,
+                            modifier = Modifier.clickable {
+                                selectedItem.clear()
+                            }
+                        )
+                    },
+                    rightIcon = {
+                        Image(
+                            painter = painterResource(id = R.drawable.ic_trash),
+                            contentDescription = null,
+                            modifier = Modifier.clickable {
+                                // TODO 선택된 내역 삭제 요청
+                                viewModel.removeItems()
+                            }
+                        )
+                    },
+                    title = "${selectedItem.size}개 선택"
                 )
-            })
-    }, header = if (selectedItem.isNullOrEmpty()) null else {
-        {
-            TwoButtonAppBar(
-                leftIcon = {
-                    Image(
-                        painter = painterResource(id = R.drawable.ic_back),
-                        contentDescription = null,
-                        modifier = Modifier.clickable {
-                            selectedItem.clear()
-                        }
-                    )
+            }
+        }, actionButton = {
+            FloatingActionButton(
+                onClick = {
+                    // TODO 내역 추가 화면으로 이동
+                    onPushNavigate(Post.route, "")
                 },
-                rightIcon = {
-                    Image(
-                        painter = painterResource(id = R.drawable.ic_trash),
-                        contentDescription = null,
-                        modifier = Modifier.clickable {
-                            // TODO 선택된 내역 삭제 요청
-                        }
-                    )
-                },
-                title = "${selectedItem.size}개 선택"
-            )
-        }
-    }, actionButton = {
-        FloatingActionButton(
-            onClick = {
-                // TODO 내역 추가 화면으로 이동
-                onPushNavigate(Post.route, "")
-            },
-            backgroundColor = ColorPalette.Yellow
-        ) {
-            Image(painter = painterResource(id = R.drawable.ic_plus), contentDescription = null)
-        }
-    })
+                backgroundColor = ColorPalette.Yellow
+            ) {
+                Image(painter = painterResource(id = R.drawable.ic_plus), contentDescription = null)
+            }
+        })
 }
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun HistoryBody(
-    selectedItem: MutableList<Int>,
-    onClickItem: (Int) -> Unit,
-    onLongClickItem: (Int) -> Unit
+    histories: List<HistoryModel>,
+    selectedItem: MutableList<Long>,
+    onClickItem: (Long) -> Unit,
+    onLongClickItem: (Long) -> Unit
 ) {
-    var currentSelectedTab by remember { mutableStateOf(HistoryType.INCOME) }
+    var currentSelectedTab by remember {
+        mutableStateOf(
+            (2.0).pow(HistoryType.INCOME.type).toInt()
+        )
+    }
     Column() {
         Divider(
             color = ColorPalette.Purple,
@@ -110,13 +141,17 @@ fun HistoryBody(
         // 수입 / 지출 tab
         HistoryTopTab(
             currentSelectedTab = currentSelectedTab,
-            onTabSelected = { currentSelectedTab = it },
+            onTabSelected = {
+                currentSelectedTab = currentSelectedTab xor (2.0).pow(it.type).toInt()
+            },
             modifier = Modifier
                 .padding(16.dp)
         )
         // 수입 / 지출 리스트
         HistoryList(
-            historyGroupedByDate = histories,
+            historyGroupedByDate = histories.filter {
+                currentSelectedTab and (2.0).pow(it.type.type).toInt() > 0
+            }.groupBy { LocalDate.of(it.year, it.month, it.date) },
             selectedItem = selectedItem,
             currentType = currentSelectedTab,
             modifier = Modifier.fillMaxWidth(),
@@ -128,7 +163,7 @@ fun HistoryBody(
 
 @Composable
 fun HistoryTopTab(
-    currentSelectedTab: HistoryType,
+    currentSelectedTab: Int,
     onTabSelected: (HistoryType) -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -145,7 +180,7 @@ fun HistoryTopTab(
             HistoryType.values().forEach {
                 HistoryTypeItem(
                     type = it,
-                    selected = it == currentSelectedTab,
+                    selected = ((2.0).pow(it.type).toInt() and currentSelectedTab) > 0,
                     modifier = Modifier
                         .weight(1f)
                         .clickable {
@@ -204,47 +239,60 @@ fun HistoryTypeItem(
     }
 }
 
+@RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun HistoryList(
     // TODO Key 를 String 으로 두는게 맞을까...
-    historyGroupedByDate: Map<String, List<History>>,
-    selectedItem: MutableList<Int>,
-    currentType: HistoryType,
+    historyGroupedByDate: Map<LocalDate, List<HistoryModel>>,
+    selectedItem: MutableList<Long>,
+    currentType: Int,
     modifier: Modifier = Modifier,
-    onClickItem: (Int) -> Unit,
-    onLongClickItem: (Int) -> Unit
+    onClickItem: (Long) -> Unit,
+    onLongClickItem: (Long) -> Unit
 ) {
-    LazyColumn(
-        modifier = modifier
+    Box(
+        modifier = Modifier.fillMaxSize()
     ) {
-        historyGroupedByDate.forEach { (date, histories) ->
-            item {
-                HistoryListHeader(
-                    date = date,
-                    income = histories.filter { it.type == HistoryType.INCOME }
-                        .sumOf { it.money },
-                    outCome = histories.filter { it.type == HistoryType.OUTCOME }
-                        .sumOf { it.money }
-                )
-            }
-            items(items = histories.filter { it.type == currentType }) { history ->
-                HistoryListItem(
-                    history = history,
-                    selected = history.id in selectedItem,
-                    modifier = Modifier
-                        .combinedClickable(
-                            onClick = { onClickItem(history.id) },
-                            onLongClick = { onLongClickItem(history.id) }
+        if (historyGroupedByDate.size == 0) {
+            Text(
+                text = "내역이 없습니다.",
+                style = MaterialTheme.typography.subtitle1.copy(color = ColorPalette.Purple),
+                modifier = Modifier.align(Alignment.Center)
+            )
+        } else {
+            LazyColumn(
+                modifier = modifier
+            ) {
+                historyGroupedByDate.forEach { (date, histories) ->
+                    item {
+                        HistoryListHeader(
+                            date = date.fullFormat(),
+                            income = histories.filter { it.type == HistoryType.INCOME }
+                                .sumOf { it.money },
+                            outCome = histories.filter { it.type == HistoryType.OUTCOME }
+                                .sumOf { it.money }
                         )
-                )
-            }
-            item {
-                Divider(
-                    color = ColorPalette.LightPurple,
-                    thickness = 1.dp
-                )
-                Spacer(modifier = Modifier.height(16.dp))
+                    }
+                    items(items = histories) { history ->
+                        HistoryListItem(
+                            history = history,
+                            selected = history.id in selectedItem,
+                            modifier = Modifier
+                                .combinedClickable(
+                                    onClick = { onClickItem(history.id) },
+                                    onLongClick = { onLongClickItem(history.id) }
+                                )
+                        )
+                    }
+                    item {
+                        Divider(
+                            color = ColorPalette.LightPurple,
+                            thickness = 1.dp
+                        )
+                        Spacer(modifier = Modifier.height(16.dp))
+                    }
+                }
             }
         }
     }
@@ -274,17 +322,28 @@ fun HistoryListHeader(
             style = MaterialTheme.typography.body2,
             color = ColorPalette.LightPurple
         )
-        Text(
-            text = "수입 ${income}원 지출 ${outCome}원",
-            style = MaterialTheme.typography.subtitle1,
-            color = ColorPalette.LightPurple
-        )
+        Spacer(modifier = Modifier.weight(1f))
+        if (income > 0) {
+            Text(
+                text = "수입 ${income.toMoney()}원",
+                style = MaterialTheme.typography.subtitle1,
+                color = ColorPalette.LightPurple
+            )
+        }
+        Spacer(modifier = Modifier.width(2.dp))
+        if (outCome > 0) {
+            Text(
+                text = "지출 ${outCome.toMoney()}원",
+                style = MaterialTheme.typography.subtitle1,
+                color = ColorPalette.LightPurple
+            )
+        }
     }
 }
 
 @Composable
 fun HistoryListItem(
-    history: History,
+    history: HistoryModel,
     selected: Boolean,
     modifier: Modifier = Modifier
 ) {
@@ -309,40 +368,45 @@ fun HistoryListItem(
             if (selected) {
                 Image(
                     painter = painterResource(id = R.drawable.ic_checkbox_checked),
-                    contentDescription = null
+                    contentDescription = null,
+                    modifier = Modifier.padding(end = 16.dp)
                 )
             }
             Column(
-                modifier = Modifier.padding(start = 16.dp)
+//                modifier = Modifier.padding(start = 16.dp)
             ) {
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
-                    Text(
-                        text = history.categoryName,
-                        modifier = Modifier
-                            .widthIn(56.dp)
-                            .clip(RoundedCornerShape(999.dp))
-                            .background(Color(history.categoryColor))
-                            .padding(
-                                start = 8.dp,
-                                top = 4.dp,
-                                bottom = 4.dp,
-                                end = 8.dp
-                            ),
-                        style = MaterialTheme.typography.subtitle2,
-                        color = ColorPalette.White,
-                        textAlign = TextAlign.Center
-                    )
-                    Text(
-                        text = history.method,
-                        style = MaterialTheme.typography.subtitle1,
-                        color = ColorPalette.Purple,
-                        textAlign = TextAlign.End,
-                        modifier = Modifier
-                            .padding(top = 4.dp)
-                    )
+                    history.categoryName?.let {
+                        Text(
+                            text = history.categoryName,
+                            modifier = Modifier
+                                .widthIn(56.dp)
+                                .clip(RoundedCornerShape(999.dp))
+                                .background(Color(history.categoryColor!!))
+                                .padding(
+                                    start = 8.dp,
+                                    top = 4.dp,
+                                    bottom = 4.dp,
+                                    end = 8.dp
+                                ),
+                            style = MaterialTheme.typography.subtitle2,
+                            color = ColorPalette.White,
+                            textAlign = TextAlign.Center
+                        )
+                    }
+                    history.method?.let {
+                        Text(
+                            text = history.method,
+                            style = MaterialTheme.typography.subtitle1,
+                            color = ColorPalette.Purple,
+                            textAlign = TextAlign.End,
+                            modifier = Modifier
+                                .padding(top = 4.dp)
+                        )
+                    }
                 }
 
                 Spacer(modifier = Modifier.height(8.dp))
@@ -358,8 +422,8 @@ fun HistoryListItem(
                     )
                     Text(
                         text = "${
-                            if (history.type == HistoryType.OUTCOME) -1 * history.money
-                            else history.money
+                            if (history.type == HistoryType.OUTCOME) (-1 * history.money).toMoney()
+                            else history.money.toMoney()
                         } 원",
                         style = MaterialTheme.typography.body2,
                         fontWeight = FontWeight(700),

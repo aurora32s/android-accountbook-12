@@ -96,4 +96,5 @@ object Category : AccountDestination {
     )
 }
 
+val allScreens = listOf(History, Post, Calendar, Graph, Detail, Setting, Method, Category)
 val accountBottomTabScreens = listOf(History, Calendar, Graph, Setting)
