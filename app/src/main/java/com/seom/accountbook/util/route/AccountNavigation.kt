@@ -35,6 +35,7 @@ fun AccountNavigationHost(
     ) {
         composable(route = History.route) {
             HistoryScreen(
+                viewModel = viewModel(),
                 onPushNavigate = { route, argument ->
                     navController.navigateSingleTop(route, argument)
                 }

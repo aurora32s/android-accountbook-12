@@ -27,7 +27,7 @@ import com.seom.accountbook.R
 import com.seom.accountbook.mock.histories
 import com.seom.accountbook.model.BaseCount
 import com.seom.accountbook.model.graph.OutComeByMonth
-import com.seom.accountbook.model.history.History
+import com.seom.accountbook.model.history.HistoryModel
 import com.seom.accountbook.model.history.HistoryType
 import com.seom.accountbook.ui.components.OneButtonAppBar
 import com.seom.accountbook.ui.screen.history.HistoryListHeader
@@ -208,7 +208,7 @@ fun LinearGraph(
 @Composable
 fun OutComeList(
     // TODO Key 를 String 으로 두는게 맞을까...
-    historyGroupedByDate: Map<String, List<History>>,
+    historyGroupedByDate: Map<String, List<HistoryModel>>,
     modifier: Modifier = Modifier
 ) {
     LazyColumn(
@@ -242,7 +242,7 @@ fun OutComeList(
 
 @Composable
 fun OutComeListItem(
-    history: History,
+    history: HistoryModel,
     modifier: Modifier = Modifier
 ) {
     Column(
@@ -270,30 +270,34 @@ fun OutComeListItem(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
-                    Text(
-                        text = history.categoryName,
-                        modifier = Modifier
-                            .widthIn(56.dp)
-                            .clip(RoundedCornerShape(999.dp))
-                            .background(Color(history.categoryColor))
-                            .padding(
-                                start = 8.dp,
-                                top = 4.dp,
-                                bottom = 4.dp,
-                                end = 8.dp
-                            ),
-                        style = MaterialTheme.typography.subtitle2,
-                        color = ColorPalette.White,
-                        textAlign = TextAlign.Center
-                    )
-                    Text(
-                        text = history.method,
-                        style = MaterialTheme.typography.subtitle1,
-                        color = ColorPalette.Purple,
-                        textAlign = TextAlign.End,
-                        modifier = Modifier
-                            .padding(top = 4.dp)
-                    )
+                    if (history.categoryName != null) {
+                        Text(
+                            text = history.categoryName,
+                            modifier = Modifier
+                                .widthIn(56.dp)
+                                .clip(RoundedCornerShape(999.dp))
+                                .background(Color(history.categoryColor!!))
+                                .padding(
+                                    start = 8.dp,
+                                    top = 4.dp,
+                                    bottom = 4.dp,
+                                    end = 8.dp
+                                ),
+                            style = MaterialTheme.typography.subtitle2,
+                            color = ColorPalette.White,
+                            textAlign = TextAlign.Center
+                        )
+                    }
+                    history.method?.let {
+                        Text(
+                            text = history.method,
+                            style = MaterialTheme.typography.subtitle1,
+                            color = ColorPalette.Purple,
+                            textAlign = TextAlign.End,
+                            modifier = Modifier
+                                .padding(top = 4.dp)
+                        )
+                    }
                 }
 
                 Spacer(modifier = Modifier.height(8.dp))

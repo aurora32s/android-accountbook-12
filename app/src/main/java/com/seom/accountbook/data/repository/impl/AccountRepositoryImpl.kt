@@ -8,6 +8,7 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import com.seom.accountbook.data.entity.Result
+import com.seom.accountbook.model.history.HistoryModel
 
 class AccountRepositoryImpl(
     private val accountDao: AccountDao = provideAccountDao(),
@@ -43,6 +44,16 @@ class AccountRepositoryImpl(
 
                 if (result > 0) Result.Success(result)
                 else throw Exception("")
+            } catch (exception: Exception) {
+                Result.Error(exception.toString())
+            }
+        }
+
+    override suspend fun getAllAccountByDate(year: Int, month: Int): Result<List<HistoryModel>> =
+        withContext(ioDispatcher) {
+            try {
+                val result = accountDao.getAllAccountByDate(year, month)
+                Result.Success(result)
             } catch (exception: Exception) {
                 Result.Error(exception.toString())
             }
