@@ -9,17 +9,14 @@ import com.seom.accountbook.data.entity.Result
 import com.seom.accountbook.data.repository.AccountRepository
 import com.seom.accountbook.data.repository.impl.AccountRepositoryImpl
 import com.seom.accountbook.model.history.HistoryModel
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 
 class HistoryViewModel(
     private val accountRepository: AccountRepository = AccountRepositoryImpl()
 ) : ViewModel() {
-
-    private val _historyUiState = MutableStateFlow<HistoryUiState>(HistoryUiState.UnInitialized)
-    val historyUiState: StateFlow<HistoryUiState>
-        get() = _historyUiState
+    private val _histories = MutableStateFlow<List<HistoryModel>>(emptyList())
+    val histories = _histories.asStateFlow()
 
     private val _selectedItem = mutableStateListOf<Long>()
     val selectedItem: MutableList<Long>
@@ -34,39 +31,19 @@ class HistoryViewModel(
     }
 
     fun fetchData(year: Int, month: Int) = viewModelScope.launch {
-        _historyUiState.value = HistoryUiState.Loading
         when (val result = accountRepository.getAllAccountByDate(year, month)) {
-            is Result.Error -> _historyUiState.value =
-                HistoryUiState.Error(R.string.error_history_get)
-            is Result.Success -> _historyUiState.value =
-                HistoryUiState.Success.SuccessFetch(result.data)
+            is Result.Error -> {}
+            is Result.Success -> _histories.value = result.data
         }
     }
 
     fun removeItems() = viewModelScope.launch {
-        _historyUiState.value = HistoryUiState.Loading
         when (accountRepository.removeAccounts(selectedItem)) {
-            is Result.Error -> _historyUiState.value =
-                HistoryUiState.Error(R.string.error_history_remove)
-            is Result.Success -> _historyUiState.value = HistoryUiState.Success.SuccessRemove
+            is Result.Error -> {}
+            is Result.Success -> {
+                _histories.value = _histories.value.filter { (it.id in selectedItem).not() }
+                selectedItem.clear()
+            }
         }
     }
-}
-
-sealed interface HistoryUiState {
-    object UnInitialized : HistoryUiState
-    object Loading : HistoryUiState
-
-    sealed interface Success : HistoryUiState {
-        data class SuccessFetch(
-            val histories: List<HistoryModel>
-        ) : Success
-
-        object SuccessRemove : Success
-    }
-
-    data class Error(
-        @StringRes
-        val errorMsg: Int
-    ) : HistoryUiState
 }

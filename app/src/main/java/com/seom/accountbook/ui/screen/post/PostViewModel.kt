@@ -75,6 +75,11 @@ class PostViewModel(
         _content.value = newContent
     }
 
+    private val _methods = MutableStateFlow<List<MethodEntity>>(emptyList())
+    var methods = _methods.asStateFlow()
+
+    private val _category = MutableStateFlow<List<CategoryEntity>>(emptyList())
+    var category = _category.asStateFlow()
 
     // 수입/지출 내역 작성 시 필요한 데이터
     fun fetchAccount(postId: Long?) = viewModelScope.launch {
@@ -97,28 +102,14 @@ class PostViewModel(
             }
             null -> {}
         }
-        val methods = when (val methodResult = result.settingModel.methods) {
-            is Result.Error -> {
-                _postUIState.value =
-                    PostUiState.Error(R.string.error_account_get)
-                emptyList()
-            }
-            is Result.Success -> methodResult.data
+        when (val methodResult = result.settingModel.methods) {
+            is Result.Error -> {}
+            is Result.Success -> _methods.value = methodResult.data
         }
-        val categories = when (val categoryResult = result.settingModel.categories) {
-            is Result.Error -> {
-                _postUIState.value =
-                    PostUiState.Error(R.string.error_account_get)
-                emptyList()
-            }
-            is Result.Success -> categoryResult.data
+        when (val categoryResult = result.settingModel.categories) {
+            is Result.Error -> {}
+            is Result.Success -> _category.value = categoryResult.data
         }
-
-        _postUIState.value = PostUiState.Success.FetchAccount(
-            methods = methods,
-            incomeCategories = categories.filter { it.type == HistoryType.INCOME.type },
-            outcomeCategories = categories.filter { it.type == HistoryType.OUTCOME.type }
-        )
     }
 
     fun addAccount() = viewModelScope.launch {

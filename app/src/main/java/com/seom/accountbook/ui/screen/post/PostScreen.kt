@@ -58,24 +58,31 @@ fun PostScreen(
     onPushNavigation: (String, String) -> Unit,
 ) {
     val isModifyMode = postId.isNullOrBlank().not()
-    val observeData = viewModel.postUiState.collectAsState()
-    when (val result = observeData.value) {
-        PostUiState.UnInitialized -> viewModel.fetchAccount(postId = postId?.toLong())
-        PostUiState.Loading -> {}
-        is PostUiState.Success.FetchAccount -> {
-            Body(
-                isModifyMode = isModifyMode,
-                viewModel = viewModel,
-                methods = result.methods,
-                incomeCategories = result.incomeCategories,
-                outcomeCategories = result.outcomeCategories,
-                onBackButtonPressed = onBackButtonPressed,
-                onPushNavigation = onPushNavigation
-            )
+
+    LaunchedEffect(key1 = Unit) {
+        viewModel.postUiState.collect {
+            when (it) {
+                PostUiState.UnInitialized -> viewModel.fetchAccount(postId = postId?.toLong())
+                PostUiState.Loading -> {}
+                is PostUiState.Success.FetchAccount -> {}
+                PostUiState.Success.AddAccount -> onBackButtonPressed()
+                is PostUiState.Error -> {}
+            }
         }
-        PostUiState.Success.AddAccount -> onBackButtonPressed()
-        is PostUiState.Error -> {}
     }
+
+    val methods = viewModel.methods.collectAsState()
+    val category = viewModel.category.collectAsState()
+
+    Body(
+        isModifyMode = isModifyMode,
+        viewModel = viewModel,
+        methods = methods.value,
+        incomeCategories = category.value.filter { it.type == HistoryType.INCOME.type },
+        outcomeCategories = category.value.filter { it.type == HistoryType.OUTCOME.type },
+        onBackButtonPressed = onBackButtonPressed,
+        onPushNavigation = onPushNavigation
+    )
 }
 
 @RequiresApi(Build.VERSION_CODES.O)
