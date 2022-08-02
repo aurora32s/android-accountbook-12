@@ -73,7 +73,7 @@ class CategoryViewModel(
             id = currentCategoryId,
             name = name.value,
             color = color.value,
-            type = currentCategoryType.type ?: HistoryType.INCOME.type
+            type = currentCategoryType.type
         )
 
         val result = currentCategoryId?.let {

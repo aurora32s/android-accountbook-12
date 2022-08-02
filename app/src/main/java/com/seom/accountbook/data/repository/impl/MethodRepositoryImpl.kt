@@ -19,8 +19,10 @@ class MethodRepositoryImpl(
             try {
                 val methodId = methodDao.addMethod(method)
 
-                if (methodId != null) Result.Success.Finish(methodId)
-                else throw Exception("")
+                if (methodId != null) {
+                    if (methodId == -1L) Result.Success.Pause
+                    else Result.Success.Finish(methodId)
+                } else throw Exception("")
             } catch (exception: Exception) {
                 Result.Error(exception.toString())
             }

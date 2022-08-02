@@ -6,9 +6,11 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.seom.accountbook.ui.components.BackButtonAppBar
+import com.seom.accountbook.ui.components.common.BaseSnackBar
 import com.seom.accountbook.ui.components.container.BottomButtonBox
 import com.seom.accountbook.ui.components.text.CustomTextField
 import com.seom.accountbook.ui.theme.ColorPalette
+import kotlinx.coroutines.launch
 
 @Composable
 fun MethodAddScreen(
@@ -16,6 +18,7 @@ fun MethodAddScreen(
     viewModel: MethodViewModel,
     onBackButtonPressed: () -> Unit
 ) {
+    val scaffoldState = rememberScaffoldState()
     LaunchedEffect(key1 = Unit) {
         viewModel.methodUiState.collect {
             when (it) {
@@ -30,11 +33,19 @@ fun MethodAddScreen(
                 is MethodUiState.Error -> {
                     println("Error Method")
                 }
+                is MethodUiState.Duplicate -> {
+                    this.launch {
+                        scaffoldState.snackbarHostState.showSnackbar(
+                            message = it.duplicateMsg
+                        )
+                    }
+                }
             }
         }
     }
     MethodBody(
         isModifyMode = methodId.isNullOrBlank().not(),
+        scaffoldState = scaffoldState,
         value = viewModel.name.collectAsState().value,
         onChangeValue = viewModel::setName,
         onClickAddBtn = viewModel::addCategory,
@@ -45,6 +56,7 @@ fun MethodAddScreen(
 @Composable
 fun MethodBody(
     isModifyMode: Boolean,
+    scaffoldState: ScaffoldState,
     value: String,
     onChangeValue: (String) -> Unit,
     onClickAddBtn: () -> Unit,
@@ -52,12 +64,15 @@ fun MethodBody(
 ) {
     val modeTitle = if (isModifyMode) "수정하기" else "추가하기"
 
-    Scaffold(topBar = {
-        BackButtonAppBar(
-            title = "결제 수단 $modeTitle",
-            onClickBackBtn = onBackButtonPressed
-        )
-    }) {
+    Scaffold(
+        topBar = {
+            BackButtonAppBar(
+                title = "결제 수단 $modeTitle",
+                onClickBackBtn = onBackButtonPressed
+            )
+        },
+        snackbarHost = { it.BaseSnackBar(hostState = scaffoldState.snackbarHostState) }
+    ) {
         BottomButtonBox(
             onClickBtn = onClickAddBtn,
             enabled = value.isBlank().not(),
