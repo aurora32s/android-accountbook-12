@@ -213,8 +213,7 @@ class AccountDao(
         val db = appDatabase.readable
 
         val minYear = if (month < 6) year - 1 else year
-        val minMonth = if (month < 6) month else month - 5
-        val maxMonth = if (month < 6) 7 + month else month
+        val minMonth = if (month < 6) 7 + month else month - 5
 
         val query = "SELECT " +
                 "A.${AccountEntity.COLUMN_NAME_ID}," +
@@ -233,8 +232,9 @@ class AccountDao(
                 "LEFT JOIN ${CategoryDao.TABLE_NAME} C " +
                 "ON A.${AccountEntity.COLUMN_NAME_CATEGORY} = C.${CategoryEntity.COLUMN_NAME_ID} " +
                 "WHERE ${AccountEntity.COLUMN_NAME_YEAR} BETWEEN $minYear AND $year " +
-                "AND ${AccountEntity.COLUMN_NAME_MONTH} BETWEEN $minMonth AND $maxMonth " +
-                "AND ${AccountEntity.COLUMN_NAME_CATEGORY} = $categoryId "
+                "AND (${AccountEntity.COLUMN_NAME_MONTH} >= $minMonth OR ${AccountEntity.COLUMN_NAME_MONTH} <= $month) " +
+                "AND ${AccountEntity.COLUMN_NAME_CATEGORY} = $categoryId " +
+                "ORDER BY ${AccountEntity.COLUMN_NAME_YEAR} DESC, ${AccountEntity.COLUMN_NAME_MONTH} DESC, ${AccountEntity.COLUMN_NAME_DATE} DESC"
 
         val cursor = db.rawQuery(query, null)
 
@@ -265,8 +265,7 @@ class AccountDao(
         val db = appDatabase.readable
 
         val minYear = if (month < 6) year - 1 else year
-        val minMonth = if (month < 6) month else month - 5
-        val maxMonth = if (month < 6) 7 + month else month
+        val minMonth = if (month < 6) 7 + month else month - 5
 
         val query = "" +
                 "SELECT " +
@@ -274,7 +273,7 @@ class AccountDao(
                 "${AccountEntity.COLUMN_NAME_MONTH} " +
                 "FROM $TABLE_NAME " +
                 "WHERE ${AccountEntity.COLUMN_NAME_YEAR} BETWEEN $minYear AND $year " +
-                "AND ${AccountEntity.COLUMN_NAME_MONTH} BETWEEN $minMonth AND $maxMonth " +
+                "AND (${AccountEntity.COLUMN_NAME_MONTH} >= $minMonth OR ${AccountEntity.COLUMN_NAME_MONTH} <= $month) " +
                 "AND ${AccountEntity.COLUMN_NAME_CATEGORY} = $categoryId " +
                 "GROUP BY ${AccountEntity.COLUMN_NAME_MONTH} " +
                 "ORDER BY ${AccountEntity.COLUMN_NAME_YEAR}, ${AccountEntity.COLUMN_NAME_MONTH}"
