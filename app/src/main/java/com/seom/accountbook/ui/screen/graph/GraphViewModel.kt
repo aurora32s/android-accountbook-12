@@ -18,9 +18,6 @@ import kotlinx.coroutines.launch
 class GraphViewModel(
     private val accountRepository: AccountRepository = AccountRepositoryImpl()
 ) : ViewModel() {
-    var currentYear = 0
-    var currentMonth = 0
-
     private val _outcome = MutableStateFlow<List<OutComeByCategory>>(emptyList())
     val outcome = _outcome.asStateFlow()
 
@@ -28,8 +25,6 @@ class GraphViewModel(
         when (val result = accountRepository.getOutComeOnCategory(year, month)) {
             is Result.Error -> {}
             is Result.Success.Finish -> {
-                currentYear = year
-                currentMonth = month
                 _outcome.value = result.data
             }
         }

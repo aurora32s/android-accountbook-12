@@ -12,6 +12,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.seom.accountbook.ui.components.AccountTabRow
@@ -38,13 +39,13 @@ class AccountActivity : ComponentActivity() {
 @Composable
 fun AccountApp() {
     val navController = rememberNavController()
+    val viewModel: AccountViewModel = viewModel()
 
     val currentBackStack by navController.currentBackStackEntryAsState()
     val currentDestination = currentBackStack?.destination
     val currentScreen =
         allScreens.find { currentDestination?.route?.startsWith(it.route) ?: false } ?: History
 
-    println(currentDestination?.route)
     AccountBookTheme() {
         Scaffold(
             bottomBar = {
@@ -58,6 +59,7 @@ fun AccountApp() {
             }
         ) { innerPadding ->
             AccountNavigationHost(
+                viewModel = viewModel,
                 navController = navController,
                 modifier = Modifier.padding(innerPadding)
             )

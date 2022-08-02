@@ -35,6 +35,8 @@ import java.util.*
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun DateAppBar(
+    year: Int,
+    month: Int,
     onDateChange: (LocalDate) -> Unit, // 선택된 날짜 변경 이벤트
     children: @Composable () -> Unit,
     header: (@Composable () -> Unit)? = null,
@@ -43,13 +45,8 @@ fun DateAppBar(
     val bottomSheetState = rememberModalBottomSheetState(ModalBottomSheetValue.Hidden)
     val coroutineScope = rememberCoroutineScope()
 
-    val current = LocalDate.now()
-
-    val year = current.year
-    val month = current.month.value
-
-    val maxYear = year
-    val maxMonth = month
+    val maxYear = LocalDate.now().year
+    val maxMonth = LocalDate.now().month.value
     val minYear = year - 30
 
     val date = remember { mutableStateOf(Date(year, month)) }

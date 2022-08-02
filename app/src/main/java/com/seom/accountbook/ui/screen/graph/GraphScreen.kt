@@ -13,6 +13,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import com.seom.accountbook.AccountViewModel
 import com.seom.accountbook.DetailDestination
 import com.seom.accountbook.model.graph.OutComeByCategory
 import com.seom.accountbook.ui.components.DateAppBar
@@ -24,34 +25,38 @@ import com.seom.accountbook.ui.components.graph.CircleGraph
 import com.seom.accountbook.ui.components.text.CustomText
 import com.seom.accountbook.ui.theme.ColorPalette
 import com.seom.accountbook.util.ext.toMoney
+import kotlinx.coroutines.flow.StateFlow
 import java.time.LocalDate
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun GraphScreen(
+    mainViewModel: AccountViewModel,
+    onDateChange: (Int, Int) -> Unit,
     viewModel: GraphViewModel,
     onPushNavigate: (String, String) -> Unit
 ) {
-    LaunchedEffect(key1 = Unit) {
-        val current = LocalDate.now()
+    val year = mainViewModel.year.collectAsState()
+    val month = mainViewModel.month.collectAsState()
 
-        val year = current.year
-        val month = current.month.value
-        viewModel.fetchData(year, month)
+    LaunchedEffect(key1 = year.value, key2 = month.value) {
+        viewModel.fetchData(year.value, month.value)
     }
 
     val accounts = viewModel.outcome.collectAsState()
     val totalCount = accounts.value.sumOf { it.count }
 
     DateAppBar(
+        year = year.value,
+        month = month.value,
         onDateChange = {
-            viewModel.fetchData(it.year, it.month.value)
+            onDateChange(it.year, it.month.value)
         },
         children = {
             GraphBody(totalCount = totalCount, accounts = accounts.value, onClickItem = {
                 onPushNavigate(
                     DetailDestination.route,
-                    "$it/${viewModel.currentYear}/${viewModel.currentMonth}"
+                    "$it/${year.value}/${month.value}"
                 )
             })
         }
@@ -107,14 +112,16 @@ fun TopRow(
             CustomText(
                 text = "이번 달 총 지출 금액",
                 style = MaterialTheme.typography.subtitle1,
-                color = ColorPalette.Purple
+                color = ColorPalette.Purple,
+                bold = true
             )
         },
         right = {
             CustomText(
                 text = totalCount.toMoney(),
-                style = MaterialTheme.typography.caption,
-                color = ColorPalette.Red
+                style = MaterialTheme.typography.subtitle1,
+                color = ColorPalette.Red,
+                bold = true
             )
         }
     )
