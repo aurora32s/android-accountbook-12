@@ -1,6 +1,7 @@
 package com.seom.accountbook.ui.screen.setting.category
 
 import androidx.annotation.StringRes
+import androidx.compose.material.rememberScaffoldState
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -38,7 +39,7 @@ class CategoryViewModel(
         _name.value = newName
     }
 
-    private val _color = MutableStateFlow<Long>(0L)
+    private val _color = MutableStateFlow(0L)
     var color = _color.asStateFlow()
     fun setColor(newColor: Long) {
         _color.value = newColor
@@ -54,7 +55,7 @@ class CategoryViewModel(
             when (val result = categoryRepository.getCategory(categoryId)) {
                 is Result.Error -> _categoryUiState.value =
                     CategoryUiState.Error(R.string.error_category_get)
-                is Result.Success -> {
+                is Result.Success.Finish -> {
                     val category = result.data
                     currentCategoryId = category.id
                     _name.value = category.name
@@ -67,11 +68,12 @@ class CategoryViewModel(
     }
 
     fun addCategory() = viewModelScope.launch {
+        _categoryUiState.value = CategoryUiState.Loading
         val category = CategoryEntity(
             id = currentCategoryId,
             name = name.value,
-            color = color.value!!,
-            type = currentCategoryType?.type ?: HistoryType.INCOME.type
+            color = color.value,
+            type = currentCategoryType.type ?: HistoryType.INCOME.type
         )
 
         val result = currentCategoryId?.let {
@@ -83,7 +85,9 @@ class CategoryViewModel(
         when (result) {
             is Result.Error -> _categoryUiState.value =
                 CategoryUiState.Error(R.string.error_account_add)
-            is Result.Success -> _categoryUiState.value = CategoryUiState.Success.AddCategory
+            is Result.Success.Finish -> _categoryUiState.value = CategoryUiState.Success.AddCategory
+            Result.Success.Pause -> _categoryUiState.value =
+                CategoryUiState.Duplicate("동일한 이름의 카테고리가 있어요. ð")
         }
     }
 }
@@ -95,6 +99,10 @@ sealed interface CategoryUiState {
         object AddCategory : CategoryUiState
         object FetchCategory : CategoryUiState
     }
+
+    data class Duplicate(
+        val duplicateMsg: String
+    ) : CategoryUiState
 
     data class Error(
         @StringRes

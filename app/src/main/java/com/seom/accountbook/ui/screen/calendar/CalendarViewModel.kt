@@ -24,7 +24,7 @@ class CalendarViewModel(
         when (val result = accountRepository.getAllAccountOnDate(year, month)) {
             is Result.Error -> _categoryUiState.value =
                 CalendarUiState.Error(R.string.error_history_get)
-            is Result.Success -> _categoryUiState.value =
+            is Result.Success.Finish -> _categoryUiState.value =
                 CalendarUiState.SuccessFetch(result.data)
         }
     }

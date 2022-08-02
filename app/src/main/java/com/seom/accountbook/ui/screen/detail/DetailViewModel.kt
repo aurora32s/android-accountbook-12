@@ -23,16 +23,15 @@ class DetailViewModel(
 
     fun fetchData(categoryId: Long, year: Int, month: Int) = viewModelScope.launch {
         _detailUiState.value = DetailUiState.Loading
-        println("************")
         val result = getDetailOutComeOnCategory(categoryId,year,month)
 
         val outComeByMonth = when(val data = result.outComeOnMonth) {
-            is Result.Error -> emptyList()
-            is Result.Success -> data.data
+            is Result.Success.Finish -> data.data
+            else -> emptyList()
         }
         val accounts = when(val data = result.accounts) {
-            is Result.Error -> emptyList()
-            is Result.Success -> data.data
+            is Result.Success.Finish-> data.data
+            else -> emptyList()
         }
         _detailUiState.value = DetailUiState.SuccessFetch(
             outComeByMonth = outComeByMonth,

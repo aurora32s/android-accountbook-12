@@ -40,6 +40,7 @@ fun AccountApp() {
     val currentScreen =
         allScreens.find { currentDestination?.route?.startsWith(it.route) ?: false } ?: History
 
+    println(currentDestination?.route)
     AccountBookTheme() {
         Scaffold(
             bottomBar = {

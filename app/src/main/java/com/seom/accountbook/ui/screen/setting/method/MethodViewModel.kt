@@ -37,7 +37,7 @@ class MethodViewModel(
             when (val result = methodRepository.getMethod(methodId)) {
                 is Result.Error -> _methodUiState.value =
                     MethodUiState.Error(R.string.error_method_get)
-                is Result.Success -> {
+                is Result.Success.Finish -> {
                     val method = result.data
                     currentMethodId = method.id
                     _name.value = method.name

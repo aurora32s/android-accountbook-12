@@ -1,10 +1,7 @@
 package com.seom.accountbook.data.local
 
 import android.content.ContentValues
-import android.provider.BaseColumns
-import com.seom.accountbook.data.entity.account.AccountEntity
 import com.seom.accountbook.data.entity.category.CategoryEntity
-import com.seom.accountbook.data.entity.method.MethodEntity
 import com.seom.accountbook.di.provideAppDatabase
 import com.seom.accountbook.model.history.HistoryType
 
@@ -37,9 +34,8 @@ class CategoryDao(
 
     fun addCategory(category: CategoryEntity): Long? {
         val db = appDatabase.writable
-        if (checkCategoryName(category.name)) {
-            println("check category name")
-            return null
+        if (checkCategoryName(category.name, category.type)) {
+            return -1
         }
         val values = ContentValues().apply {
             put(CategoryEntity.COLUMN_NAME_NAME, category.name)
@@ -108,14 +104,14 @@ class CategoryDao(
         return categories.toList()
     }
 
-    private fun checkCategoryName(name: String): Boolean {
+    private fun checkCategoryName(name: String, type: Int): Boolean {
         val db = appDatabase.readable
 
         val projection = arrayOf(
             CategoryEntity.COLUMN_NAME_ID
         )
-        val selection = "${CategoryEntity.COLUMN_NAME_NAME} = ?"
-        val selectionArgs = arrayOf(name)
+        val selection = "${CategoryEntity.COLUMN_NAME_NAME} = ? AND ${CategoryEntity.COLUMN_NAME_TYPE} = ?"
+        val selectionArgs = arrayOf(name, type.toString())
 
         val cursor = db.query(
             TABLE_NAME,

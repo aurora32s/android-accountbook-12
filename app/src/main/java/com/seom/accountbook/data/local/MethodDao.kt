@@ -25,11 +25,39 @@ class MethodDao(
 
     fun addMethod(method: MethodEntity): Long? {
         val db = appDatabase.writable
+        if (checkMethodName(method.name)) {
+            return -1
+        }
         val values = ContentValues().apply {
             put(MethodEntity.COLUMN_NAME_NAME, method.name)
         }
 
         return db?.insert(TABLE_NAME, null, values)
+    }
+
+    private fun checkMethodName(name: String): Boolean {
+        val db = appDatabase.readable
+
+        val projection = arrayOf(
+            MethodEntity.COLUMN_NAME_ID
+        )
+        val selection = "${MethodEntity.COLUMN_NAME_NAME} = ?"
+        val selectionArgs = arrayOf(name)
+
+        val cursor = db.query(
+            TABLE_NAME,
+            projection,
+            selection,
+            selectionArgs,
+            null, null, null,
+            "1"
+        )
+
+        return cursor?.use {
+            cursor.moveToFirst()
+        } ?: kotlin.run {
+            false
+        }
     }
 
     fun getAllMethods(): List<MethodEntity> {

@@ -7,11 +7,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.seom.accountbook.model.history.HistoryType
 import com.seom.accountbook.ui.components.BackButtonAppBar
+import com.seom.accountbook.ui.components.common.BaseSnackBar
 import com.seom.accountbook.ui.components.container.BottomButtonBox
 import com.seom.accountbook.ui.components.header.SingleTextHeader
 import com.seom.accountbook.ui.components.selector.ColorSelector
 import com.seom.accountbook.ui.components.text.CustomTextField
 import com.seom.accountbook.ui.theme.ColorPalette
+import kotlinx.coroutines.launch
 
 @Composable
 fun CategoryAddScreen(
@@ -20,6 +22,7 @@ fun CategoryAddScreen(
     viewModel: CategoryViewModel,
     onBackButtonPressed: () -> Unit
 ) {
+    val scaffoldState = rememberScaffoldState()
     LaunchedEffect(key1 = Unit) {
         viewModel.categoryUiState.collect {
             when (it) {
@@ -31,11 +34,19 @@ fun CategoryAddScreen(
                 CategoryUiState.Success.AddCategory -> onBackButtonPressed()
                 CategoryUiState.Success.FetchCategory -> {}
                 is CategoryUiState.Error -> {}
+                is CategoryUiState.Duplicate -> {
+                    this.launch {
+                        scaffoldState.snackbarHostState.showSnackbar(
+                            message = it.duplicateMsg
+                        )
+                    }
+                }
             }
         }
     }
     SettingBody(
         isModifyMode = categoryId.isNullOrBlank().not(),
+        scaffoldState = scaffoldState,
         colorList = viewModel.colorList,
         categoryType = categoryType,
         name = viewModel.name.collectAsState().value,
@@ -50,6 +61,7 @@ fun CategoryAddScreen(
 @Composable
 fun SettingBody(
     isModifyMode: Boolean,
+    scaffoldState: ScaffoldState,
     colorList: List<Long>,
     categoryType: HistoryType,
     name: String,
@@ -62,12 +74,15 @@ fun SettingBody(
     val title = if (categoryType == HistoryType.INCOME) "수입" else "지출"
     val modeTitle = if (isModifyMode) "추가하기" else "수정하기"
 
-    Scaffold(topBar = {
-        BackButtonAppBar(
-            title = "$title 카테고리 $modeTitle",
-            onClickBackBtn = onBackButtonPressed
-        )
-    }) {
+    Scaffold(
+        topBar = {
+            BackButtonAppBar(
+                title = "$title 카테고리 $modeTitle",
+                onClickBackBtn = onBackButtonPressed
+            )
+        },
+        snackbarHost = { it.BaseSnackBar(hostState = scaffoldState.snackbarHostState) }
+    ) {
         BottomButtonBox(
             onClickBtn = onClickAddBtn,
             enabled = name.isBlank().not(),

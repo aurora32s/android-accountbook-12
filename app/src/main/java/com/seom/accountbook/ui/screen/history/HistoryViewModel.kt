@@ -33,14 +33,14 @@ class HistoryViewModel(
     fun fetchData(year: Int, month: Int) = viewModelScope.launch {
         when (val result = accountRepository.getAllAccountByDate(year, month)) {
             is Result.Error -> {}
-            is Result.Success -> _histories.value = result.data
+            is Result.Success.Finish -> _histories.value = result.data
         }
     }
 
     fun removeItems() = viewModelScope.launch {
         when (accountRepository.removeAccounts(selectedItem)) {
             is Result.Error -> {}
-            is Result.Success -> {
+            is Result.Success.Finish -> {
                 _histories.value = _histories.value.filter { (it.id in selectedItem).not() }
                 selectedItem.clear()
             }

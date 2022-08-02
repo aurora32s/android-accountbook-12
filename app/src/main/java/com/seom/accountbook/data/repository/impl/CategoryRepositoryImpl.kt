@@ -18,8 +18,10 @@ class CategoryRepositoryImpl(
             try {
                 val categoryId = categoryDao.addCategory(category)
 
-                if (categoryId != null) Result.Success(categoryId)
-                else throw Exception("")
+                if (categoryId != null) {
+                    if (categoryId == -1L) Result.Success.Pause
+                    else Result.Success.Finish(categoryId)
+                } else throw Exception("")
             } catch (exception: Exception) {
                 Result.Error(exception.toString())
             }
@@ -30,7 +32,7 @@ class CategoryRepositoryImpl(
             try {
                 val result = categoryDao.updateCategory(category)
 
-                if (result > 0) Result.Success(result)
+                if (result > 0) Result.Success.Finish(result)
                 else throw Exception("")
             } catch (exception: Exception) {
                 Result.Error(exception.toString())
@@ -42,7 +44,7 @@ class CategoryRepositoryImpl(
             try {
                 val category = categoryDao.getCategory(id)
 
-                if (category != null) Result.Success(category)
+                if (category != null) Result.Success.Finish(category)
                 else throw Exception("")
             } catch (exception: Exception) {
                 Result.Error(exception.toString())
@@ -53,7 +55,7 @@ class CategoryRepositoryImpl(
         withContext(ioDispatcher) {
             try {
                 val categories = categoryDao.getAllCategory()
-                Result.Success(categories)
+                Result.Success.Finish(categories)
             } catch (exception: Exception) {
                 Result.Error(exception.toString())
             }

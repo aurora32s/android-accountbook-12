@@ -22,7 +22,7 @@ class AccountRepositoryImpl(
         try {
             val id = accountDao.addAccount(account)
 
-            if (id != null) Result.Success(id)
+            if (id != null) Result.Success.Finish(id)
             else throw Exception("")
         } catch (exception: Exception) {
             Result.Error(exception.toString())
@@ -33,7 +33,7 @@ class AccountRepositoryImpl(
         try {
             val account = accountDao.getAccount(id)
 
-            if (account != null) Result.Success(account)
+            if (account != null) Result.Success.Finish(account)
             else throw Exception("")
         } catch (exception: Exception) {
             Result.Error(exception.toString())
@@ -45,7 +45,7 @@ class AccountRepositoryImpl(
             try {
                 val result = accountDao.updateAccount(account)
 
-                if (result > 0) Result.Success(result)
+                if (result > 0) Result.Success.Finish(result)
                 else throw Exception("")
             } catch (exception: Exception) {
                 Result.Error(exception.toString())
@@ -56,7 +56,7 @@ class AccountRepositoryImpl(
         withContext(ioDispatcher) {
             try {
                 val result = accountDao.getAllAccountByDate(year, month)
-                Result.Success(result)
+                Result.Success.Finish(result)
             } catch (exception: Exception) {
                 Result.Error(exception.toString())
             }
@@ -66,7 +66,7 @@ class AccountRepositoryImpl(
         withContext(ioDispatcher) {
             try {
                 val deletedRowNum = accountDao.removeAccount(accountItems)
-                Result.Success(deletedRowNum)
+                Result.Success.Finish(deletedRowNum)
             } catch (exception: Exception) {
                 Result.Error(exception.toString())
             }
@@ -76,7 +76,7 @@ class AccountRepositoryImpl(
         withContext(ioDispatcher) {
             try {
                 val result = accountDao.getAllAccountOnDate(year, month)
-                Result.Success(result)
+                Result.Success.Finish(result)
             } catch (exception: Exception) {
                 println(exception.toString())
                 Result.Error(exception.toString())
@@ -89,7 +89,7 @@ class AccountRepositoryImpl(
     ): Result<List<OutComeByCategory>> = withContext(ioDispatcher) {
         try {
             val result = accountDao.getOutComeOnCategory(year, month)
-            Result.Success(result)
+            Result.Success.Finish(result)
         } catch (exception: Exception) {
             println(exception.toString())
             Result.Error(exception.toString())
@@ -103,7 +103,7 @@ class AccountRepositoryImpl(
     ): Result<List<OutComeByMonth>> = withContext(ioDispatcher) {
         try {
             val result = accountDao.getOutComeOnMonth(categoryId, year, month)
-            Result.Success(result)
+            Result.Success.Finish(result)
         } catch (exception: Exception) {
             println(exception.toString())
             Result.Error(exception.toString())
@@ -117,7 +117,7 @@ class AccountRepositoryImpl(
     ): Result<List<HistoryModel>>  = withContext(ioDispatcher) {
         try {
             val result = accountDao.getDetailOutComeOnCategory(categoryId, year, month)
-            Result.Success(result)
+            Result.Success.Finish(result)
         } catch (exception: Exception) {
             println(exception.toString())
             Result.Error(exception.toString())
