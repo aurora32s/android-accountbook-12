@@ -1,17 +1,12 @@
 package com.seom.accountbook.ui.screen.detail
 
-import androidx.annotation.StringRes
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.seom.accountbook.R
 import com.seom.accountbook.data.entity.Result
-import com.seom.accountbook.model.graph.OutComeByCategory
 import com.seom.accountbook.model.graph.OutComeByMonth
 import com.seom.accountbook.model.history.HistoryModel
-import com.seom.accountbook.ui.screen.graph.GraphUiState
 import com.seom.accountbook.usecase.GetDetailOutComeOnCategoryUseCase
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 

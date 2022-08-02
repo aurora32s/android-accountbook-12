@@ -43,7 +43,7 @@ object Graph : AccountDestination {
     override val group = "graph"
 }
 
-object Detail : AccountDestination {
+object DetailDestination : AccountDestination {
     override val icon = R.drawable.ic_graph
     override val route = "detail"
     override val title = "상세"
@@ -51,7 +51,7 @@ object Detail : AccountDestination {
     const val categoryIdArgs = "category_id"
     const val yearArgs = "year"
     const val monthArgs = "month"
-    val routeWithArgs = "${route}/{${categoryIdArgs}},{${yearArgs}},{${monthArgs}}"
+    val routeWithArgs = "${route}/{${categoryIdArgs}}/{${yearArgs}}/{${monthArgs}}"
     val arguments = listOf(
         navArgument(categoryIdArgs) { type = NavType.StringType },
         navArgument(yearArgs) { type = NavType.IntType },
@@ -98,5 +98,5 @@ object CategoryDestination : AccountDestination {
     )
 }
 
-val allScreens = listOf(History, Post, Calendar, Graph, Detail, Setting, MethodDestination, CategoryDestination)
+val allScreens = listOf(History, Post, Calendar, Graph, DetailDestination, Setting, MethodDestination, CategoryDestination)
 val accountBottomTabScreens = listOf(History, Calendar, Graph, Setting)

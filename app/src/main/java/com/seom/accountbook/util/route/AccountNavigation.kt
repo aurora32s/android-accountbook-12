@@ -87,12 +87,12 @@ fun AccountNavigationHost(
         }
 
         composable(
-            route = Detail.routeWithArgs,
-            arguments = Detail.arguments
+            route = DetailDestination.routeWithArgs,
+            arguments = DetailDestination.arguments
         ) { navBackStackEntry ->
-            val year = navBackStackEntry.arguments?.getInt(Detail.yearArgs)
-            val month = navBackStackEntry.arguments?.getInt(Detail.monthArgs)
-            val categoryId = navBackStackEntry.arguments?.getString(Detail.categoryIdArgs)
+            val year = navBackStackEntry.arguments?.getInt(DetailDestination.yearArgs)
+            val month = navBackStackEntry.arguments?.getInt(DetailDestination.monthArgs)
+            val categoryId = navBackStackEntry.arguments?.getString(DetailDestination.categoryIdArgs)
 
             if (year != null && month != null && categoryId != null) {
                 DetailScreen(

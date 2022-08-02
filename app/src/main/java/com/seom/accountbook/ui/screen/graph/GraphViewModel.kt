@@ -12,43 +12,26 @@ import com.seom.accountbook.model.graph.OutComeByCategory
 import com.seom.accountbook.ui.screen.calendar.CalendarUiState
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
 class GraphViewModel(
     private val accountRepository: AccountRepository = AccountRepositoryImpl()
 ) : ViewModel() {
-    private val _graphUiState = MutableStateFlow<GraphUiState>(GraphUiState.UnInitialized)
-    val graphUiState: StateFlow<GraphUiState>
-        get() = _graphUiState
-
     var currentYear = 0
     var currentMonth = 0
 
+    private val _outcome = MutableStateFlow<List<OutComeByCategory>>(emptyList())
+    val outcome = _outcome.asStateFlow()
+
     fun fetchData(year: Int, month: Int) = viewModelScope.launch {
-        _graphUiState.value = GraphUiState.Loading
         when (val result = accountRepository.getOutComeOnCategory(year, month)) {
-            is Result.Error -> _graphUiState.value =
-                GraphUiState.Error(R.string.error_history_get)
+            is Result.Error -> {}
             is Result.Success.Finish -> {
                 currentYear = year
                 currentMonth = month
-                _graphUiState.value =
-                    GraphUiState.SuccessFetch(result.data)
+                _outcome.value = result.data
             }
         }
     }
-}
-
-sealed interface GraphUiState {
-    object UnInitialized : GraphUiState
-    object Loading : GraphUiState
-
-    data class SuccessFetch(
-        val accounts: List<OutComeByCategory>
-    ) : GraphUiState
-
-    data class Error(
-        @StringRes
-        val errorMsg: Int
-    ) : GraphUiState
 }
