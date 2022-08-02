@@ -5,7 +5,6 @@ import androidx.annotation.RequiresApi
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.navigation.NavArgument
 import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
@@ -17,7 +16,6 @@ import com.seom.accountbook.ui.screen.detail.DetailScreen
 import com.seom.accountbook.ui.screen.graph.GraphScreen
 import com.seom.accountbook.ui.screen.history.HistoryScreen
 import com.seom.accountbook.ui.screen.post.PostScreen
-import com.seom.accountbook.ui.screen.post.PostViewModel
 import com.seom.accountbook.ui.screen.setting.SettingScreen
 import com.seom.accountbook.ui.screen.setting.category.CategoryAddScreen
 import com.seom.accountbook.ui.screen.setting.method.MethodAddScreen
@@ -108,7 +106,7 @@ fun AccountNavigationHost(
         }
         // 결제 수단 새로 추가
         composable(
-            route = Method.route
+            route = MethodDestination.route
         ) {
             MethodAddScreen(
                 viewModel = viewModel()
@@ -118,10 +116,10 @@ fun AccountNavigationHost(
         }
         // 결제 수단 변경
         composable(
-            route = Method.routeWithArgs,
-            arguments = Method.arguments
+            route = MethodDestination.routeWithArgs,
+            arguments = MethodDestination.arguments
         ) { navBackStackEntry ->
-            val methodId = navBackStackEntry.arguments?.getString(Method.methodIdArgs)
+            val methodId = navBackStackEntry.arguments?.getString(MethodDestination.methodIdArgs)
             MethodAddScreen(
                 methodId = methodId,
                 viewModel = viewModel()
@@ -131,10 +129,10 @@ fun AccountNavigationHost(
         }
         // 카테고리 새로 추가
         composable(
-            route = Category.routeWithArgs,
-            arguments = Category.arguments
+            route = CategoryDestination.routeWithArgs,
+            arguments = CategoryDestination.arguments
         ) { navBackStackEntry ->
-            val categoryType = navBackStackEntry.arguments?.getString(Category.categoryTypeArgs)
+            val categoryType = navBackStackEntry.arguments?.getString(CategoryDestination.categoryTypeArgs)
             CategoryAddScreen(
                 null,
                 HistoryType.getHistoryType(categoryType?.toInt() ?: 0),
@@ -145,11 +143,11 @@ fun AccountNavigationHost(
         }
         // 카테고리 변경
         composable(
-            route = Category.routeWithAllArgs,
-            arguments = Category.allArguments
+            route = CategoryDestination.routeWithAllArgs,
+            arguments = CategoryDestination.allArguments
         ) { navBackStackEntry ->
-            val categoryId = navBackStackEntry.arguments?.getString(Category.categoryIdArgs)
-            val categoryType = navBackStackEntry.arguments?.getString(Category.categoryTypeArgs)
+            val categoryId = navBackStackEntry.arguments?.getString(CategoryDestination.categoryIdArgs)
+            val categoryType = navBackStackEntry.arguments?.getString(CategoryDestination.categoryTypeArgs)
             CategoryAddScreen(
                 categoryId,
                 HistoryType.getHistoryType(categoryType?.toInt() ?: 0),

@@ -29,7 +29,7 @@ class GraphViewModel(
         when (val result = accountRepository.getOutComeOnCategory(year, month)) {
             is Result.Error -> _graphUiState.value =
                 GraphUiState.Error(R.string.error_history_get)
-            is Result.Success -> {
+            is Result.Success.Finish -> {
                 currentYear = year
                 currentMonth = month
                 _graphUiState.value =

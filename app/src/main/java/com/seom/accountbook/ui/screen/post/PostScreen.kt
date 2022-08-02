@@ -26,24 +26,21 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.toSize
-import com.seom.accountbook.Category
-import com.seom.accountbook.Method
+import com.seom.accountbook.CategoryDestination
+import com.seom.accountbook.MethodDestination
 import com.seom.accountbook.R
 import com.seom.accountbook.data.entity.category.CategoryEntity
 import com.seom.accountbook.data.entity.method.MethodEntity
 import com.seom.accountbook.model.BaseModel
 import com.seom.accountbook.model.category.CategoryModel
 import com.seom.accountbook.model.history.HistoryType
-import com.seom.accountbook.model.method.MethodModel
 import com.seom.accountbook.ui.components.BackButtonAppBar
 import com.seom.accountbook.ui.components.CustomBottomSheet
 import com.seom.accountbook.ui.components.datesheet.FullDateBottomSheet
 import com.seom.accountbook.ui.theme.ColorPalette
 import com.seom.accountbook.util.ext.*
-import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import java.time.LocalDate
-import java.util.*
 
 /**
  * 수입/지출 내역 화면 UI
@@ -277,7 +274,7 @@ fun PostBody(
                         onOptionSelected = onChangeMethodId,
                         onPushAddButton = {
                             onPushNavigation(
-                                Method.route,
+                                MethodDestination.route,
                                 ""
                             )
                         },
@@ -291,7 +288,7 @@ fun PostBody(
                     onOptionSelected = onChangeCategoryId,
                     onPushAddButton = {
                         onPushNavigation(
-                            Category.route,
+                            CategoryDestination.route,
                             "${currentSelectedTab.value.type}"
                         )
                     },

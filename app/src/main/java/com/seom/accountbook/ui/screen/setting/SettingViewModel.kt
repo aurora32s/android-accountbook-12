@@ -32,11 +32,11 @@ class SettingViewModel(
 
         when (val methodResult = result.methods) {
             is Result.Error -> {}
-            is Result.Success -> _methods.value = methodResult.data
+            is Result.Success.Finish -> _methods.value = methodResult.data
         }
         when (val categoryResult = result.categories) {
             is Result.Error -> {}
-            is Result.Success -> _category.value = categoryResult.data
+            is Result.Success.Finish -> _category.value = categoryResult.data
         }
     }
 }

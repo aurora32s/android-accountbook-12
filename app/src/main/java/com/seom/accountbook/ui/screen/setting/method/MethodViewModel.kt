@@ -37,7 +37,7 @@ class MethodViewModel(
             when (val result = methodRepository.getMethod(methodId)) {
                 is Result.Error -> _methodUiState.value =
                     MethodUiState.Error(R.string.error_method_get)
-                is Result.Success -> {
+                is Result.Success.Finish -> {
                     val method = result.data
                     currentMethodId = method.id
                     _name.value = method.name
@@ -62,7 +62,10 @@ class MethodViewModel(
         when (result) {
             is Result.Error -> _methodUiState.value =
                 MethodUiState.Error(R.string.error_method_add)
-            is Result.Success -> _methodUiState.value = MethodUiState.Success.AddMethod
+            is Result.Success.Finish -> _methodUiState.value = MethodUiState.Success.AddMethod
+            Result.Success.Pause -> _methodUiState.value =
+                MethodUiState.Duplicate("동일한 이름의 결제 수단이 이미 있어요.")
+
         }
     }
 }
@@ -74,6 +77,10 @@ sealed interface MethodUiState {
         object AddMethod : Success
         object FetchMethod : Success
     }
+
+    data class Duplicate(
+        val duplicateMsg: String
+    ) : MethodUiState
 
     data class Error(
         @StringRes

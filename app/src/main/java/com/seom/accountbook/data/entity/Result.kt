@@ -1,6 +1,10 @@
 package com.seom.accountbook.data.entity
 
 sealed interface Result<out T : Any> {
-    data class Success<out T : Any>(val data: T) : Result<T>
+    sealed interface Success<out T : Any> : Result<T> {
+        data class Finish<out T : Any>(val data: T) : Success<T>
+        object Pause : Success<Nothing>
+    }
+
     data class Error(val exception: String) : Result<Nothing>
 }

@@ -12,6 +12,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.seom.accountbook.R
+import com.seom.accountbook.ui.components.common.BaseDivider
 import com.seom.accountbook.ui.theme.ColorPalette
 
 /**
@@ -22,7 +23,7 @@ fun OneButtonAppBar(
     title: String,
     leftIcon: @Composable () -> Unit
 ) {
-    Column() {
+    Column {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -38,10 +39,7 @@ fun OneButtonAppBar(
             Spacer(modifier = Modifier.width(24.dp))
         }
 
-        Divider(
-            color = ColorPalette.Purple,
-            thickness = 1.dp
-        )
+        BaseDivider(color = ColorPalette.Purple)
     }
 }
 

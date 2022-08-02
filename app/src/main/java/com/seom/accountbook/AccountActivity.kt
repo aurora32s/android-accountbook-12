@@ -2,6 +2,7 @@ package com.seom.accountbook
 
 import android.os.Build
 import android.os.Bundle
+import android.view.WindowManager
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.annotation.RequiresApi
@@ -23,6 +24,9 @@ class AccountActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        // TODO DEPRECATED 된 거 수정하기
+        window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
+
         setContent {
             AccountApp()
         }
@@ -40,6 +44,7 @@ fun AccountApp() {
     val currentScreen =
         allScreens.find { currentDestination?.route?.startsWith(it.route) ?: false } ?: History
 
+    println(currentDestination?.route)
     AccountBookTheme() {
         Scaffold(
             bottomBar = {

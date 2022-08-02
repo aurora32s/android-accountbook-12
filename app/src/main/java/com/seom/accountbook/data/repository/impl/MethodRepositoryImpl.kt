@@ -19,8 +19,10 @@ class MethodRepositoryImpl(
             try {
                 val methodId = methodDao.addMethod(method)
 
-                if (methodId != null) Result.Success(methodId)
-                else throw Exception("")
+                if (methodId != null) {
+                    if (methodId == -1L) Result.Success.Pause
+                    else Result.Success.Finish(methodId)
+                } else throw Exception("")
             } catch (exception: Exception) {
                 Result.Error(exception.toString())
             }
@@ -31,7 +33,7 @@ class MethodRepositoryImpl(
             try {
                 val result = methodDao.updateMethod(method)
 
-                if (result > 0) Result.Success(result)
+                if (result > 0) Result.Success.Finish(result)
                 else throw Exception("")
             } catch (exception: Exception) {
                 Result.Error(exception.toString())
@@ -43,7 +45,7 @@ class MethodRepositoryImpl(
             try {
                 val category = methodDao.getMethods(id)
 
-                if (category != null) Result.Success(category)
+                if (category != null) Result.Success.Finish(category)
                 else throw Exception("")
             } catch (exception: Exception) {
                 Result.Error(exception.toString())
@@ -54,7 +56,7 @@ class MethodRepositoryImpl(
         withContext(ioDispatcher) {
             try {
                 val methods = methodDao.getAllMethods()
-                Result.Success(methods)
+                Result.Success.Finish(methods)
             } catch (exception: Exception) {
                 Result.Error(exception.toString())
             }

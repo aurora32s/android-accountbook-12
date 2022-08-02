@@ -90,7 +90,7 @@ class PostViewModel(
         when (val accountResult = result.account) {
             is Result.Error -> _postUIState.value =
                 PostUiState.Error(R.string.error_account_get)
-            is Result.Success -> {
+            is Result.Success.Finish -> {
                 val account = accountResult.data
                 accountId = account.id
                 _type.value = HistoryType.getHistoryType(account.type)
@@ -104,11 +104,11 @@ class PostViewModel(
         }
         when (val methodResult = result.settingModel.methods) {
             is Result.Error -> {}
-            is Result.Success -> _methods.value = methodResult.data
+            is Result.Success.Finish -> _methods.value = methodResult.data
         }
         when (val categoryResult = result.settingModel.categories) {
             is Result.Error -> {}
-            is Result.Success -> _category.value = categoryResult.data
+            is Result.Success.Finish -> _category.value = categoryResult.data
         }
     }
 
