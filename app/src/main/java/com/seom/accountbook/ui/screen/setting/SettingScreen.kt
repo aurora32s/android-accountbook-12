@@ -15,6 +15,7 @@ import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Scaffold
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -38,21 +39,19 @@ fun SettingScreen(
     viewModel: SettingViewModel,
     onPushNavigate: (String, String) -> Unit
 ) {
-    val observeData = viewModel.settingUiState.collectAsState()
-    when (val result = observeData.value) {
-        SettingUiState.UnInitialized -> viewModel.fetchData()
-        SettingUiState.Loading -> {}
-        is SettingUiState.Success -> {
-            Body(
-                methods = result.methods,
-                incomeCategories = result.incomeCategories,
-                outcomeCategories = result.outcomeCategories,
-                onPushNavigate = onPushNavigate
-            )
-        }
-        is SettingUiState.Error -> {}
+    LaunchedEffect(key1 = Unit) {
+        viewModel.fetchData()
     }
 
+    val methods = viewModel.methods.collectAsState()
+    val category = viewModel.category.collectAsState()
+
+    Body(
+        methods = methods.value,
+        incomeCategories = category.value.filter { it.type == HistoryType.INCOME.type },
+        outcomeCategories = category.value.filter { it.type == HistoryType.OUTCOME.type },
+        onPushNavigate = onPushNavigate
+    )
 }
 
 @Composable

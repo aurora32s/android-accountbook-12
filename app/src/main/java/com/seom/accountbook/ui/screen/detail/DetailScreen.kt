@@ -26,8 +26,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.seom.accountbook.R
-import com.seom.accountbook.mock.histories
-import com.seom.accountbook.model.BaseCount
 import com.seom.accountbook.model.graph.OutComeByMonth
 import com.seom.accountbook.model.history.HistoryModel
 import com.seom.accountbook.model.history.HistoryType

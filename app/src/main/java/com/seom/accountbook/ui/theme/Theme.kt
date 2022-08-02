@@ -17,17 +17,8 @@ private val LightColorPalette = lightColors(
     primary = ColorPalette.Purple,
     primaryVariant = ColorPalette.LightPurple,
     secondary = ColorPalette.Purple40,
-
     onPrimary = ColorPalette.White,
     background = ColorPalette.OffWhite
-    /* Other default colors to override
-    background = Color.White,
-    surface = Color.White,
-    onPrimary = Color.White,
-    onSecondary = Color.Black,
-    onBackground = Color.Black,
-    onSurface = Color.Black,
-    */
 )
 
 @Composable

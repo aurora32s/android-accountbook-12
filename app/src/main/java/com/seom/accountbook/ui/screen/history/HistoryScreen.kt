@@ -37,28 +37,17 @@ fun HistoryScreen(
     viewModel: HistoryViewModel,
     onPushNavigate: (String, String) -> Unit
 ) {
-    var histories by remember { mutableStateOf<List<HistoryModel>>(emptyList()) }
-    val selectedItem = remember { viewModel.selectedItem }
 
-    val observer = viewModel.historyUiState.collectAsState()
-    when (val result = observer.value) {
-        HistoryUiState.Loading -> {}
-        is HistoryUiState.Error -> {}
-        is HistoryUiState.Success.SuccessFetch -> {
-            histories = result.histories
-        }
-        is HistoryUiState.Success.SuccessRemove -> {
-            histories = histories.filter { (it.id in selectedItem).not() }
-            selectedItem.clear()
-        }
-        HistoryUiState.UnInitialized -> {
-            val current = LocalDate.now()
+    LaunchedEffect(key1 = Unit) {
+        val current = LocalDate.now()
 
-            val year = current.year
-            val month = current.month.value
-            viewModel.fetchData(year, month)
-        }
+        val year = current.year
+        val month = current.month.value
+        viewModel.fetchData(year, month)
     }
+
+    val selectedItem = remember { viewModel.selectedItem }
+    var histories = viewModel.histories.collectAsState()
 
     DateAppBar(
         onDateChange = { date ->
@@ -66,7 +55,7 @@ fun HistoryScreen(
             viewModel.fetchData(date.year, date.month.value)
         }, children = {
             HistoryBody(
-                histories = histories,
+                histories = histories.value,
                 selectedItem = selectedItem,
                 onClickItem = {
                     if (selectedItem.isEmpty()) {
