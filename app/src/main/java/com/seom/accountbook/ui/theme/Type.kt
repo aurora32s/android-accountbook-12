@@ -16,6 +16,7 @@ val Typography = Typography(
     body2 = TextStyle(
         fontFamily = FontFamily.SansSerif,
         fontSize = 16.sp,
+        lineHeight = 18.sp
     ),
     subtitle1 = TextStyle(
         fontFamily = FontFamily.SansSerif,

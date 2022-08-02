@@ -20,23 +20,12 @@ import com.seom.accountbook.ui.theme.ColorPalette
 fun SingleTextHeader(
     title: String
 ) {
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .background(ColorPalette.OffWhite)
-            .padding(
-                start = 16.dp,
-                end = 16.dp,
-                top = 16.dp
-            )
-    ) {
+    BaseTextHeader {
         CustomText(
             text = title,
             style = MaterialTheme.typography.body2,
             bold = false,
-            color = ColorPalette.LightPurple,
-            modifier = Modifier
-                .padding(top = 8.dp, bottom = 8.dp)
+            color = ColorPalette.LightPurple
         )
     }
 }

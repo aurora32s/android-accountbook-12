@@ -18,7 +18,7 @@ fun CustomText(
     modifier: Modifier = Modifier,
     text: String,
     style: TextStyle,
-    bold: Boolean,
+    bold: Boolean = false,
     color: Color,
     align: TextAlign = TextAlign.Start,
     paddingVertical: Int = 0,
