@@ -7,6 +7,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 
 /**
@@ -14,11 +15,12 @@ import androidx.compose.ui.unit.dp
  */
 @Composable
 fun CustomText(
+    modifier: Modifier = Modifier,
     text: String,
     style: TextStyle,
     bold: Boolean,
     color: Color,
-    modifier: Modifier = Modifier,
+    align: TextAlign = TextAlign.Start,
     paddingVertical: Int = 0,
     paddingHorizontal: Int = 0
 ) {
@@ -27,6 +29,7 @@ fun CustomText(
         style = style,
         fontWeight = FontWeight(if (bold) FONT_WEIGHT_BOLD else FONT_WEIGHT_LIGHT),
         color = color,
+        textAlign = align,
         modifier = modifier
             .padding(
                 start = paddingHorizontal.dp,

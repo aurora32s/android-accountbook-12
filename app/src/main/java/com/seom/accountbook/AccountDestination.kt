@@ -1,7 +1,5 @@
 package com.seom.accountbook
 
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.navigation.NavType
 import androidx.navigation.navArgument
 
@@ -68,7 +66,7 @@ object Setting : AccountDestination {
     override val group = "setting"
 }
 
-object Method : AccountDestination {
+object MethodDestination : AccountDestination {
     override val icon = R.drawable.ic_settings
     override val route = "method"
     override val title = "결제수단"
@@ -81,7 +79,7 @@ object Method : AccountDestination {
     )
 }
 
-object Category : AccountDestination {
+object CategoryDestination : AccountDestination {
     override val icon = R.drawable.ic_settings
     override val route = "category"
     override val title = "카테고리"
@@ -100,5 +98,5 @@ object Category : AccountDestination {
     )
 }
 
-val allScreens = listOf(History, Post, Calendar, Graph, Detail, Setting, Method, Category)
+val allScreens = listOf(History, Post, Calendar, Graph, Detail, Setting, MethodDestination, CategoryDestination)
 val accountBottomTabScreens = listOf(History, Calendar, Graph, Setting)

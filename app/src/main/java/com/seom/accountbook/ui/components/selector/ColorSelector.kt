@@ -9,6 +9,8 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import com.seom.accountbook.ui.components.common.BaseDivider
+import com.seom.accountbook.ui.theme.ColorPalette
 import kotlin.math.min
 
 @Composable
@@ -23,7 +25,13 @@ fun ColorSelector(
     if (colors.size % perLine != 0)
         rowNum++
 
-    Column(modifier.padding(16.dp)) {
+    Column(modifier.padding(
+        start = 16.dp,
+        end = 16.dp,
+        bottom = 16.dp
+    )) {
+        BaseDivider(color = ColorPalette.Purple40)
+        Spacer(modifier = Modifier.height(16.dp))
         (0 until rowNum).forEachIndexed { _, row ->
             Row(
                 modifier = Modifier.fillMaxWidth(),

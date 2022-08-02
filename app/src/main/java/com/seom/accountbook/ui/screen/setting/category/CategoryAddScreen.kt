@@ -88,7 +88,6 @@ fun SettingBody(
                         top = 16.dp
                     )
                 )
-                Spacer(modifier = Modifier.height(16.dp))
                 SingleTextHeader(title = "색상")
                 ColorSelector(
                     colors = colorList,
@@ -96,7 +95,6 @@ fun SettingBody(
                     selectedColor = color,
                     onSelectItem = onChangeColor
                 )
-                Spacer(modifier = Modifier.height(5.dp))
                 Divider(color = ColorPalette.LightPurple, thickness = 1.dp)
             }
         }
