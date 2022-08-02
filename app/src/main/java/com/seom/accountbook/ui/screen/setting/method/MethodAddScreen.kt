@@ -25,22 +25,29 @@ fun MethodAddScreen(
     viewModel: MethodViewModel,
     onBackButtonPressed: () -> Unit
 ) {
-    val observeData = viewModel.methodUiState.collectAsState()
-    when (observeData.value) {
-        MethodUiState.UnInitialized -> viewModel.fetchCategory(
-            methodId = methodId?.toLong()
-        )
-        MethodUiState.Loading -> {}
-        MethodUiState.Success.AddMethod -> onBackButtonPressed()
-        MethodUiState.Success.FetchMethod -> {
-            MethodBody(
-                isModifyMode = methodId.isNullOrBlank().not(),
-                viewModel = viewModel,
-                onBackButtonPressed = onBackButtonPressed
-            )
+    LaunchedEffect(key1 = Unit) {
+        viewModel.methodUiState.collect {
+            when (it) {
+                MethodUiState.UnInitialized -> viewModel.fetchCategory(
+                    methodId = methodId?.toLong()
+                )
+                MethodUiState.Loading -> {}
+                MethodUiState.Success.AddMethod -> {
+                    onBackButtonPressed()
+                }
+                MethodUiState.Success.FetchMethod -> {
+                }
+                is MethodUiState.Error -> {
+                    println("Error Method")
+                }
+            }
         }
-        is MethodUiState.Error -> {}
     }
+    MethodBody(
+        isModifyMode = methodId.isNullOrBlank().not(),
+        viewModel = viewModel,
+        onBackButtonPressed = onBackButtonPressed
+    )
 }
 
 @Composable

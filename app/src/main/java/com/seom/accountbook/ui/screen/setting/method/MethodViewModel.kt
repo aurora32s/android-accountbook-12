@@ -59,7 +59,6 @@ class MethodViewModel(
         } ?: kotlin.run {
             methodRepository.addMethod(method)
         }
-
         when (result) {
             is Result.Error -> _methodUiState.value =
                 MethodUiState.Error(R.string.error_method_add)
@@ -71,9 +70,9 @@ class MethodViewModel(
 sealed interface MethodUiState {
     object UnInitialized : MethodUiState
     object Loading : MethodUiState
-    object Success {
-        object AddMethod : MethodUiState
-        object FetchMethod : MethodUiState
+    sealed interface Success: MethodUiState {
+        object AddMethod : Success
+        object FetchMethod : Success
     }
 
     data class Error(
