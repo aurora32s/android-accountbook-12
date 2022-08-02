@@ -33,24 +33,26 @@ fun CategoryAddScreen(
     viewModel: CategoryViewModel,
     onBackButtonPressed: () -> Unit
 ) {
-    val observeData = viewModel.categoryUiState.collectAsState()
-    when (observeData.value) {
-        CategoryUiState.UnInitialized -> viewModel.fetchCategory(
-            categoryId = categoryId?.toLong(),
-            categoryType = categoryType
-        )
-        CategoryUiState.Loading -> {}
-        CategoryUiState.Success.AddCategory -> onBackButtonPressed()
-        CategoryUiState.Success.FetchCategory -> SettingBody(
-            viewModel = viewModel,
-            isModifyMode = categoryId.isNullOrBlank().not(),
-            categoryType = categoryType,
-            onBackButtonPressed = onBackButtonPressed
-        )
-        is CategoryUiState.Error -> {}
+    LaunchedEffect(key1 = Unit) {
+        viewModel.categoryUiState.collect {
+            when (it) {
+                CategoryUiState.UnInitialized -> viewModel.fetchCategory(
+                    categoryId = categoryId?.toLong(),
+                    categoryType = categoryType
+                )
+                CategoryUiState.Loading -> {}
+                CategoryUiState.Success.AddCategory -> onBackButtonPressed()
+                CategoryUiState.Success.FetchCategory -> {}
+                is CategoryUiState.Error -> {}
+            }
+        }
     }
-
-
+    SettingBody(
+        viewModel = viewModel,
+        isModifyMode = categoryId.isNullOrBlank().not(),
+        categoryType = categoryType,
+        onBackButtonPressed = onBackButtonPressed
+    )
 }
 
 @Composable
