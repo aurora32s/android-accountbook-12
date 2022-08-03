@@ -49,22 +49,18 @@ fun HistoryListItem(
             Column {
                 SideItemRow(
                     left = {
-                        history.categoryName?.let {
-                            Chip(
-                                text = history.categoryName,
-                                color = Color(history.categoryColor!!)
-                            )
-                        }
+                        Chip(
+                            text = history.categoryName,
+                            color = Color(history.categoryColor)
+                        )
                     },
                     right = {
-                        history.method?.let {
-                            CustomText(
-                                text = history.method,
-                                style = MaterialTheme.typography.caption,
-                                color = ColorPalette.Purple,
-                                align = TextAlign.End
-                            )
-                        }
+                        CustomText(
+                            text = history.method,
+                            style = MaterialTheme.typography.caption,
+                            color = ColorPalette.Purple,
+                            align = TextAlign.End
+                        )
                     }
                 )
                 Spacer(modifier = Modifier.height(8.dp))

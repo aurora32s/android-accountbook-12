@@ -7,6 +7,7 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.withContext
 import com.seom.accountbook.data.entity.Result
 import com.seom.accountbook.data.entity.calendar.CalendarEntity
+import com.seom.accountbook.data.entity.history.HistoryEntity
 import com.seom.accountbook.model.graph.OutComeByCategory
 import com.seom.accountbook.model.graph.OutComeByMonth
 import com.seom.accountbook.model.history.HistoryModel
@@ -51,7 +52,10 @@ class AccountRepositoryImpl @Inject constructor(
             }
         }
 
-    override suspend fun getAllAccountByDate(year: Int, month: Int): Result<List<HistoryModel>> =
+    /**
+     * 연도/월에 따른 내역 요청
+     */
+    override suspend fun getAllAccountByDate(year: Int, month: Int): Result<List<HistoryEntity>> =
         withContext(ioDispatcher) {
             try {
                 val result = accountDao.getAllAccountByDate(year, month)

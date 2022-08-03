@@ -30,7 +30,7 @@ class HistoryViewModel @Inject constructor(
 
     fun fetchData(year: Int, month: Int) = viewModelScope.launch {
         when (val result = accountRepository.getAllAccountByDate(year, month)) {
-            is Result.Success.Finish -> _histories.value = result.data
+            is Result.Success.Finish -> _histories.value = result.data.map { it.toModel() }
             else -> {}
         }
     }

@@ -1,5 +1,6 @@
 package com.seom.accountbook.data.local
 
+import android.annotation.SuppressLint
 import android.content.ContentValues
 import android.database.sqlite.SQLiteDatabase
 import android.provider.BaseColumns
@@ -7,6 +8,7 @@ import androidx.core.database.getLongOrNull
 import com.seom.accountbook.data.entity.account.AccountEntity
 import com.seom.accountbook.data.entity.calendar.CalendarEntity
 import com.seom.accountbook.data.entity.category.CategoryEntity
+import com.seom.accountbook.data.entity.history.HistoryEntity
 import com.seom.accountbook.data.entity.method.MethodEntity
 import com.seom.accountbook.model.graph.OutComeByCategory
 import com.seom.accountbook.model.graph.OutComeByMonth
@@ -123,7 +125,11 @@ class AccountDao (
         }
     }
 
-    fun getAllAccountByDate(year: Int, month: Int): List<HistoryModel> {
+    /**
+     * 특정 연도/월별 수입/지출 내역 요청
+     */
+    @SuppressLint("Recycle")
+    fun getAllAccountByDate(year: Int, month: Int): List<HistoryEntity> {
         val db = appDatabase.readable
 
         val query = "SELECT " +
@@ -137,7 +143,7 @@ class AccountDao (
                 "C.${CategoryEntity.COLUMN_NAME_NAME}," +
                 "C.${CategoryEntity.COLUMN_NAME_COLOR}," +
                 "A.${AccountEntity.COLUMN_NAME_TYPE} " +
-                "FROM ${TABLE_NAME} A " +
+                "FROM $TABLE_NAME A " +
                 "LEFT JOIN ${MethodDao.TABLE_NAME} M " +
                 "ON A.${AccountEntity.COLUMN_NAME_METHOD} = M.${MethodEntity.COLUMN_NAME_ID} " +
                 "LEFT JOIN ${CategoryDao.TABLE_NAME} C " +
@@ -146,11 +152,11 @@ class AccountDao (
 
         val cursor = db.rawQuery(query, null)
 
-        val accounts = mutableListOf<HistoryModel>()
+        val accounts = mutableListOf<HistoryEntity>()
         if (cursor.moveToFirst()) {
             do {
                 accounts.add(
-                    HistoryModel(
+                    HistoryEntity(
                         id = cursor.getLong(0),
                         content = cursor.getString(1),
                         year = cursor.getInt(2),
@@ -160,7 +166,7 @@ class AccountDao (
                         method = cursor.getString(6),
                         categoryName = cursor.getString(7),
                         categoryColor = cursor.getLong(8),
-                        type = HistoryType.getHistoryType(cursor.getInt(9))
+                        type = cursor.getInt(9)
                     )
                 )
             } while (cursor.moveToNext())
