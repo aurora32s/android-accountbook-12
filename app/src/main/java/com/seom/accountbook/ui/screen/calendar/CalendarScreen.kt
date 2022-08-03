@@ -3,6 +3,8 @@ package com.seom.accountbook.ui.screen.calendar
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Divider
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
@@ -70,8 +72,11 @@ fun CalendarBody(
     val income = histories.filter { it.type == HistoryType.INCOME.type }.sumOf { it.count }
     val outcome = histories.filter { it.type == HistoryType.OUTCOME.type }.sumOf { it.count }
 
-    Column {
-        BaseDivider(color = ColorPalette.Purple)
+    val scrollState = rememberScrollState()
+
+    Column(
+        modifier = Modifier.verticalScroll(scrollState)
+    ) {
         Spacer(modifier = Modifier.height(20.dp))
         CalendarContainer(
             calendarState = calendarState,
