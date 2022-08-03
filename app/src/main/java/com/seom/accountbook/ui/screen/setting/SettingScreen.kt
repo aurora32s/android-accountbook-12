@@ -79,6 +79,7 @@ fun SettingBody(
                     )
                 }
             )
+
             SettingGroup(
                 items = outcomeMethods,
                 itemName = "결제수단",
@@ -119,7 +120,7 @@ fun SettingBody(
                     }
                 }
             )
-            BottomSpacer(40)
+            item { Spacer(modifier = Modifier.height(40.dp)) }
         }
     }
 }
@@ -131,7 +132,6 @@ fun LazyListScope.SettingGroup(
     destination: AccountDestination,
     onPushNavigate: (String, String) -> Unit
 ) {
-    BottomSpacer(16)
     stickyHeader { SingleTextHeader(title = itemName) }
     items(items = items) { item ->
         SettingItem(
@@ -151,6 +151,7 @@ fun LazyListScope.SettingGroup(
             IconImage(icon = R.drawable.ic_plus, color = ColorPalette.Purple)
         }
     }
+    BottomSpacer(16)
 }
 
 @Composable
