@@ -10,8 +10,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.seom.accountbook.CategoryDestination
-import com.seom.accountbook.MethodDestination
 import com.seom.accountbook.model.history.HistoryType
 import com.seom.accountbook.ui.components.container.BackBottomButtonBox
 import com.seom.accountbook.ui.components.datesheet.FullDateBottomSheet
@@ -21,6 +19,8 @@ import com.seom.accountbook.ui.components.input.ExposedInput
 import com.seom.accountbook.ui.components.input.MoneyInput
 import com.seom.accountbook.ui.components.tab.TopTabRow
 import com.seom.accountbook.ui.components.text.CustomText
+import com.seom.accountbook.ui.screen.category.CategoryDestination
+import com.seom.accountbook.ui.screen.method.MethodDestination
 import com.seom.accountbook.ui.theme.ColorPalette
 import kotlinx.coroutines.launch
 import kotlin.math.pow
@@ -32,25 +32,25 @@ import kotlin.math.pow
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun PostScreen(
-    postId: String? = null,
+    postId: Long? = null,
     viewModel: PostViewModel = hiltViewModel(),
-    onBackButtonPressed: () -> Unit,
-    onPushNavigation: (String, String) -> Unit,
+    onBackPressed: () -> Unit,
+    navigate: (String, String) -> Unit,
 ) {
-    val isModifyMode = postId.isNullOrBlank().not()
+    val isModifyMode = postId?.let { true } ?: false
     val scaffoldState = rememberScaffoldState()
     val bottomSheetState =
         rememberModalBottomSheetState(initialValue = ModalBottomSheetValue.Hidden)
     val coroutine = rememberCoroutineScope()
 
     LaunchedEffect(key1 = Unit) {
-        viewModel.fetchAccount(postId = postId?.toLong())
+        viewModel.fetchAccount(postId = postId)
         viewModel.postUiState.collect {
             when (it) {
                 PostUiState.UnInitialized -> {}
                 PostUiState.Loading -> {}
                 is PostUiState.Success.FetchAccount -> {}
-                PostUiState.Success.AddAccount -> onBackButtonPressed()
+                PostUiState.Success.AddAccount -> onBackPressed()
                 is PostUiState.Error -> {
                     this.launch {
                         scaffoldState.snackbarHostState.showSnackbar(
@@ -75,8 +75,8 @@ fun PostScreen(
             scaffoldState = scaffoldState,
             viewModel = viewModel,
             onOpenDatePicker = { coroutine.launch { bottomSheetState.show() } },
-            onBackButtonPressed = onBackButtonPressed,
-            onPushNavigation = onPushNavigation
+            onBackButtonPressed = onBackPressed,
+            onPushNavigation = navigate
         )
     }
 }

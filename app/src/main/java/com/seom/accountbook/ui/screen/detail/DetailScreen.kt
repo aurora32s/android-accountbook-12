@@ -23,12 +23,12 @@ import java.time.LocalDate
 fun DetailScreen(
     year: Int,
     month: Int,
-    categoryId: String,
+    categoryId: Long,
     viewModel: DetailViewModel = hiltViewModel(),
-    onBackButtonPressed: () -> Unit
+    onBackPressed: () -> Unit
 ) {
     LaunchedEffect(key1 = Unit) {
-        viewModel.fetchData(categoryId.toLong(), year, month)
+        viewModel.fetchData(categoryId, year, month)
     }
 
     val accounts = viewModel.history.collectAsState()
@@ -39,7 +39,7 @@ fun DetailScreen(
             accounts = accounts.value,
             month = month,
             outComeByMonth = outcome.value,
-            onBackButtonPressed = onBackButtonPressed
+            onBackButtonPressed = onBackPressed
         )
     }
 }

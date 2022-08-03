@@ -14,7 +14,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.seom.accountbook.PostDestination
 import com.seom.accountbook.R
 import com.seom.accountbook.model.history.HistoryModel
 import com.seom.accountbook.model.history.HistoryType
@@ -26,6 +25,7 @@ import com.seom.accountbook.ui.components.history.HistoryList
 import com.seom.accountbook.ui.components.image.IconImage
 import com.seom.accountbook.ui.components.tab.TopTabRow
 import com.seom.accountbook.ui.components.text.CustomText
+import com.seom.accountbook.ui.screen.post.PostDestination
 import com.seom.accountbook.ui.theme.ColorPalette
 import com.seom.accountbook.util.ext.toMoney
 import java.time.LocalDate
@@ -36,7 +36,7 @@ import kotlin.math.pow
 fun HistoryScreen (
     mainViewModel: AccountViewModel,
     viewModel: HistoryViewModel = hiltViewModel(),
-    onPushNavigate: (String, String) -> Unit
+    navigate: (String, String) -> Unit
 ) {
     val year = mainViewModel.year.collectAsState()
     val month = mainViewModel.month.collectAsState()
@@ -58,7 +58,7 @@ fun HistoryScreen (
                 selectedItem = selectedItem,
                 onClickItem = {
                     if (selectedItem.isEmpty()) {
-                        onPushNavigate(PostDestination.route, it.toString())
+                        navigate(PostDestination.route, it.toString())
                     } else {
                         viewModel.setSelectedItem(it)
                     }
@@ -76,7 +76,7 @@ fun HistoryScreen (
             }
         }, actionButton = {
             CustomFloatingActionButton(
-                onClickBtn = { onPushNavigate(PostDestination.route, "") },
+                onClickBtn = { navigate(PostDestination.route, "") },
                 icon = R.drawable.ic_plus
             )
         }

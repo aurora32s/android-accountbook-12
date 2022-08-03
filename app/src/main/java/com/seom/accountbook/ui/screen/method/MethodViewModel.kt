@@ -1,4 +1,4 @@
-package com.seom.accountbook.ui.screen.setting.method
+package com.seom.accountbook.ui.screen.method
 
 import androidx.annotation.StringRes
 import androidx.lifecycle.ViewModel
@@ -9,7 +9,7 @@ import com.seom.accountbook.data.entity.method.MethodEntity
 import com.seom.accountbook.data.repository.MethodRepository
 import com.seom.accountbook.data.repository.impl.MethodRepositoryImpl
 import com.seom.accountbook.model.history.HistoryType
-import com.seom.accountbook.ui.screen.setting.category.CategoryUiState
+import com.seom.accountbook.ui.screen.category.CategoryUiState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow

@@ -17,9 +17,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.seom.accountbook.AccountDestination
-import com.seom.accountbook.CategoryDestination
-import com.seom.accountbook.MethodDestination
 import com.seom.accountbook.data.entity.category.CategoryEntity
 import com.seom.accountbook.model.base.BaseModel
 import com.seom.accountbook.model.history.HistoryType
@@ -35,11 +32,14 @@ import com.seom.accountbook.model.method.MethodModel
 import com.seom.accountbook.ui.components.common.Chip
 import com.seom.accountbook.ui.components.common.SideItemRow
 import com.seom.accountbook.ui.components.image.IconImage
+import com.seom.accountbook.ui.screen.category.CategoryDestination
+import com.seom.accountbook.ui.screen.method.MethodDestination
+import com.seom.accountbook.util.route.AccountDestination
 
 @Composable
 fun SettingScreen(
     viewModel: SettingViewModel = hiltViewModel(),
-    onPushNavigate: (String, String) -> Unit
+    navigate: (String, String) -> Unit
 ) {
     LaunchedEffect(key1 = Unit) {
         viewModel.fetchData()
@@ -53,7 +53,7 @@ fun SettingScreen(
         outcomeMethods = methods.value.filter { it.type == HistoryType.OUTCOME },
         incomeCategories = category.value.filter { it.type == HistoryType.INCOME },
         outcomeCategories = category.value.filter { it.type == HistoryType.OUTCOME },
-        onPushNavigate = onPushNavigate
+        onPushNavigate = navigate
     )
 }
 

@@ -1,4 +1,4 @@
-package com.seom.accountbook.ui.screen.setting.category
+package com.seom.accountbook.ui.screen.category
 
 import androidx.annotation.StringRes
 import androidx.compose.material.rememberScaffoldState

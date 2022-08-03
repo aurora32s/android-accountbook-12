@@ -15,7 +15,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.seom.accountbook.DetailDestination
 import com.seom.accountbook.model.graph.OutComeByCategoryModel
 import com.seom.accountbook.ui.AccountViewModel
 import com.seom.accountbook.ui.components.DateAppBar
@@ -25,6 +24,7 @@ import com.seom.accountbook.ui.components.common.Chip
 import com.seom.accountbook.ui.components.common.SideItemRow
 import com.seom.accountbook.ui.components.graph.CircleGraph
 import com.seom.accountbook.ui.components.text.CustomText
+import com.seom.accountbook.ui.screen.detail.DetailDestination
 import com.seom.accountbook.ui.theme.ColorPalette
 import com.seom.accountbook.util.ext.toMoney
 
@@ -33,7 +33,7 @@ import com.seom.accountbook.util.ext.toMoney
 fun GraphScreen(
     mainViewModel: AccountViewModel,
     viewModel: GraphViewModel = hiltViewModel(),
-    onPushNavigate: (String, String) -> Unit
+    navigate: (String, String) -> Unit
 ) {
     val year = mainViewModel.year.collectAsState()
     val month = mainViewModel.month.collectAsState()
@@ -54,7 +54,7 @@ fun GraphScreen(
         },
         children = {
             GraphBody(totalCount = totalCount, accounts = accounts.value, onClickItem = {
-                onPushNavigate(
+                navigate(
                     DetailDestination.route,
                     "$it/${year.value}/${month.value}"
                 )

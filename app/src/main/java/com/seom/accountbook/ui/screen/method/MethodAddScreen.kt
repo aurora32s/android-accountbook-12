@@ -1,4 +1,4 @@
-package com.seom.accountbook.ui.screen.setting.method
+package com.seom.accountbook.ui.screen.method
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
@@ -14,22 +14,22 @@ import kotlinx.coroutines.launch
 
 @Composable
 fun MethodAddScreen(
-    methodId: String? = null,
+    methodId: Long? = null,
     methodType: HistoryType,
     viewModel: MethodViewModel = hiltViewModel(),
-    onBackButtonPressed: () -> Unit
+    onBackPressed: () -> Unit
 ) {
     val scaffoldState = rememberScaffoldState()
     LaunchedEffect(key1 = Unit) {
         viewModel.methodUiState.collect {
             when (it) {
                 MethodUiState.UnInitialized -> viewModel.fetchCategory(
-                    methodId = methodId?.toLong(),
+                    methodId = methodId,
                     methodType = methodType
                 )
                 MethodUiState.Loading -> {}
                 MethodUiState.Success.AddMethod -> {
-                    onBackButtonPressed()
+                    onBackPressed()
                 }
                 MethodUiState.Success.FetchMethod -> {}
                 is MethodUiState.Error -> {
@@ -46,13 +46,13 @@ fun MethodAddScreen(
         }
     }
     MethodBody(
-        isModifyMode = methodId.isNullOrBlank().not(),
+        isModifyMode = methodId?.let { true } ?: false,
         scaffoldState = scaffoldState,
         methodType = methodType,
         value = viewModel.name.collectAsState().value,
         onChangeValue = viewModel::setName,
         onClickAddBtn = viewModel::addMethod,
-        onBackButtonPressed = onBackButtonPressed
+        onBackButtonPressed = onBackPressed
     )
 }
 
