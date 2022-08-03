@@ -58,30 +58,14 @@ fun PostScreen(
         onClickCloseBtn = { coroutine.launch { bottomSheetState.hide() } },
         onChangeDate = viewModel::setDate
     ) {
-        BackBottomButtonBox(
+        PostBody(
+            isModifyMode = isModifyMode,
             scaffoldState = scaffoldState,
-            enabled = true,
-            appbarTitle = if (isModifyMode) "내역 수정" else "내역 등록",
-            buttonTitle = if (isModifyMode) "수정하기" else "등록하기",
-            buttonColor = ColorPalette.Yellow,
-            disabledButtonColor = ColorPalette.Yellow50,
-            onClickBackBtn = onBackButtonPressed,
-            onClickBottomBtn = viewModel::addAccount
-        ) {
-            PostTopTab(
-                currentSelectedTab = viewModel.type.collectAsState().value.type,
-                onTabSelected = {
-                    viewModel.setType(it)
-                    viewModel.setCategoryId(null)
-                },
-                modifier = Modifier.padding(16.dp)
-            )
-            PostBody(
-                viewModel = viewModel,
-                onOpenDatePicker = { coroutine.launch { bottomSheetState.show() } },
-                onPushNavigation = onPushNavigation
-            )
-        }
+            viewModel = viewModel,
+            onOpenDatePicker = { coroutine.launch { bottomSheetState.show() }},
+            onBackButtonPressed = onBackButtonPressed,
+            onPushNavigation = onPushNavigation
+        )
     }
 }
 
@@ -112,8 +96,11 @@ fun PostTopTab(
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun PostBody(
+    isModifyMode: Boolean,
+    scaffoldState: ScaffoldState,
     viewModel: PostViewModel,
     onOpenDatePicker: () -> Unit,
+    onBackButtonPressed: () -> Unit,
     onPushNavigation: (String, String) -> Unit
 ) {
     val date = viewModel.date.collectAsState()
@@ -124,48 +111,68 @@ fun PostBody(
     val type = viewModel.type.collectAsState()
 
     val scrollState = rememberScrollState()
+    val isAbleAdd = count.value > 0 && methodId.value != null && content.value.isNotBlank()
 
-    Column(
-        modifier = Modifier
-            .padding(start = 16.dp, end = 16.dp)
-            .verticalScroll(scrollState)
+    BackBottomButtonBox(
+        scaffoldState = scaffoldState,
+        enabled = isAbleAdd,
+        appbarTitle = if (isModifyMode) "내역 수정" else "내역 등록",
+        buttonTitle = if (isModifyMode) "수정하기" else "등록하기",
+        buttonColor = ColorPalette.Yellow,
+        disabledButtonColor = ColorPalette.Yellow50,
+        onClickBackBtn = onBackButtonPressed,
+        onClickBottomBtn = viewModel::addAccount
     ) {
-        DateInput(
-            selectedDate = date.value,
-            modifier = Modifier.clickable { onOpenDatePicker() })
-        Spacer(modifier = Modifier.height(16.dp))
-        MoneyInput(
-            money = count.value,
-            onValueChange = { it?.let { viewModel.setCount(it) } })
-        Spacer(modifier = Modifier.height(16.dp))
-        ExposedInput(
-            id = methodId,
-            title = "결제수단",
-            values = viewModel.methods.collectAsState().value,
-            onSelectedId = viewModel::setMethodID,
-            onClickAddBtn = {
-                onPushNavigation(
-                    MethodDestination.route,
-                    ""
-                )
-            })
-        Spacer(modifier = Modifier.height(16.dp))
-        ExposedInput(
-            id = categoryId,
-            title = "분류",
-            values = viewModel.category.collectAsState().value,
-            onSelectedId = viewModel::setCategoryId,
-            onClickAddBtn = {
-                onPushNavigation(
-                    CategoryDestination.route,
-                    "${type.value.type}"
-                )
-            })
-        Spacer(modifier = Modifier.height(16.dp))
-        ContentInput(
-            content = content.value,
-            onValueChange = viewModel::setContent
+        PostTopTab(
+            currentSelectedTab = viewModel.type.collectAsState().value.type,
+            onTabSelected = {
+                viewModel.setType(it)
+                viewModel.setCategoryId(null)
+            },
+            modifier = Modifier.padding(16.dp)
         )
-        Spacer(modifier = Modifier.height(100.dp))
+        Column(
+            modifier = Modifier
+                .padding(start = 16.dp, end = 16.dp)
+                .verticalScroll(scrollState)
+        ) {
+            DateInput(
+                selectedDate = date.value,
+                modifier = Modifier.clickable { onOpenDatePicker() })
+            Spacer(modifier = Modifier.height(16.dp))
+            MoneyInput(
+                money = count.value,
+                onValueChange = { it?.let { viewModel.setCount(it) } })
+            Spacer(modifier = Modifier.height(16.dp))
+            ExposedInput(
+                id = methodId,
+                title = "결제수단",
+                values = viewModel.methods.collectAsState().value,
+                onSelectedId = viewModel::setMethodID,
+                onClickAddBtn = {
+                    onPushNavigation(
+                        MethodDestination.route,
+                        ""
+                    )
+                })
+            Spacer(modifier = Modifier.height(16.dp))
+            ExposedInput(
+                id = categoryId,
+                title = "분류",
+                values = viewModel.category.collectAsState().value,
+                onSelectedId = viewModel::setCategoryId,
+                onClickAddBtn = {
+                    onPushNavigation(
+                        CategoryDestination.route,
+                        "${type.value.type}"
+                    )
+                })
+            Spacer(modifier = Modifier.height(16.dp))
+            ContentInput(
+                content = content.value,
+                onValueChange = viewModel::setContent
+            )
+            Spacer(modifier = Modifier.height(100.dp))
+        }
     }
 }
