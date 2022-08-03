@@ -24,22 +24,22 @@ import javax.inject.Inject
 class SettingViewModel @Inject constructor(
     private val getAllSettingDataUseCase: GetAllSettingDataUseCase
 ) : ViewModel() {
-    private val _methods = MutableStateFlow<List<MethodEntity>>(emptyList())
+    private val _methods = MutableStateFlow<List<MethodModel>>(emptyList())
     var methods = _methods.asStateFlow()
 
-    private val _category = MutableStateFlow<List<CategoryEntity>>(emptyList())
+    private val _category = MutableStateFlow<List<CategoryModel>>(emptyList())
     var category = _category.asStateFlow()
 
     fun fetchData() = viewModelScope.launch {
         val result = getAllSettingDataUseCase()
 
         when (val methodResult = result.methods) {
-            is Result.Error -> {}
-            is Result.Success.Finish -> _methods.value = methodResult.data
+            is Result.Success.Finish -> _methods.value = methodResult.data.map { it.toModel() }
+            else -> {}
         }
         when (val categoryResult = result.categories) {
-            is Result.Error -> {}
-            is Result.Success.Finish -> _category.value = categoryResult.data
+            is Result.Success.Finish -> _category.value = categoryResult.data.map { it.toModel() }
+            else -> {}
         }
     }
 }

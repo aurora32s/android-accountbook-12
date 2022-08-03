@@ -31,6 +31,8 @@ import com.seom.accountbook.ui.components.header.SingleTextHeader
 import com.seom.accountbook.ui.components.text.CustomText
 import com.seom.accountbook.ui.theme.ColorPalette
 import com.seom.accountbook.R
+import com.seom.accountbook.model.category.CategoryModel
+import com.seom.accountbook.model.method.MethodModel
 import com.seom.accountbook.ui.components.common.Chip
 import com.seom.accountbook.ui.components.common.SideItemRow
 import com.seom.accountbook.ui.components.image.IconImage
@@ -48,20 +50,20 @@ fun SettingScreen(
     val category = viewModel.category.collectAsState()
 
     SettingBody(
-        incomeMethods = methods.value.filter { it.type == HistoryType.INCOME.type },
-        outcomeMethods = methods.value.filter { it.type == HistoryType.OUTCOME.type },
-        incomeCategories = category.value.filter { it.type == HistoryType.INCOME.type },
-        outcomeCategories = category.value.filter { it.type == HistoryType.OUTCOME.type },
+        incomeMethods = methods.value.filter { it.type == HistoryType.INCOME },
+        outcomeMethods = methods.value.filter { it.type == HistoryType.OUTCOME },
+        incomeCategories = category.value.filter { it.type == HistoryType.INCOME },
+        outcomeCategories = category.value.filter { it.type == HistoryType.OUTCOME },
         onPushNavigate = onPushNavigate
     )
 }
 
 @Composable
 fun SettingBody(
-    incomeMethods: List<MethodEntity>,
-    outcomeMethods: List<MethodEntity>,
-    incomeCategories: List<CategoryEntity>,
-    outcomeCategories: List<CategoryEntity>,
+    incomeMethods: List<MethodModel>,
+    outcomeMethods: List<MethodModel>,
+    incomeCategories: List<CategoryModel>,
+    outcomeCategories: List<CategoryModel>,
     onPushNavigate: (String, String) -> Unit
 ) {
     Scaffold(

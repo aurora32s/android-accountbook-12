@@ -12,7 +12,7 @@ fun ExposedInput(
     id: State<Long?>,
     title: String,
     values: List<BaseModel>,
-    onSelectedId: (Long?) -> Unit,
+    onSelectedId: (Long) -> Unit,
     onClickAddBtn: () -> Unit
 ) {
     InputField(name = title, textColor = ColorPalette.Purple) {

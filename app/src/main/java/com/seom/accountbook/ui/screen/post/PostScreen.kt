@@ -126,7 +126,7 @@ fun PostBody(
     val categories = viewModel.category.collectAsState(initial = emptyList())
 
     val scrollState = rememberScrollState()
-    val isAbleAdd = count.value > 0 && methodId.value != null && content.value.isNotBlank()
+    val isAbleAdd = count.value > 0 && methodId.value >= 0 && content.value.isNotBlank()
 
     BackBottomButtonBox(
         scaffoldState = scaffoldState,
@@ -142,7 +142,7 @@ fun PostBody(
             currentSelectedTab = (2.0).pow(type.value.type).toInt(),
             onTabSelected = {
                 viewModel.setType(it)
-                viewModel.setCategoryId(null)
+                viewModel.resetCategoryId()
             },
             modifier = Modifier.padding(16.dp)
         )

@@ -47,7 +47,6 @@ fun HistoryScreen (
 
     val selectedItem = viewModel.selectedItem
     val histories = viewModel.histories.collectAsState()
-
     DateAppBar(
         year = year.value,
         month = month.value,

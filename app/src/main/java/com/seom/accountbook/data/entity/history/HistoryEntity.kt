@@ -13,7 +13,7 @@ data class HistoryEntity(
     val month: Int,
     val date: Int,
     val money: Int, // 수입/지출 금액
-    val method: String?, // 결제방법
+    val method: String, // 결제방법
     val categoryName: String?, // 분류 이름
     val categoryColor: Long?, // 분류 색상
     val type: Int // 수입 or 지출
@@ -25,9 +25,10 @@ data class HistoryEntity(
         month = month,
         date = date,
         money = money,
-        method = method ?: "",
-        categoryName = categoryName ?: "",
-        categoryColor = categoryColor ?: 0x00FFFFFF,
+        method = method,
+        categoryName = categoryName ?: "미설정",
+        categoryColor = if (categoryColor != null && categoryColor > 0) categoryColor
+            else 0xFF242424,
         type = HistoryType.getHistoryType(type)
     )
 }

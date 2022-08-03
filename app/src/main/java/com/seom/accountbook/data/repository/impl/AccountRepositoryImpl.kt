@@ -7,8 +7,9 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.withContext
 import com.seom.accountbook.data.entity.Result
 import com.seom.accountbook.data.entity.calendar.CalendarEntity
+import com.seom.accountbook.data.entity.graph.OutComeByCategoryEntity
 import com.seom.accountbook.data.entity.history.HistoryEntity
-import com.seom.accountbook.model.graph.OutComeByCategory
+import com.seom.accountbook.model.graph.OutComeByCategoryModel
 import com.seom.accountbook.model.graph.OutComeByMonth
 import com.seom.accountbook.model.history.HistoryModel
 import javax.inject.Inject
@@ -98,7 +99,7 @@ class AccountRepositoryImpl @Inject constructor(
     override suspend fun getOutComeOnCategory(
         year: Int,
         month: Int
-    ): Result<List<OutComeByCategory>> = withContext(ioDispatcher) {
+    ): Result<List<OutComeByCategoryEntity>> = withContext(ioDispatcher) {
         try {
             val result = accountDao.getOutComeOnCategory(year, month)
             Result.Success.Finish(result)

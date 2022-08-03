@@ -2,19 +2,18 @@ package com.seom.accountbook.data.local
 
 import android.annotation.SuppressLint
 import android.content.ContentValues
-import android.database.sqlite.SQLiteDatabase
 import android.provider.BaseColumns
 import androidx.core.database.getLongOrNull
 import com.seom.accountbook.data.entity.account.AccountEntity
 import com.seom.accountbook.data.entity.calendar.CalendarEntity
 import com.seom.accountbook.data.entity.category.CategoryEntity
+import com.seom.accountbook.data.entity.graph.OutComeByCategoryEntity
 import com.seom.accountbook.data.entity.history.HistoryEntity
 import com.seom.accountbook.data.entity.method.MethodEntity
-import com.seom.accountbook.model.graph.OutComeByCategory
+import com.seom.accountbook.model.graph.OutComeByCategoryModel
 import com.seom.accountbook.model.graph.OutComeByMonth
 import com.seom.accountbook.model.history.HistoryModel
 import com.seom.accountbook.model.history.HistoryType
-import javax.inject.Inject
 
 
 class AccountDao (
@@ -30,7 +29,7 @@ class AccountDao (
                 "${AccountEntity.COLUMN_NAME_MONTH} INTEGER NOT NULL," +
                 "${AccountEntity.COLUMN_NAME_DATE} INTEGER NOT NULL," +
                 "${AccountEntity.COLUMN_NAME_COUNT} INTEGER NOT NULL," +
-                "${AccountEntity.COLUMN_NAME_METHOD} INTEGER," +
+                "${AccountEntity.COLUMN_NAME_METHOD} INTEGER NOT NULL," +
                 "${AccountEntity.COLUMN_NAME_CATEGORY} INTEGER DEFAULT -1," +
                 "${AccountEntity.COLUMN_NAME_TYPE} INTEGER NOT NULL," +
                 "FOREIGN KEY (${AccountEntity.COLUMN_NAME_METHOD}) REFERENCES ${MethodDao.TABLE_NAME} (${BaseColumns._ID})," +
@@ -119,8 +118,8 @@ class AccountDao (
                 month = cursor.getInt(3),
                 date = cursor.getInt(4),
                 count = cursor.getInt(5),
-                methodId = cursor.getLongOrNull(6),
-                categoryId = cursor.getLongOrNull(7),
+                methodId = cursor.getLong(6),
+                categoryId = cursor.getLong(7),
                 type = cursor.getInt(8)
             )
         } ?: kotlin.run {
@@ -323,15 +322,19 @@ class AccountDao (
         return accounts.toList()
     }
 
-    fun getOutComeOnCategory(year: Int, month: Int): List<OutComeByCategory> {
+    /**
+     * 연도/월의 카테고리별 지출 내역 요청
+     */
+    fun getOutComeOnCategory(year: Int, month: Int): List<OutComeByCategoryEntity> {
         val db = appDatabase.readable
+
         val query = "" +
                 "SELECT " +
-                "C.${CategoryEntity.COLUMN_NAME_ID}," +
+                "A.${AccountEntity.COLUMN_NAME_CATEGORY}," +
                 "C.${CategoryEntity.COLUMN_NAME_NAME}," +
                 "C.${CategoryEntity.COLUMN_NAME_COLOR}," +
                 "SUM(${AccountEntity.COLUMN_NAME_COUNT}) AS S " +
-                "FROM ${TABLE_NAME} A " +
+                "FROM $TABLE_NAME A " +
                 "LEFT JOIN ${CategoryDao.TABLE_NAME} C " +
                 "ON A.${AccountEntity.COLUMN_NAME_CATEGORY} = C.${CategoryEntity.COLUMN_NAME_ID} " +
                 "WHERE A.${AccountEntity.COLUMN_NAME_TYPE} = ${HistoryType.OUTCOME.type} " +
@@ -342,14 +345,14 @@ class AccountDao (
 
         val cursor = db.rawQuery(query, null)
 
-        val accounts = mutableListOf<OutComeByCategory>()
+        val accounts = mutableListOf<OutComeByCategoryEntity>()
         if (cursor.moveToFirst()) {
             do {
                 accounts.add(
-                    OutComeByCategory(
+                    OutComeByCategoryEntity(
                         id = cursor.getLong(0),
-                        name = cursor.getString(1) ?: "UnKnown",
-                        color = cursor.getLong(2) ?: 0xFFECECEC,
+                        name = cursor.getString(1),
+                        color = cursor.getLong(2),
                         count = cursor.getLong(3)
                     )
                 )

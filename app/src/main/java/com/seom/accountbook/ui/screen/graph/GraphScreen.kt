@@ -16,7 +16,7 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.seom.accountbook.DetailDestination
-import com.seom.accountbook.model.graph.OutComeByCategory
+import com.seom.accountbook.model.graph.OutComeByCategoryModel
 import com.seom.accountbook.ui.AccountViewModel
 import com.seom.accountbook.ui.components.DateAppBar
 import com.seom.accountbook.ui.components.common.BaseDivider
@@ -66,10 +66,9 @@ fun GraphScreen(
 @Composable
 fun GraphBody(
     totalCount: Long,
-    accounts: List<OutComeByCategory>,
+    accounts: List<OutComeByCategoryModel>,
     onClickItem: (Long) -> Unit
 ) {
-
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -96,7 +95,7 @@ fun GraphBody(
                                 accounts = accounts,
                                 totalCount = totalCount,
                                 onClickItem = onClickItem,
-                                modifierForGraph = Modifier
+                                modifier = Modifier
                                     .fillMaxHeight()
                                     .weight(1f)
                                     .padding(bottom = 24.dp),
@@ -112,7 +111,7 @@ fun GraphBody(
                                 accounts = accounts,
                                 totalCount = totalCount,
                                 onClickItem = onClickItem,
-                                modifierForGraph = Modifier
+                                modifier = Modifier
                                     .height(254.dp)
                                     .fillMaxWidth()
                             )
@@ -127,16 +126,16 @@ fun GraphBody(
 
 @Composable
 fun GraphContent(
-    accounts: List<OutComeByCategory>,
+    accounts: List<OutComeByCategoryModel>,
     totalCount: Long,
     onClickItem: (Long) -> Unit,
-    modifierForGraph: Modifier = Modifier,
+    modifier: Modifier = Modifier,
     modifierForList: Modifier = Modifier
 ) {
     CircleGraph(
         data = accounts,
         totalCount = totalCount,
-        modifier = modifierForGraph
+        modifier = modifier
     )
     Spacer(modifier = Modifier.height(24.dp))
     CategoryList(
@@ -174,7 +173,7 @@ fun TopRow(
 
 @Composable
 fun CategoryList(
-    data: List<OutComeByCategory>,
+    data: List<OutComeByCategoryModel>,
     totalCount: Long,
     onItemClick: (Long) -> Unit,
     modifier: Modifier = Modifier
@@ -194,7 +193,7 @@ fun CategoryList(
 
 @Composable
 fun CategoryOutComeItem(
-    data: OutComeByCategory,
+    data: OutComeByCategoryModel,
     totalCount: Long,
     modifier: Modifier = Modifier
 ) {
@@ -207,7 +206,7 @@ fun CategoryOutComeItem(
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Chip(
                         text = data.name,
-                        color = Color(if (data.color == 0L) 0xFF2E2E2E else data.color)
+                        color = Color(data.color)
                     )
                     CustomText(
                         text = data.count.toMoney(),

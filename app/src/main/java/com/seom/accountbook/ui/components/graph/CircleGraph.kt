@@ -12,14 +12,14 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
-import com.seom.accountbook.model.base.BaseCount
+import com.seom.accountbook.model.base.BaseColorGraphModel
 
 private const val DividerLengthInDegrees = 0f
 private enum class AnimatedCircleProgress { START, END }
 
 @Composable
 fun CircleGraph(
-    data: List<BaseCount>,
+    data: List<BaseColorGraphModel>,
     totalCount: Long,
     modifier: Modifier = Modifier
 ) {
