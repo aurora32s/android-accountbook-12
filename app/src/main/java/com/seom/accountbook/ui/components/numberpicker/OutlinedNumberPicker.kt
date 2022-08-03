@@ -10,7 +10,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
-import com.seom.accountbook.ui.components.NumberPicker
 
 @Composable
 fun OutlinedNumberPicker(

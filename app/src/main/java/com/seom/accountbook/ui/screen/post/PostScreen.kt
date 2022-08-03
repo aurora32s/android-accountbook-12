@@ -31,10 +31,10 @@ import com.seom.accountbook.MethodDestination
 import com.seom.accountbook.R
 import com.seom.accountbook.data.entity.category.CategoryEntity
 import com.seom.accountbook.data.entity.method.MethodEntity
-import com.seom.accountbook.model.BaseModel
+import com.seom.accountbook.model.base.BaseModel
 import com.seom.accountbook.model.category.CategoryModel
 import com.seom.accountbook.model.history.HistoryType
-import com.seom.accountbook.ui.components.BackButtonAppBar
+import com.seom.accountbook.ui.components.BackButtonOneAppBar
 import com.seom.accountbook.ui.components.CustomBottomSheet
 import com.seom.accountbook.ui.components.datesheet.FullDateBottomSheet
 import com.seom.accountbook.ui.theme.ColorPalette
@@ -125,7 +125,7 @@ fun Body(
         }) {
         Scaffold(
             topBar = {
-                BackButtonAppBar(
+                BackButtonOneAppBar(
                     title = if (isModifyMode) "내역 수정" else "내역 등록",
                     onClickBackBtn = onBackButtonPressed
                 )

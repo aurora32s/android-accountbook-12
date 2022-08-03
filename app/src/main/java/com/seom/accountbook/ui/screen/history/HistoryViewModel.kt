@@ -22,12 +22,9 @@ class HistoryViewModel(
     val selectedItem: MutableList<Long>
         get() = _selectedItem
 
-    fun addSelectedItem(id: Long) {
-        _selectedItem.add(id)
-    }
-
-    fun removeSelectedItem(id: Long) {
-        _selectedItem.remove(id)
+    fun setSelectedItem(id: Long) {
+        if (id in selectedItem) _selectedItem.remove(id)
+        else _selectedItem.add(id)
     }
 
     fun fetchData(year: Int, month: Int) = viewModelScope.launch {

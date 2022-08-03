@@ -10,6 +10,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.seom.accountbook.model.history.HistoryModel
@@ -39,7 +40,8 @@ fun HistoryList(
                 text = "내역이 없습니다.",
                 style = MaterialTheme.typography.subtitle2,
                 color = ColorPalette.Purple,
-                bold = true
+                bold = true,
+                modifier = Modifier.align(Alignment.Center)
             )
         } else {
             LazyColumn {

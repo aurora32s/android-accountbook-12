@@ -1,4 +1,4 @@
-package com.seom.accountbook.model
+package com.seom.accountbook.model.base
 
 interface BaseCount {
     val id: Long

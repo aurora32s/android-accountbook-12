@@ -3,6 +3,7 @@ package com.seom.accountbook
 import android.os.Build
 import android.os.Bundle
 import android.view.WindowManager
+import android.widget.ListAdapter
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.annotation.RequiresApi

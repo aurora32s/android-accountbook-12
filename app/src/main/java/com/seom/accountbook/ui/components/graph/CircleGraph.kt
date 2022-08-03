@@ -12,7 +12,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
-import com.seom.accountbook.model.BaseCount
+import com.seom.accountbook.model.base.BaseCount
 
 private const val DividerLengthInDegrees = 0f
 private enum class AnimatedCircleProgress { START, END }

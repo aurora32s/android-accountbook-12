@@ -17,7 +17,7 @@ object History : AccountDestination {
     override val group = "history"
 }
 
-object Post : AccountDestination {
+object PostDestination : AccountDestination {
     override val icon = R.drawable.ic_history
     override val route = "post"
     override val title = "작성"
@@ -98,5 +98,5 @@ object CategoryDestination : AccountDestination {
     )
 }
 
-val allScreens = listOf(History, Post, Calendar, Graph, DetailDestination, Setting, MethodDestination, CategoryDestination)
+val allScreens = listOf(History, PostDestination, Calendar, Graph, DetailDestination, Setting, MethodDestination, CategoryDestination)
 val accountBottomTabScreens = listOf(History, Calendar, Graph, Setting)

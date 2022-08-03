@@ -6,7 +6,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.seom.accountbook.model.history.HistoryType
-import com.seom.accountbook.ui.components.BackButtonAppBar
+import com.seom.accountbook.ui.components.BackButtonOneAppBar
 import com.seom.accountbook.ui.components.common.BaseSnackBar
 import com.seom.accountbook.ui.components.container.BottomButtonBox
 import com.seom.accountbook.ui.components.header.SingleTextHeader
@@ -76,7 +76,7 @@ fun SettingBody(
 
     Scaffold(
         topBar = {
-            BackButtonAppBar(
+            BackButtonOneAppBar(
                 title = "$title 카테고리 $modeTitle",
                 onClickBackBtn = onBackButtonPressed
             )

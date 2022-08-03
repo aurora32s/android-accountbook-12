@@ -1,7 +1,6 @@
 package com.seom.accountbook.data.entity.method
 
-import android.provider.BaseColumns
-import com.seom.accountbook.model.BaseModel
+import com.seom.accountbook.model.base.BaseModel
 
 data class MethodEntity(
     override val id: Long? = null,

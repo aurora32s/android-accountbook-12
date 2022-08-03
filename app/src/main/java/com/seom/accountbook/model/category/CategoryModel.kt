@@ -1,6 +1,6 @@
 package com.seom.accountbook.model.category
 
-import com.seom.accountbook.model.BaseModel
+import com.seom.accountbook.model.base.BaseModel
 
 data class CategoryModel(
     override val id: Long,

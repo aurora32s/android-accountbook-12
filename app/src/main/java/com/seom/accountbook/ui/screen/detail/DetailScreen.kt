@@ -10,7 +10,7 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.unit.dp
 import com.seom.accountbook.model.graph.OutComeByMonth
 import com.seom.accountbook.model.history.HistoryModel
-import com.seom.accountbook.ui.components.BackButtonAppBar
+import com.seom.accountbook.ui.components.BackButtonOneAppBar
 import com.seom.accountbook.ui.components.common.BaseDivider
 import com.seom.accountbook.ui.components.graph.LinearGraph
 import com.seom.accountbook.ui.components.history.HistoryList
@@ -53,7 +53,7 @@ fun DetailBody(
 ) {
     Scaffold(
         topBar = {
-            BackButtonAppBar(
+            BackButtonOneAppBar(
                 title = accounts.first().categoryName ?: "UnKnow",
                 onClickBackBtn = onBackButtonPressed
             )

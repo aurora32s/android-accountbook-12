@@ -8,13 +8,11 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material.Divider
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
@@ -23,7 +21,7 @@ import com.seom.accountbook.CategoryDestination
 import com.seom.accountbook.MethodDestination
 import com.seom.accountbook.data.entity.category.CategoryEntity
 import com.seom.accountbook.data.entity.method.MethodEntity
-import com.seom.accountbook.model.BaseModel
+import com.seom.accountbook.model.base.BaseModel
 import com.seom.accountbook.model.history.HistoryType
 import com.seom.accountbook.ui.components.appbar.NoneButtonAppBar
 import com.seom.accountbook.ui.components.common.BaseDivider
