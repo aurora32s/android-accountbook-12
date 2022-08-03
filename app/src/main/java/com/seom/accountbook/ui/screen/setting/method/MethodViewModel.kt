@@ -8,6 +8,7 @@ import com.seom.accountbook.data.entity.Result
 import com.seom.accountbook.data.entity.method.MethodEntity
 import com.seom.accountbook.data.repository.MethodRepository
 import com.seom.accountbook.data.repository.impl.MethodRepositoryImpl
+import com.seom.accountbook.model.history.HistoryType
 import com.seom.accountbook.ui.screen.setting.category.CategoryUiState
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -22,6 +23,7 @@ class MethodViewModel(
         get() = _methodUiState
 
     private var currentMethodId: Long? = null
+    private var currentMethodType = HistoryType.INCOME
 
     private val _name = MutableStateFlow("")
     var name = _name.asStateFlow()
@@ -29,7 +31,8 @@ class MethodViewModel(
         _name.value = newName
     }
 
-    fun fetchCategory(methodId: Long?) = viewModelScope.launch {
+    fun fetchCategory(methodId: Long?, methodType: HistoryType) = viewModelScope.launch {
+        currentMethodType = methodType
         if (methodId == null) {
             _methodUiState.value = MethodUiState.Success.FetchMethod
         } else {
@@ -48,10 +51,11 @@ class MethodViewModel(
         }
     }
 
-    fun addCategory() = viewModelScope.launch {
+    fun addMethod() = viewModelScope.launch {
         val method = MethodEntity(
             id = currentMethodId,
-            name = name.value
+            name = name.value,
+            type = currentMethodType.type
         )
 
         val result = currentMethodId?.let {
@@ -73,7 +77,7 @@ class MethodViewModel(
 sealed interface MethodUiState {
     object UnInitialized : MethodUiState
     object Loading : MethodUiState
-    sealed interface Success: MethodUiState {
+    sealed interface Success : MethodUiState {
         object AddMethod : Success
         object FetchMethod : Success
     }

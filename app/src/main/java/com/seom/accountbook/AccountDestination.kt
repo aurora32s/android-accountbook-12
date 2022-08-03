@@ -73,9 +73,15 @@ object MethodDestination : AccountDestination {
     override val group = "setting"
 
     const val methodIdArgs = "method_id"
-    val routeWithArgs = "${route}/{${methodIdArgs}}"
+    const val methodTypeArgs = "method_type"
+    val routeWithArgs = "${route}/{${methodTypeArgs}}"
+    val routeWithAllArgs = "${route}/{${methodTypeArgs}}/{${methodIdArgs}}"
+    val allArguments = listOf(
+        navArgument(methodIdArgs) { type = NavType.StringType },
+        navArgument(methodTypeArgs) { type = NavType.IntType }
+    )
     val arguments = listOf(
-        navArgument(methodIdArgs) { type = NavType.StringType }
+        navArgument(methodTypeArgs) { type = NavType.IntType }
     )
 }
 

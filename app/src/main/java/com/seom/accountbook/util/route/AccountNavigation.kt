@@ -109,24 +109,31 @@ fun AccountNavigationHost(
                 )
             }
         }
-        // 결제 수단 새로 추가
+        // 결제/입금 수단 새로 추가
         composable(
-            route = MethodDestination.route
-        ) {
+            route = MethodDestination.routeWithArgs,
+            arguments = MethodDestination.arguments
+        ) { navBackStackEntry ->
+            val methodType =
+                navBackStackEntry.arguments?.getInt(MethodDestination.methodTypeArgs)
             MethodAddScreen(
+                methodType = HistoryType.getHistoryType(methodType ?: 0),
                 viewModel = viewModel()
             ) {
                 navController.popBackStack()
             }
         }
-        // 결제 수단 변경
+        // 결제/입금 수단 변경
         composable(
-            route = MethodDestination.routeWithArgs,
-            arguments = MethodDestination.arguments
+            route = MethodDestination.routeWithAllArgs,
+            arguments = MethodDestination.allArguments
         ) { navBackStackEntry ->
             val methodId = navBackStackEntry.arguments?.getString(MethodDestination.methodIdArgs)
+            val methodType =
+                navBackStackEntry.arguments?.getInt(MethodDestination.methodTypeArgs)
             MethodAddScreen(
                 methodId = methodId,
+                methodType = HistoryType.getHistoryType(methodType ?: 0),
                 viewModel = viewModel()
             ) {
                 navController.popBackStack()

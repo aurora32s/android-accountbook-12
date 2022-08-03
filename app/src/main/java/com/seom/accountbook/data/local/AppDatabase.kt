@@ -35,6 +35,7 @@ class AppDatabase(context: Context) :
         MethodDao.INIT_DATA.forEach {
             val values = ContentValues().apply {
                 put(MethodEntity.COLUMN_NAME_NAME, it.name)
+                put(MethodEntity.COLUMN_NAME_TYPE, it.type)
             }
             db.insertOrThrow(MethodDao.TABLE_NAME, null, values)
         }
