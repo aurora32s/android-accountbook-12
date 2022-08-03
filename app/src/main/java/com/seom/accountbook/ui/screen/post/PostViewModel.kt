@@ -19,10 +19,7 @@ import com.seom.accountbook.data.repository.AccountRepository
 import com.seom.accountbook.data.repository.impl.AccountRepositoryImpl
 import com.seom.accountbook.model.history.HistoryType
 import com.seom.accountbook.usecase.GetPostDataUseCase
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import java.time.LocalDate
 import java.util.concurrent.Flow
@@ -76,10 +73,14 @@ class PostViewModel(
     }
 
     private val _methods = MutableStateFlow<List<MethodEntity>>(emptyList())
-    var methods = _methods.asStateFlow()
+    var methods = _methods.combine(_type) { method, type ->
+        method.filter { it.type == type.type }
+    }
 
     private val _category = MutableStateFlow<List<CategoryEntity>>(emptyList())
-    var category = _category.asStateFlow()
+    var category = _category.combine(_type) { category, type ->
+        category.filter { it.type == type.type }
+    }
 
     // 수입/지출 내역 작성 시 필요한 데이터
     fun fetchAccount(postId: Long?) = viewModelScope.launch {

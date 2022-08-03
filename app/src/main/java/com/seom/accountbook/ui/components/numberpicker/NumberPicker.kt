@@ -1,4 +1,4 @@
-package com.seom.accountbook.ui.components
+package com.seom.accountbook.ui.components.numberpicker
 
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.gestures.Orientation
@@ -90,10 +90,6 @@ fun NumberPicker(
     ) {
         val spacing = 4.dp
 
-        val arrowColor = MaterialTheme.colors.onSecondary.copy(alpha = ContentAlpha.disabled)
-
-//        Arrow(direction = ArrowDirection.UP, tint = arrowColor)
-
         Spacer(modifier = Modifier.height(spacing))
 
         Box(
@@ -124,8 +120,6 @@ fun NumberPicker(
         }
 
         Spacer(modifier = Modifier.height(spacing))
-
-//        Arrow(direction = ArrowDirection.DOWN, tint = arrowColor)
     }
 }
 

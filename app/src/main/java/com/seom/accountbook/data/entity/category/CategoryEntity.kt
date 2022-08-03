@@ -1,7 +1,6 @@
 package com.seom.accountbook.data.entity.category
 
-import android.provider.BaseColumns
-import com.seom.accountbook.model.BaseModel
+import com.seom.accountbook.model.base.BaseModel
 
 data class CategoryEntity(
     override val id: Long? = null,

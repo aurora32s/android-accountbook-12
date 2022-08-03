@@ -19,7 +19,7 @@ import com.seom.accountbook.ui.theme.ColorPalette
  * 왼쪽에 버튼이 하나만 있는 AppBar
  */
 @Composable
-fun OneButtonAppBar(
+private fun OneButtonAppBar(
     title: String,
     leftIcon: @Composable () -> Unit
 ) {
@@ -44,7 +44,7 @@ fun OneButtonAppBar(
 }
 
 @Composable
-fun BackButtonAppBar(
+fun BackButtonOneAppBar(
     title: String,
     onClickBackBtn: () -> Unit
 ) {

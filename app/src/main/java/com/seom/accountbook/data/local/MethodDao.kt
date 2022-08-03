@@ -5,6 +5,7 @@ import android.provider.BaseColumns
 import com.seom.accountbook.data.entity.category.CategoryEntity
 import com.seom.accountbook.data.entity.method.MethodEntity
 import com.seom.accountbook.di.provideAppDatabase
+import com.seom.accountbook.model.history.HistoryType
 
 class MethodDao(
     private val appDatabase: AppDatabase = provideAppDatabase()
@@ -15,34 +16,37 @@ class MethodDao(
         const val CREATE_TABLE = "" +
                 "CREATE TABLE $TABLE_NAME (" +
                 "${MethodEntity.COLUMN_NAME_ID} INTEGER PRIMARY KEY AUTOINCREMENT," +
-                "${MethodEntity.COLUMN_NAME_NAME} TEXT NOT NULL)"
+                "${MethodEntity.COLUMN_NAME_NAME} TEXT NOT NULL," +
+                "${MethodEntity.COLUMN_NAME_TYPE} INTEGER NOT NULL)"
 
         val INIT_DATA = listOf(
-            MethodEntity(name = "현대카드"),
-            MethodEntity(name = "카카오뱅크 체크카드")
+            MethodEntity(name = "현대카드", type = HistoryType.OUTCOME.type),
+            MethodEntity(name = "카카오뱅크 체크카드", type = HistoryType.OUTCOME.type)
         )
     }
 
     fun addMethod(method: MethodEntity): Long? {
         val db = appDatabase.writable
-        if (checkMethodName(method.name)) {
+        if (checkMethodName(method.name, method.type)) {
             return -1
         }
         val values = ContentValues().apply {
             put(MethodEntity.COLUMN_NAME_NAME, method.name)
+            put(MethodEntity.COLUMN_NAME_TYPE, method.type)
         }
 
         return db?.insert(TABLE_NAME, null, values)
     }
 
-    private fun checkMethodName(name: String): Boolean {
+    private fun checkMethodName(name: String, type: Int): Boolean {
         val db = appDatabase.readable
 
         val projection = arrayOf(
             MethodEntity.COLUMN_NAME_ID
         )
-        val selection = "${MethodEntity.COLUMN_NAME_NAME} = ?"
-        val selectionArgs = arrayOf(name)
+        val selection =
+            "${MethodEntity.COLUMN_NAME_NAME} = ? AND ${MethodEntity.COLUMN_NAME_TYPE} = ?"
+        val selectionArgs = arrayOf(name, type.toString())
 
         val cursor = db.query(
             TABLE_NAME,
@@ -64,7 +68,8 @@ class MethodDao(
         val db = appDatabase.readable
         val projectoin = arrayOf(
             MethodEntity.COLUMN_NAME_ID,
-            MethodEntity.COLUMN_NAME_NAME
+            MethodEntity.COLUMN_NAME_NAME,
+            MethodEntity.COLUMN_NAME_TYPE
         )
 
         val cursor = db.query(
@@ -84,7 +89,8 @@ class MethodDao(
                 methods.add(
                     MethodEntity(
                         id = cursor.getLong(0),
-                        name = cursor.getString(1)
+                        name = cursor.getString(1),
+                        type = cursor.getInt(2)
                     )
                 )
             } while (cursor.moveToNext())
@@ -97,7 +103,8 @@ class MethodDao(
         val db = appDatabase.readable
         val projection = arrayOf(
             MethodEntity.COLUMN_NAME_ID,
-            MethodEntity.COLUMN_NAME_NAME
+            MethodEntity.COLUMN_NAME_NAME,
+            MethodEntity.COLUMN_NAME_TYPE
         )
 
         val selection = "${MethodEntity.COLUMN_NAME_ID} = ?"
@@ -117,7 +124,8 @@ class MethodDao(
             cursor.moveToFirst()
             MethodEntity(
                 id = cursor.getLong(0),
-                name = cursor.getString(1)
+                name = cursor.getString(1),
+                type = cursor.getInt(2)
             )
         } ?: kotlin.run {
             null

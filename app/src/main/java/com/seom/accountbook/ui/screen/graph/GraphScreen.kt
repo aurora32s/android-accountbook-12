@@ -80,9 +80,11 @@ fun GraphBody(
         Spacer(modifier = Modifier.height(24.dp))
         Box(modifier = Modifier.fillMaxSize()) {
             if (accounts.isEmpty()) {
-                Text(
+                CustomText(
                     text = "내역이 없습니다.",
-                    style = MaterialTheme.typography.subtitle1.copy(color = ColorPalette.Purple),
+                    style = MaterialTheme.typography.subtitle2,
+                    color = ColorPalette.Purple,
+                    bold = true,
                     modifier = Modifier.align(Alignment.Center)
                 )
             } else {

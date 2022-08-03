@@ -5,11 +5,14 @@ import androidx.annotation.RequiresApi
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.seom.accountbook.model.history.HistoryModel
@@ -28,6 +31,7 @@ import java.time.LocalDate
 @Composable
 fun HistoryList(
     modifier: Modifier = Modifier,
+    bottomSpacer: Int = 0,
     historyGroupedByDate: Map<LocalDate, List<HistoryModel>>,
     selectedItem: MutableList<Long> = mutableListOf(),
     onClickItem: (Long) -> Unit = {},
@@ -39,7 +43,8 @@ fun HistoryList(
                 text = "내역이 없습니다.",
                 style = MaterialTheme.typography.subtitle2,
                 color = ColorPalette.Purple,
-                bold = true
+                bold = true,
+                modifier = Modifier.align(Alignment.Center)
             )
         } else {
             LazyColumn {
@@ -66,6 +71,7 @@ fun HistoryList(
                     }
                     BottomSpacer(16)
                 }
+                item { Spacer(modifier = Modifier.height(bottomSpacer.dp)) }
             }
         }
     }

@@ -16,7 +16,7 @@ class CategoryDao(
                 "${CategoryEntity.COLUMN_NAME_ID} INTEGER PRIMARY KEY AUTOINCREMENT," +
                 "${CategoryEntity.COLUMN_NAME_NAME} TEXT NOT NULL," +
                 "${CategoryEntity.COLUMN_NAME_COLOR} INTEGER NOT NULL," +
-                "${CategoryEntity.COLUMN_NAME_TYPE} INT NOT NULL)"
+                "${CategoryEntity.COLUMN_NAME_TYPE} INTEGER NOT NULL)"
 
         val INIT_DATA = listOf(
             CategoryEntity(name = "교통", color = 0xFF94D3CC, type = HistoryType.OUTCOME.type),

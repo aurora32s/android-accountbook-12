@@ -17,7 +17,7 @@ object History : AccountDestination {
     override val group = "history"
 }
 
-object Post : AccountDestination {
+object PostDestination : AccountDestination {
     override val icon = R.drawable.ic_history
     override val route = "post"
     override val title = "작성"
@@ -73,9 +73,15 @@ object MethodDestination : AccountDestination {
     override val group = "setting"
 
     const val methodIdArgs = "method_id"
-    val routeWithArgs = "${route}/{${methodIdArgs}}"
+    const val methodTypeArgs = "method_type"
+    val routeWithArgs = "${route}/{${methodTypeArgs}}"
+    val routeWithAllArgs = "${route}/{${methodTypeArgs}}/{${methodIdArgs}}"
+    val allArguments = listOf(
+        navArgument(methodIdArgs) { type = NavType.StringType },
+        navArgument(methodTypeArgs) { type = NavType.IntType }
+    )
     val arguments = listOf(
-        navArgument(methodIdArgs) { type = NavType.StringType }
+        navArgument(methodTypeArgs) { type = NavType.IntType }
     )
 }
 
@@ -98,5 +104,5 @@ object CategoryDestination : AccountDestination {
     )
 }
 
-val allScreens = listOf(History, Post, Calendar, Graph, DetailDestination, Setting, MethodDestination, CategoryDestination)
+val allScreens = listOf(History, PostDestination, Calendar, Graph, DetailDestination, Setting, MethodDestination, CategoryDestination)
 val accountBottomTabScreens = listOf(History, Calendar, Graph, Setting)

@@ -10,7 +10,7 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.unit.dp
 import com.seom.accountbook.model.graph.OutComeByMonth
 import com.seom.accountbook.model.history.HistoryModel
-import com.seom.accountbook.ui.components.BackButtonAppBar
+import com.seom.accountbook.ui.components.BackButtonOneAppBar
 import com.seom.accountbook.ui.components.common.BaseDivider
 import com.seom.accountbook.ui.components.graph.LinearGraph
 import com.seom.accountbook.ui.components.history.HistoryList
@@ -53,7 +53,7 @@ fun DetailBody(
 ) {
     Scaffold(
         topBar = {
-            BackButtonAppBar(
+            BackButtonOneAppBar(
                 title = accounts.first().categoryName ?: "UnKnow",
                 onClickBackBtn = onBackButtonPressed
             )
@@ -64,7 +64,8 @@ fun DetailBody(
             BaseDivider(color = ColorPalette.LightPurple)
             Spacer(modifier = Modifier.height(16.dp))
             HistoryList(
-                historyGroupedByDate = accounts.groupBy { LocalDate.of(it.year, it.month, it.date) }
+                historyGroupedByDate = accounts.groupBy { LocalDate.of(it.year, it.month, it.date) },
+                bottomSpacer = 20
             )
         }
     }

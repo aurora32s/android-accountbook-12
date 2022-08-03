@@ -8,13 +8,11 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material.Divider
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
@@ -23,7 +21,7 @@ import com.seom.accountbook.CategoryDestination
 import com.seom.accountbook.MethodDestination
 import com.seom.accountbook.data.entity.category.CategoryEntity
 import com.seom.accountbook.data.entity.method.MethodEntity
-import com.seom.accountbook.model.BaseModel
+import com.seom.accountbook.model.base.BaseModel
 import com.seom.accountbook.model.history.HistoryType
 import com.seom.accountbook.ui.components.appbar.NoneButtonAppBar
 import com.seom.accountbook.ui.components.common.BaseDivider
@@ -49,7 +47,8 @@ fun SettingScreen(
     val category = viewModel.category.collectAsState()
 
     SettingBody(
-        methods = methods.value,
+        incomeMethods = methods.value.filter { it.type == HistoryType.INCOME.type },
+        outcomeMethods = methods.value.filter { it.type == HistoryType.OUTCOME.type },
         incomeCategories = category.value.filter { it.type == HistoryType.INCOME.type },
         outcomeCategories = category.value.filter { it.type == HistoryType.OUTCOME.type },
         onPushNavigate = onPushNavigate
@@ -58,7 +57,8 @@ fun SettingScreen(
 
 @Composable
 fun SettingBody(
-    methods: List<MethodEntity>,
+    incomeMethods: List<MethodEntity>,
+    outcomeMethods: List<MethodEntity>,
     incomeCategories: List<CategoryEntity>,
     outcomeCategories: List<CategoryEntity>,
     onPushNavigate: (String, String) -> Unit
@@ -70,10 +70,25 @@ fun SettingBody(
     ) {
         LazyColumn {
             SettingGroup(
-                items = methods,
+                items = incomeMethods,
+                itemName = "입금계좌",
+                destination = MethodDestination,
+                onPushNavigate = { route, id ->
+                    onPushNavigate(
+                        route, "${HistoryType.INCOME.type}${if (id.isBlank()) "" else "/$id"}"
+                    )
+                }
+            )
+
+            SettingGroup(
+                items = outcomeMethods,
                 itemName = "결제수단",
                 destination = MethodDestination,
-                onPushNavigate = onPushNavigate
+                onPushNavigate = { route, id ->
+                    onPushNavigate(
+                        route, "${HistoryType.OUTCOME.type}${if (id.isBlank()) "" else "/$id"}"
+                    )
+                },
             )
             SettingGroup(
                 items = outcomeCategories,
@@ -105,7 +120,7 @@ fun SettingBody(
                     }
                 }
             )
-            BottomSpacer(40)
+            item { Spacer(modifier = Modifier.height(40.dp)) }
         }
     }
 }
@@ -117,7 +132,6 @@ fun LazyListScope.SettingGroup(
     destination: AccountDestination,
     onPushNavigate: (String, String) -> Unit
 ) {
-    BottomSpacer(16)
     stickyHeader { SingleTextHeader(title = itemName) }
     items(items = items) { item ->
         SettingItem(
@@ -137,6 +151,7 @@ fun LazyListScope.SettingGroup(
             IconImage(icon = R.drawable.ic_plus, color = ColorPalette.Purple)
         }
     }
+    BottomSpacer(16)
 }
 
 @Composable

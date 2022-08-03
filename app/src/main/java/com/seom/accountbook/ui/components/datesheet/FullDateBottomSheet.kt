@@ -6,10 +6,10 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Text
+import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import com.seom.accountbook.ui.components.CustomBottomSheet
 import com.seom.accountbook.ui.components.numberpicker.OutlinedNumberPicker
 import com.seom.accountbook.ui.theme.ColorPalette
 import com.seom.accountbook.util.NOW
@@ -20,18 +20,41 @@ import java.time.LocalDate
 /**
  * 연도/월/일/요일 포함하는 data bottom sheet
  */
+@OptIn(ExperimentalMaterialApi::class)
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun FullDateBottomSheet(
-    currentDate: LocalDate,
+    sheetState: ModalBottomSheetState,
     onClickCloseBtn: () -> Unit,
     onChangeDate: (LocalDate) -> Unit, // 날짜 변경
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    body: @Composable () -> Unit
+) {
+    CustomBottomSheet(
+        sheetState = sheetState,
+        sheetContent = {
+            FullDateSheetContent(
+                modifier = modifier,
+                onClickCloseBtn = onClickCloseBtn,
+                onChangeDate = onChangeDate
+            )
+        },
+        body = body
+    )
+}
+
+@RequiresApi(Build.VERSION_CODES.O)
+@Composable
+private fun FullDateSheetContent(
+    modifier: Modifier = Modifier,
+    currentDate: LocalDate = LocalDate.now(),
+    onClickCloseBtn: () -> Unit,
+    onChangeDate: (LocalDate) -> Unit
 ) {
     val selectedYear = remember { mutableStateOf(currentDate.year) }
     val selectedMonth = remember { mutableStateOf(currentDate.month.value) }
     val selectedDate = remember { mutableStateOf(currentDate.dayOfMonth) }
-    val lastDate = LocalDate.of(selectedYear.value, selectedMonth.value,1).getLastDate()
+    val lastDate = LocalDate.of(selectedYear.value, selectedMonth.value, 1).getLastDate()
 
     BasicDateBottomSheet(
         modifier = modifier,

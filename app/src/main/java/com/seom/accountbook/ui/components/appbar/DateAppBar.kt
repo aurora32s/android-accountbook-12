@@ -1,7 +1,6 @@
 package com.seom.accountbook.ui.components
 
 import android.os.Build
-import android.widget.NumberPicker
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -22,6 +21,7 @@ import androidx.compose.ui.unit.min
 import com.seom.accountbook.R
 import com.seom.accountbook.model.common.Date
 import com.seom.accountbook.ui.components.common.BaseDivider
+import com.seom.accountbook.ui.components.numberpicker.NumberPicker
 import com.seom.accountbook.ui.theme.ColorPalette
 import com.seom.accountbook.util.ext.format
 import kotlinx.coroutines.launch

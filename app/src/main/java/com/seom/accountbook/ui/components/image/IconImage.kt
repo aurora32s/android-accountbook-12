@@ -16,13 +16,14 @@ import androidx.compose.ui.res.painterResource
 fun IconImage(
     @DrawableRes
     icon: Int,
-    color: Color = MaterialTheme.colors.primary,
+    color: Color? = null,
     modifier: Modifier = Modifier
 ) {
+    val colorFilter = if (color != null) ColorFilter.tint(color = color) else null
     Image(
         painter = painterResource(id = icon),
         contentDescription = null,
-        colorFilter = ColorFilter.tint(color),
+        colorFilter = colorFilter,
         modifier = modifier
     )
 }

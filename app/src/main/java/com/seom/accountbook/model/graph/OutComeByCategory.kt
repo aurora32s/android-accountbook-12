@@ -1,6 +1,6 @@
 package com.seom.accountbook.model.graph
 
-import com.seom.accountbook.model.BaseCount
+import com.seom.accountbook.model.base.BaseCount
 
 data class OutComeByCategory(
     override val id: Long, // categoryId

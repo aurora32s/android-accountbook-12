@@ -5,9 +5,8 @@ import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.seom.accountbook.ui.components.BackButtonAppBar
-import com.seom.accountbook.ui.components.common.BaseSnackBar
-import com.seom.accountbook.ui.components.container.BottomButtonBox
+import com.seom.accountbook.model.history.HistoryType
+import com.seom.accountbook.ui.components.container.BackBottomButtonBox
 import com.seom.accountbook.ui.components.text.CustomTextField
 import com.seom.accountbook.ui.theme.ColorPalette
 import kotlinx.coroutines.launch
@@ -15,6 +14,7 @@ import kotlinx.coroutines.launch
 @Composable
 fun MethodAddScreen(
     methodId: String? = null,
+    methodType: HistoryType,
     viewModel: MethodViewModel,
     onBackButtonPressed: () -> Unit
 ) {
@@ -23,7 +23,8 @@ fun MethodAddScreen(
         viewModel.methodUiState.collect {
             when (it) {
                 MethodUiState.UnInitialized -> viewModel.fetchCategory(
-                    methodId = methodId?.toLong()
+                    methodId = methodId?.toLong(),
+                    methodType = methodType
                 )
                 MethodUiState.Loading -> {}
                 MethodUiState.Success.AddMethod -> {
@@ -46,9 +47,10 @@ fun MethodAddScreen(
     MethodBody(
         isModifyMode = methodId.isNullOrBlank().not(),
         scaffoldState = scaffoldState,
+        methodType = methodType,
         value = viewModel.name.collectAsState().value,
         onChangeValue = viewModel::setName,
-        onClickAddBtn = viewModel::addCategory,
+        onClickAddBtn = viewModel::addMethod,
         onBackButtonPressed = onBackButtonPressed
     )
 }
@@ -57,41 +59,35 @@ fun MethodAddScreen(
 fun MethodBody(
     isModifyMode: Boolean,
     scaffoldState: ScaffoldState,
+    methodType: HistoryType,
     value: String,
     onChangeValue: (String) -> Unit,
     onClickAddBtn: () -> Unit,
     onBackButtonPressed: () -> Unit
 ) {
+    val title = if (methodType == HistoryType.INCOME) "입금계좌" else "결제수단"
     val modeTitle = if (isModifyMode) "수정하기" else "추가하기"
 
-    Scaffold(
-        topBar = {
-            BackButtonAppBar(
-                title = "결제 수단 $modeTitle",
-                onClickBackBtn = onBackButtonPressed
-            )
-        },
-        snackbarHost = { it.BaseSnackBar(hostState = scaffoldState.snackbarHostState) }
+    BackBottomButtonBox(
+        scaffoldState = scaffoldState,
+        enabled = value.isBlank().not(),
+        appbarTitle = "$title $modeTitle",
+        buttonTitle = "등록하기",
+        buttonColor = ColorPalette.Yellow,
+        disabledButtonColor = ColorPalette.Yellow50,
+        onClickBackBtn = onBackButtonPressed,
+        onClickBottomBtn = onClickAddBtn
     ) {
-        BottomButtonBox(
-            onClickBtn = onClickAddBtn,
-            enabled = value.isBlank().not(),
-            buttonText = "등록하기",
-            buttonColor = ColorPalette.Yellow,
-            disabledColor = ColorPalette.Yellow50,
-            modifier = Modifier.fillMaxSize()
-        ) {
-            CustomTextField(
-                name = "이름",
-                value = value,
-                textColor = ColorPalette.Purple,
-                onValueChanged = onChangeValue,
-                modifier = Modifier.padding(
-                    start = 20.dp,
-                    end = 20.dp,
-                    top = 16.dp
-                )
+        CustomTextField(
+            name = "이름",
+            value = value,
+            textColor = ColorPalette.Purple,
+            onValueChanged = onChangeValue,
+            modifier = Modifier.padding(
+                start = 20.dp,
+                end = 20.dp,
+                top = 16.dp
             )
-        }
+        )
     }
 }

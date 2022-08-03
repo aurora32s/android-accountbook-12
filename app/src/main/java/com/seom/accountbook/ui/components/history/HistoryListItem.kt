@@ -73,14 +73,16 @@ fun HistoryListItem(
                         CustomText(
                             text = history.content,
                             style = MaterialTheme.typography.subtitle1,
-                            color = ColorPalette.Purple
+                            color = ColorPalette.Purple,
+                            bold = true
                         )
                     },
                     right = {
                         CustomText(
                             text = history.type.getCountOnType(history.money.toLong()).toMoney(),
                             style = MaterialTheme.typography.body2,
-                            color = history.type.color
+                            color = history.type.color,
+                            bold = true
                         )
                     }
                 )

@@ -3,7 +3,6 @@ package com.seom.accountbook.util
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
@@ -35,6 +34,8 @@ fun AccountNavigationHost(
     ) {
         composable(route = History.route) {
             HistoryScreen(
+                mainViewModel = viewModel,
+                onDateChange = viewModel::setDate,
                 viewModel = viewModel(),
                 onPushNavigate = { route, argument ->
                     navController.navigateSingleTop(route, argument)
@@ -66,10 +67,10 @@ fun AccountNavigationHost(
             }
         }
         composable(
-            route = Post.routeWithArgs,
-            arguments = Post.arguments
+            route = PostDestination.routeWithArgs,
+            arguments = PostDestination.arguments
         ) { navBackStackEntry ->
-            val postId = navBackStackEntry.arguments?.getString(Post.postIdArg)
+            val postId = navBackStackEntry.arguments?.getString(PostDestination.postIdArg)
             PostScreen(
                 postId = postId,
                 viewModel = viewModel(),
@@ -79,7 +80,7 @@ fun AccountNavigationHost(
                 onBackButtonPressed = { navController.popBackStack() }
             )
         }
-        composable(route = Post.route) {
+        composable(route = PostDestination.route) {
             PostScreen(
                 viewModel = viewModel(),
                 onPushNavigation = { route, argument ->
@@ -95,7 +96,8 @@ fun AccountNavigationHost(
         ) { navBackStackEntry ->
             val year = navBackStackEntry.arguments?.getInt(DetailDestination.yearArgs)
             val month = navBackStackEntry.arguments?.getInt(DetailDestination.monthArgs)
-            val categoryId = navBackStackEntry.arguments?.getString(DetailDestination.categoryIdArgs)
+            val categoryId =
+                navBackStackEntry.arguments?.getString(DetailDestination.categoryIdArgs)
 
             if (year != null && month != null && categoryId != null) {
                 DetailScreen(
@@ -107,24 +109,31 @@ fun AccountNavigationHost(
                 )
             }
         }
-        // 결제 수단 새로 추가
+        // 결제/입금 수단 새로 추가
         composable(
-            route = MethodDestination.route
-        ) {
+            route = MethodDestination.routeWithArgs,
+            arguments = MethodDestination.arguments
+        ) { navBackStackEntry ->
+            val methodType =
+                navBackStackEntry.arguments?.getInt(MethodDestination.methodTypeArgs)
             MethodAddScreen(
+                methodType = HistoryType.getHistoryType(methodType ?: 0),
                 viewModel = viewModel()
             ) {
                 navController.popBackStack()
             }
         }
-        // 결제 수단 변경
+        // 결제/입금 수단 변경
         composable(
-            route = MethodDestination.routeWithArgs,
-            arguments = MethodDestination.arguments
+            route = MethodDestination.routeWithAllArgs,
+            arguments = MethodDestination.allArguments
         ) { navBackStackEntry ->
             val methodId = navBackStackEntry.arguments?.getString(MethodDestination.methodIdArgs)
+            val methodType =
+                navBackStackEntry.arguments?.getInt(MethodDestination.methodTypeArgs)
             MethodAddScreen(
                 methodId = methodId,
+                methodType = HistoryType.getHistoryType(methodType ?: 0),
                 viewModel = viewModel()
             ) {
                 navController.popBackStack()
@@ -135,7 +144,8 @@ fun AccountNavigationHost(
             route = CategoryDestination.routeWithArgs,
             arguments = CategoryDestination.arguments
         ) { navBackStackEntry ->
-            val categoryType = navBackStackEntry.arguments?.getString(CategoryDestination.categoryTypeArgs)
+            val categoryType =
+                navBackStackEntry.arguments?.getString(CategoryDestination.categoryTypeArgs)
             CategoryAddScreen(
                 null,
                 HistoryType.getHistoryType(categoryType?.toInt() ?: 0),
@@ -149,8 +159,10 @@ fun AccountNavigationHost(
             route = CategoryDestination.routeWithAllArgs,
             arguments = CategoryDestination.allArguments
         ) { navBackStackEntry ->
-            val categoryId = navBackStackEntry.arguments?.getString(CategoryDestination.categoryIdArgs)
-            val categoryType = navBackStackEntry.arguments?.getString(CategoryDestination.categoryTypeArgs)
+            val categoryId =
+                navBackStackEntry.arguments?.getString(CategoryDestination.categoryIdArgs)
+            val categoryType =
+                navBackStackEntry.arguments?.getString(CategoryDestination.categoryTypeArgs)
             CategoryAddScreen(
                 categoryId,
                 HistoryType.getHistoryType(categoryType?.toInt() ?: 0),
