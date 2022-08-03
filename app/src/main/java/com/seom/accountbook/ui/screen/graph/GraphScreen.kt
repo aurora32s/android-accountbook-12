@@ -17,6 +17,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.seom.accountbook.DetailDestination
 import com.seom.accountbook.model.graph.OutComeByCategory
+import com.seom.accountbook.ui.AccountViewModel
 import com.seom.accountbook.ui.components.DateAppBar
 import com.seom.accountbook.ui.components.common.BaseDivider
 import com.seom.accountbook.ui.components.common.BottomSpacer

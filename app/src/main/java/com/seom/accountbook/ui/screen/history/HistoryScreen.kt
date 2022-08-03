@@ -18,6 +18,7 @@ import com.seom.accountbook.PostDestination
 import com.seom.accountbook.R
 import com.seom.accountbook.model.history.HistoryModel
 import com.seom.accountbook.model.history.HistoryType
+import com.seom.accountbook.ui.AccountViewModel
 import com.seom.accountbook.ui.components.BackButtonTwoAppBar
 import com.seom.accountbook.ui.components.DateAppBar
 import com.seom.accountbook.ui.components.button.CustomFloatingActionButton

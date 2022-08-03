@@ -11,6 +11,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.seom.accountbook.*
 import com.seom.accountbook.model.history.HistoryType
+import com.seom.accountbook.ui.AccountViewModel
 import com.seom.accountbook.ui.screen.calendar.CalendarScreen
 import com.seom.accountbook.ui.screen.detail.DetailScreen
 import com.seom.accountbook.ui.screen.graph.GraphScreen
