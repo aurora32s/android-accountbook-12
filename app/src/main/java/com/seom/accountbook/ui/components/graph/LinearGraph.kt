@@ -19,11 +19,11 @@ import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.seom.accountbook.model.graph.OutComeByMonth
+import com.seom.accountbook.model.base.BaseLinearGraphModel
 
 @Composable
 fun LinearGraph(
-    data: List<OutComeByMonth>,
+    data: List<BaseLinearGraphModel>,
     keys: List<String>,
     modifier: Modifier = Modifier,
     backgroundColor: Color, // 배경 색
@@ -32,7 +32,7 @@ fun LinearGraph(
     secondaryTextColor: Color, // 일반 글자 색
     blockNum: Int = 6
 ) {
-    val usedData = keys.map { name -> data.find { it.name == name }?.count ?: 0  }
+    val usedData = keys.map { name -> data.find { it.name == name }?.count ?: 0 }
     Column(
         modifier = Modifier
             .height(130.dp)
@@ -67,7 +67,7 @@ fun LinearGraph(
                     )
                 }
 
-                keys.forEachIndexed { index, name  ->
+                keys.forEachIndexed { index, name ->
                     drawIntoCanvas {
                         val count = data.find { it.name == name }?.count ?: 0
                         it.nativeCanvas.drawText(

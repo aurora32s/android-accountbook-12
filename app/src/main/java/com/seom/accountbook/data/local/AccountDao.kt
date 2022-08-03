@@ -224,7 +224,7 @@ class AccountDao (
         return accounts.toList()
     }
 
-    fun getDetailOutComeOnCategory(categoryId: Long, year: Int, month: Int): List<HistoryModel> {
+    fun getDetailOutComeOnCategory(categoryId: Long, year: Int, month: Int): List<HistoryEntity> {
         val db = appDatabase.readable
 
         val minYear = if (month < 6) year - 1 else year
@@ -247,7 +247,7 @@ class AccountDao (
                 "C.${CategoryEntity.COLUMN_NAME_NAME}," +
                 "C.${CategoryEntity.COLUMN_NAME_COLOR}," +
                 "A.${AccountEntity.COLUMN_NAME_TYPE} " +
-                "FROM ${TABLE_NAME} A " +
+                "FROM $TABLE_NAME A " +
                 "LEFT JOIN ${MethodDao.TABLE_NAME} M " +
                 "ON A.${AccountEntity.COLUMN_NAME_METHOD} = M.${MethodEntity.COLUMN_NAME_ID} " +
                 "LEFT JOIN ${CategoryDao.TABLE_NAME} C " +
@@ -258,11 +258,11 @@ class AccountDao (
 
         val cursor = db.rawQuery(query, null)
 
-        val accounts = mutableListOf<HistoryModel>()
+        val accounts = mutableListOf<HistoryEntity>()
         if (cursor.moveToFirst()) {
             do {
                 accounts.add(
-                    HistoryModel(
+                    HistoryEntity(
                         id = cursor.getLong(0),
                         content = cursor.getString(1),
                         year = cursor.getInt(2),
@@ -272,7 +272,7 @@ class AccountDao (
                         method = cursor.getString(6),
                         categoryName = cursor.getString(7),
                         categoryColor = cursor.getLong(8),
-                        type = HistoryType.getHistoryType(cursor.getInt(9))
+                        type = cursor.getInt(9)
                     )
                 )
             } while (cursor.moveToNext())

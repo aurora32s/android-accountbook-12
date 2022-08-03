@@ -34,5 +34,5 @@ interface AccountRepository {
     suspend fun getOutComeOnMonth(categoryId: Long, year: Int, month: Int): Result<List<OutComeByMonth>>
 
     // 특정 카테고리의 6개월 이내 일별 지출 내역 가져오기
-    suspend fun getDetailOutComeOnCategory(categoryId: Long, year: Int, month: Int): Result<List<HistoryModel>>
+    suspend fun getDetailOutComeOnCategory(categoryId: Long, year: Int, month: Int): Result<List<HistoryEntity>>
 }

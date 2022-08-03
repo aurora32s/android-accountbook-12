@@ -127,7 +127,7 @@ class AccountRepositoryImpl @Inject constructor(
         categoryId: Long,
         year: Int,
         month: Int
-    ): Result<List<HistoryModel>> = withContext(ioDispatcher) {
+    ): Result<List<HistoryEntity>> = withContext(ioDispatcher) {
         try {
             val result = accountDao.getDetailOutComeOnCategory(categoryId, year, month)
             Result.Success.Finish(result)
