@@ -5,7 +5,6 @@ import androidx.annotation.RequiresApi
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
@@ -20,7 +19,6 @@ import com.seom.accountbook.ui.screen.post.PostScreen
 import com.seom.accountbook.ui.screen.setting.SettingScreen
 import com.seom.accountbook.ui.screen.setting.category.CategoryAddScreen
 import com.seom.accountbook.ui.screen.setting.method.MethodAddScreen
-import dagger.hilt.android.lifecycle.HiltViewModel
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable

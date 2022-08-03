@@ -15,7 +15,7 @@
         android:theme="@style/Theme.AccountBook"
         tools:targetApi="31">
         <activity
-            android:name=".AccountActivity"
+            android:name=".ui.AccountActivity"
             android:exported="true"
             android:label="@string/app_name"
             android:theme="@style/Theme.AccountBook">

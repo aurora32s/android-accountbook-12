@@ -15,8 +15,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.viewmodel.compose.viewModel
-import com.seom.accountbook.AccountViewModel
 import com.seom.accountbook.DetailDestination
 import com.seom.accountbook.model.graph.OutComeByCategory
 import com.seom.accountbook.ui.components.DateAppBar
