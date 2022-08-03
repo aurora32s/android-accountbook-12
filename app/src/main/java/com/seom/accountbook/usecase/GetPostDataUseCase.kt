@@ -13,8 +13,7 @@ class GetPostDataUseCase @Inject constructor(
 ) {
     suspend operator fun invoke(id: Long?): PostModel =
         coroutineScope {
-            val account =
-                id?.let { async { accountRepository.getAccount(id) } } ?: kotlin.run { null }
+            val account = id?.let { async { accountRepository.getAccount(id) } }
             val settings = async { getAllSettingDataUseCase() }
 
             PostModel(

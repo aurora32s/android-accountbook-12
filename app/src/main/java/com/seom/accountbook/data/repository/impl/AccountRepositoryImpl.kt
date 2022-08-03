@@ -29,6 +29,9 @@ class AccountRepositoryImpl @Inject constructor(
         }
     }
 
+    /**
+     * 특정 수입/지출 내역 요청
+     */
     override suspend fun getAccount(id: Long): Result<AccountEntity> = withContext(ioDispatcher) {
         try {
             val account = accountDao.getAccount(id)
@@ -65,6 +68,9 @@ class AccountRepositoryImpl @Inject constructor(
             }
         }
 
+    /**
+     * 내역 제거 요청
+     */
     override suspend fun removeAccounts(accountItems: List<Long>): Result<Int> =
         withContext(ioDispatcher) {
             try {
@@ -117,7 +123,7 @@ class AccountRepositoryImpl @Inject constructor(
         categoryId: Long,
         year: Int,
         month: Int
-    ): Result<List<HistoryModel>>  = withContext(ioDispatcher) {
+    ): Result<List<HistoryModel>> = withContext(ioDispatcher) {
         try {
             val result = accountDao.getDetailOutComeOnCategory(categoryId, year, month)
             Result.Success.Finish(result)

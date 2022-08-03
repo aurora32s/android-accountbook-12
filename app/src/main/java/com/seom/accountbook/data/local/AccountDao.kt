@@ -79,6 +79,9 @@ class AccountDao (
         return result
     }
 
+    /**
+     * 전달된 id에 해당하는 수입/지출 내역 요청
+     */
     fun getAccount(id: Long): AccountEntity? {
         val db = appDatabase.readable
 
@@ -175,6 +178,9 @@ class AccountDao (
         return accounts.toList()
     }
 
+    /**
+     * 한 개 이상의 수입/지출 내역 삭제 요청
+     */
     fun removeAccount(accountItems: List<Long>): Int {
         val db = appDatabase.writable
 

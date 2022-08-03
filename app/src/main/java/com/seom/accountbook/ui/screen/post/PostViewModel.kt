@@ -104,18 +104,19 @@ class PostViewModel @Inject constructor(
                 _categoryId.value = account.categoryId
                 _content.value = account.content ?: ""
             }
-            null -> {}
+            else -> {}
         }
         when (val methodResult = result.settingModel.methods) {
-            is Result.Error -> {}
             is Result.Success.Finish -> _methods.value = methodResult.data
+            else -> {}
         }
         when (val categoryResult = result.settingModel.categories) {
-            is Result.Error -> {}
             is Result.Success.Finish -> _category.value = categoryResult.data
+            else -> {}
         }
     }
 
+    // 수입/지출 내역 등록/수정
     fun addAccount() = viewModelScope.launch {
         val account = AccountEntity(
             id = accountId,
@@ -144,6 +145,7 @@ class PostViewModel @Inject constructor(
 sealed interface PostUiState {
     object UnInitialized : PostUiState
     object Loading : PostUiState
+
     object Success {
         object AddAccount : PostUiState
         data class FetchAccount(
