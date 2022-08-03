@@ -64,7 +64,8 @@ fun DetailBody(
             BaseDivider(color = ColorPalette.LightPurple)
             Spacer(modifier = Modifier.height(16.dp))
             HistoryList(
-                historyGroupedByDate = accounts.groupBy { LocalDate.of(it.year, it.month, it.date) }
+                historyGroupedByDate = accounts.groupBy { LocalDate.of(it.year, it.month, it.date) },
+                bottomSpacer = 20
             )
         }
     }

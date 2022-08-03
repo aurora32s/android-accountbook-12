@@ -113,6 +113,7 @@ fun HistoryBody(
                 currentSelectedTab and (2.0).pow(it.type.type).toInt() > 0
             }.groupBy { LocalDate.of(it.year, it.month, it.date) },
             selectedItem = selectedItem,
+            bottomSpacer = 60,
             modifier = Modifier.fillMaxWidth(),
             onClickItem = { onClickItem(it) },
             onLongClickItem = { onLongClickItem(it) }
