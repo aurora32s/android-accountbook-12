@@ -81,6 +81,9 @@ class AccountRepositoryImpl @Inject constructor(
             }
         }
 
+    /**
+     * 특정 월의 일별 총 수입/지출 내역 요청
+     */
     override suspend fun getAllAccountOnDate(year: Int, month: Int): Result<List<CalendarEntity>> =
         withContext(ioDispatcher) {
             try {

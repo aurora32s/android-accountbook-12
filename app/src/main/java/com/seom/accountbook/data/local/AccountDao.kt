@@ -192,8 +192,12 @@ class AccountDao (
         return numRowsDeleted
     }
 
+    /**
+     * 특정 연도/월의 일별 총 수입/지출 내역 요청
+     */
     fun getAllAccountOnDate(year: Int, month: Int): List<CalendarEntity> {
         val db = appDatabase.writable
+
         val query = "SELECT " +
                 "${AccountEntity.COLUMN_NAME_DATE}," +
                 "SUM(${AccountEntity.COLUMN_NAME_COUNT})," +

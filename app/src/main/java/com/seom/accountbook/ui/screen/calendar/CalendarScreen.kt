@@ -78,7 +78,7 @@ fun CalendarBody(
             calendarState = calendarState,
             dayContent = {
                 DefaultDate(
-                    account = histories.groupBy { it.date },
+                    account = histories.groupBy { history -> history.date },
                     state = it
                 )
             }

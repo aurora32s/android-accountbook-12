@@ -15,14 +15,13 @@ import javax.inject.Inject
 class CalendarViewModel @Inject constructor(
     private val accountRepository: AccountRepository
 ) : ViewModel() {
-
     private val _histories = MutableStateFlow<List<CalendarEntity>>(emptyList())
     val histories = _histories.asStateFlow()
 
     fun fetchData(year: Int, month: Int) = viewModelScope.launch {
         when (val result = accountRepository.getAllAccountOnDate(year, month)) {
-            is Result.Error -> {}
             is Result.Success.Finish -> _histories.value = result.data
+            else -> {}
         }
     }
 }
