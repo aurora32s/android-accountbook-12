@@ -1,4 +1,4 @@
-package com.seom.accountbook.ui.screen.calendar.day
+package com.seom.accountbook.ui.components.calendar.day
 
 import java.time.LocalDate
 

@@ -1,7 +1,7 @@
-package com.seom.accountbook.ui.screen.calendar.week
+package com.seom.accountbook.ui.components.calendar.week
 
 import androidx.compose.runtime.Immutable
-import com.seom.accountbook.ui.screen.calendar.day.Day
+import com.seom.accountbook.ui.components.calendar.day.Day
 
 @Immutable
 internal class Week(

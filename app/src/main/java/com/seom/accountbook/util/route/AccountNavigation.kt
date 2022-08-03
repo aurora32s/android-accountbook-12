@@ -43,10 +43,9 @@ fun AccountNavigationHost(
         }
         composable(route = Calendar.route) {
             CalendarScreen(
-                viewModel = viewModel(),
-                onPushNavigate = { route, argument ->
-                    navController.navigateSingleTop(route, argument)
-                }
+                mainViewModel = viewModel,
+                onDateChange = viewModel::setDate,
+                viewModel = viewModel()
             )
         }
         composable(route = Graph.route) {

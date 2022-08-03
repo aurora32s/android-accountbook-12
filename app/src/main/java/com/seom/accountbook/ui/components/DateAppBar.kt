@@ -21,6 +21,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.min
 import com.seom.accountbook.R
 import com.seom.accountbook.model.common.Date
+import com.seom.accountbook.ui.components.common.BaseDivider
 import com.seom.accountbook.ui.theme.ColorPalette
 import com.seom.accountbook.util.ext.format
 import kotlinx.coroutines.launch
@@ -142,13 +143,13 @@ fun AppBar(
     onPrevDate: () -> Unit,
     onPostDate: () -> Unit
 ) {
-    Surface(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(16.dp),
-        color = Color.Transparent
+    Column(
+        modifier = Modifier.background(Color.Transparent)
     ) {
         Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             Image(
@@ -166,6 +167,7 @@ fun AppBar(
                 contentDescription = null,
                 modifier = Modifier.clickable { onPostDate() })
         }
+        BaseDivider(color = ColorPalette.Purple)
     }
 }
 

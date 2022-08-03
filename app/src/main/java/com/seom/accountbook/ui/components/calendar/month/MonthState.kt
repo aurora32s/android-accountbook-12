@@ -1,4 +1,4 @@
-package com.seom.accountbook.ui.screen.calendar.month
+package com.seom.accountbook.ui.components.calendar.month
 
 import android.os.Build
 import androidx.annotation.RequiresApi
