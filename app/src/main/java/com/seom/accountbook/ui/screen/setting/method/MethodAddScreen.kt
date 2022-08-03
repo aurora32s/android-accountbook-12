@@ -7,6 +7,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.seom.accountbook.ui.components.BackButtonOneAppBar
 import com.seom.accountbook.ui.components.common.BaseSnackBar
+import com.seom.accountbook.ui.components.container.BackBottomButtonBox
 import com.seom.accountbook.ui.components.container.BottomButtonBox
 import com.seom.accountbook.ui.components.text.CustomTextField
 import com.seom.accountbook.ui.theme.ColorPalette
@@ -64,34 +65,26 @@ fun MethodBody(
 ) {
     val modeTitle = if (isModifyMode) "수정하기" else "추가하기"
 
-    Scaffold(
-        topBar = {
-            BackButtonOneAppBar(
-                title = "결제 수단 $modeTitle",
-                onClickBackBtn = onBackButtonPressed
-            )
-        },
-        snackbarHost = { it.BaseSnackBar(hostState = scaffoldState.snackbarHostState) }
+    BackBottomButtonBox(
+        scaffoldState = scaffoldState,
+        enabled = value.isBlank().not(),
+        appbarTitle = "결제 수단 $modeTitle",
+        buttonTitle = "등록하기",
+        buttonColor = ColorPalette.Yellow,
+        disabledButtonColor = ColorPalette.Yellow50,
+        onClickBackBtn = onBackButtonPressed,
+        onClickBottomBtn = onClickAddBtn
     ) {
-        BottomButtonBox(
-            onClickBtn = onClickAddBtn,
-            enabled = value.isBlank().not(),
-            buttonText = "등록하기",
-            buttonColor = ColorPalette.Yellow,
-            disabledColor = ColorPalette.Yellow50,
-            modifier = Modifier.fillMaxSize()
-        ) {
-            CustomTextField(
-                name = "이름",
-                value = value,
-                textColor = ColorPalette.Purple,
-                onValueChanged = onChangeValue,
-                modifier = Modifier.padding(
-                    start = 20.dp,
-                    end = 20.dp,
-                    top = 16.dp
-                )
+        CustomTextField(
+            name = "이름",
+            value = value,
+            textColor = ColorPalette.Purple,
+            onValueChanged = onChangeValue,
+            modifier = Modifier.padding(
+                start = 20.dp,
+                end = 20.dp,
+                top = 16.dp
             )
-        }
+        )
     }
 }

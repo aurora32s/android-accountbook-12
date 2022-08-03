@@ -8,6 +8,7 @@ import androidx.compose.ui.unit.dp
 import com.seom.accountbook.model.history.HistoryType
 import com.seom.accountbook.ui.components.BackButtonOneAppBar
 import com.seom.accountbook.ui.components.common.BaseSnackBar
+import com.seom.accountbook.ui.components.container.BackBottomButtonBox
 import com.seom.accountbook.ui.components.container.BottomButtonBox
 import com.seom.accountbook.ui.components.header.SingleTextHeader
 import com.seom.accountbook.ui.components.selector.ColorSelector
@@ -74,44 +75,35 @@ fun SettingBody(
     val title = if (categoryType == HistoryType.INCOME) "수입" else "지출"
     val modeTitle = if (isModifyMode) "추가하기" else "수정하기"
 
-    Scaffold(
-        topBar = {
-            BackButtonOneAppBar(
-                title = "$title 카테고리 $modeTitle",
-                onClickBackBtn = onBackButtonPressed
-            )
-        },
-        snackbarHost = { it.BaseSnackBar(hostState = scaffoldState.snackbarHostState) }
+    BackBottomButtonBox(
+        scaffoldState = scaffoldState,
+        enabled = name.isBlank().not(),
+        appbarTitle = "$title 카테고리 $modeTitle",
+        buttonTitle = "등록하기",
+        buttonColor = ColorPalette.Yellow,
+        disabledButtonColor = ColorPalette.Yellow50,
+        onClickBackBtn = onBackButtonPressed,
+        onClickBottomBtn = onClickAddBtn
     ) {
-        BottomButtonBox(
-            onClickBtn = onClickAddBtn,
-            enabled = name.isBlank().not(),
-            buttonText = "등록하기",
-            buttonColor = ColorPalette.Yellow,
-            disabledColor = ColorPalette.Yellow50,
-            modifier = Modifier.fillMaxSize()
-        ) {
-            Column {
-                CustomTextField(
-                    name = "이름",
-                    value = name,
-                    textColor = ColorPalette.Purple,
-                    onValueChanged = onChangeName,
-                    modifier = Modifier.padding(
-                        start = 20.dp,
-                        end = 20.dp,
-                        top = 16.dp
-                    )
-                )
-                SingleTextHeader(title = "색상")
-                ColorSelector(
-                    colors = colorList,
-                    perLine = 10,
-                    selectedColor = color,
-                    onSelectItem = onChangeColor
-                )
-                Divider(color = ColorPalette.LightPurple, thickness = 1.dp)
-            }
-        }
+        CustomTextField(
+            name = "이름",
+            value = name,
+            textColor = ColorPalette.Purple,
+            onValueChanged = onChangeName,
+            modifier = Modifier.padding(
+                start = 20.dp,
+                end = 20.dp,
+                top = 16.dp
+            )
+        )
+        Spacer(modifier = Modifier.height(16.dp))
+        SingleTextHeader(title = "색상")
+        ColorSelector(
+            colors = colorList,
+            perLine = 10,
+            selectedColor = color,
+            onSelectItem = onChangeColor
+        )
+        Divider(color = ColorPalette.LightPurple, thickness = 1.dp)
     }
 }
