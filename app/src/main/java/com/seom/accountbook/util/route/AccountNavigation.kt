@@ -3,6 +3,7 @@ package com.seom.accountbook.util
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
@@ -23,6 +24,7 @@ import com.seom.accountbook.ui.screen.setting.method.MethodAddScreen
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun AccountNavigationHost(
+    viewModel: AccountViewModel,
     navController: NavHostController,
     modifier: Modifier = Modifier
 ) {
@@ -49,6 +51,8 @@ fun AccountNavigationHost(
         }
         composable(route = Graph.route) {
             GraphScreen(
+                mainViewModel = viewModel,
+                onDateChange = viewModel::setDate,
                 viewModel = viewModel(),
                 onPushNavigate = { route, argument ->
                     navController.navigateSingleTop(route, argument)
@@ -87,12 +91,12 @@ fun AccountNavigationHost(
         }
 
         composable(
-            route = Detail.routeWithArgs,
-            arguments = Detail.arguments
+            route = DetailDestination.routeWithArgs,
+            arguments = DetailDestination.arguments
         ) { navBackStackEntry ->
-            val year = navBackStackEntry.arguments?.getInt(Detail.yearArgs)
-            val month = navBackStackEntry.arguments?.getInt(Detail.monthArgs)
-            val categoryId = navBackStackEntry.arguments?.getString(Detail.categoryIdArgs)
+            val year = navBackStackEntry.arguments?.getInt(DetailDestination.yearArgs)
+            val month = navBackStackEntry.arguments?.getInt(DetailDestination.monthArgs)
+            val categoryId = navBackStackEntry.arguments?.getString(DetailDestination.categoryIdArgs)
 
             if (year != null && month != null && categoryId != null) {
                 DetailScreen(

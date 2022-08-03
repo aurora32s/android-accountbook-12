@@ -33,6 +33,7 @@ import com.seom.accountbook.ui.components.text.CustomText
 import com.seom.accountbook.ui.theme.ColorPalette
 import com.seom.accountbook.R
 import com.seom.accountbook.ui.components.common.Chip
+import com.seom.accountbook.ui.components.common.SideItemRow
 import com.seom.accountbook.ui.components.image.IconImage
 
 @Composable
@@ -116,6 +117,7 @@ fun LazyListScope.SettingGroup(
     destination: AccountDestination,
     onPushNavigate: (String, String) -> Unit
 ) {
+    BottomSpacer(16)
     stickyHeader { SingleTextHeader(title = itemName) }
     items(items = items) { item ->
         SettingItem(
@@ -134,7 +136,6 @@ fun LazyListScope.SettingGroup(
         ) {
             IconImage(icon = R.drawable.ic_plus, color = ColorPalette.Purple)
         }
-        Divider(color = ColorPalette.LightPurple, thickness = 1.dp)
     }
 }
 
@@ -149,21 +150,19 @@ fun SettingItem(
             .padding(start = 16.dp, end = 10.dp)
     ) {
         BaseDivider(color = ColorPalette.Purple40)
-        Row(
+        SideItemRow(
             modifier = Modifier
-                .fillMaxWidth()
                 .padding(top = 12.dp, bottom = 12.dp)
                 .clickable { onClickItem() },
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            CustomText(
-                text = itemName,
-                style = MaterialTheme.typography.subtitle1,
-                bold = true,
-                color = ColorPalette.Purple
-            )
-            rightChild()
-        }
+            left = {
+                CustomText(
+                    text = itemName,
+                    style = MaterialTheme.typography.subtitle1,
+                    bold = true,
+                    color = ColorPalette.Purple
+                )
+            },
+            right = rightChild
+        )
     }
 }

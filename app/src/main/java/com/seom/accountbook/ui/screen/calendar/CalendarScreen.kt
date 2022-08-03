@@ -67,6 +67,8 @@ fun CalendarScreen(
     val outcome = histories.filter { it.type == HistoryType.OUTCOME.type }.sumOf { it.count }
 
     DateAppBar(
+        year = 1,
+        month = 31,
         onDateChange = {
             // TODO 변경된 날짜에 맞는 데이터 요청
             viewModel.fetchData(it.year, it.month.value)

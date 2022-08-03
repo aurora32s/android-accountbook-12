@@ -50,6 +50,8 @@ fun HistoryScreen(
     var histories = viewModel.histories.collectAsState()
 
     DateAppBar(
+        year = 1,
+        month = 31,
         onDateChange = { date ->
             // TODO 변경된 날짜에 맞는 데이터 요청
             viewModel.fetchData(date.year, date.month.value)
