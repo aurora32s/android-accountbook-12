@@ -22,6 +22,7 @@ import com.seom.accountbook.ui.components.tab.TopTabRow
 import com.seom.accountbook.ui.components.text.CustomText
 import com.seom.accountbook.ui.theme.ColorPalette
 import kotlinx.coroutines.launch
+import kotlin.math.pow
 
 /**
  * 수입/지출 내역 화면 UI
@@ -42,9 +43,10 @@ fun PostScreen(
     val coroutine = rememberCoroutineScope()
 
     LaunchedEffect(key1 = Unit) {
+        viewModel.fetchAccount(postId = postId?.toLong())
         viewModel.postUiState.collect {
             when (it) {
-                PostUiState.UnInitialized -> viewModel.fetchAccount(postId = postId?.toLong())
+                PostUiState.UnInitialized -> {}
                 PostUiState.Loading -> {}
                 is PostUiState.Success.FetchAccount -> {}
                 PostUiState.Success.AddAccount -> onBackButtonPressed()
@@ -62,7 +64,7 @@ fun PostScreen(
             isModifyMode = isModifyMode,
             scaffoldState = scaffoldState,
             viewModel = viewModel,
-            onOpenDatePicker = { coroutine.launch { bottomSheetState.show() }},
+            onOpenDatePicker = { coroutine.launch { bottomSheetState.show() } },
             onBackButtonPressed = onBackButtonPressed,
             onPushNavigation = onPushNavigation
         )
@@ -110,6 +112,9 @@ fun PostBody(
     val content = viewModel.content.collectAsState()
     val type = viewModel.type.collectAsState()
 
+    val methods = viewModel.methods.collectAsState(initial = emptyList())
+    val categories = viewModel.category.collectAsState(initial = emptyList())
+
     val scrollState = rememberScrollState()
     val isAbleAdd = count.value > 0 && methodId.value != null && content.value.isNotBlank()
 
@@ -124,7 +129,7 @@ fun PostBody(
         onClickBottomBtn = viewModel::addAccount
     ) {
         PostTopTab(
-            currentSelectedTab = viewModel.type.collectAsState().value.type,
+            currentSelectedTab = (2.0).pow(type.value.type).toInt(),
             onTabSelected = {
                 viewModel.setType(it)
                 viewModel.setCategoryId(null)
@@ -146,20 +151,20 @@ fun PostBody(
             Spacer(modifier = Modifier.height(16.dp))
             ExposedInput(
                 id = methodId,
-                title = "결제수단",
-                values = viewModel.methods.collectAsState().value,
+                title = if (type.value == HistoryType.INCOME) "입금 계좌" else "결제 수단",
+                values = methods.value,
                 onSelectedId = viewModel::setMethodID,
                 onClickAddBtn = {
                     onPushNavigation(
                         MethodDestination.route,
-                        ""
+                        "${type.value.type}"
                     )
                 })
             Spacer(modifier = Modifier.height(16.dp))
             ExposedInput(
                 id = categoryId,
                 title = "분류",
-                values = viewModel.category.collectAsState().value,
+                values = categories.value,
                 onSelectedId = viewModel::setCategoryId,
                 onClickAddBtn = {
                     onPushNavigation(
