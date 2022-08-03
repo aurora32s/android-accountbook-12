@@ -1,5 +1,6 @@
 package com.seom.accountbook.ui.screen.graph
 
+import android.content.res.Configuration
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.clickable
@@ -12,6 +13,8 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.modifier.modifierLocalConsumer
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.unit.dp
 import com.seom.accountbook.AccountViewModel
 import com.seom.accountbook.DetailDestination
@@ -25,8 +28,6 @@ import com.seom.accountbook.ui.components.graph.CircleGraph
 import com.seom.accountbook.ui.components.text.CustomText
 import com.seom.accountbook.ui.theme.ColorPalette
 import com.seom.accountbook.util.ext.toMoney
-import kotlinx.coroutines.flow.StateFlow
-import java.time.LocalDate
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
@@ -69,10 +70,14 @@ fun GraphBody(
     accounts: List<OutComeByCategory>,
     onClickItem: (Long) -> Unit
 ) {
-    Column(modifier = Modifier.fillMaxSize()) {
-        BaseDivider(color = ColorPalette.Purple)
+
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+    ) {
         TopRow(totalCount = totalCount)
         BaseDivider(color = ColorPalette.LightPurple)
+        Spacer(modifier = Modifier.height(24.dp))
         Box(modifier = Modifier.fillMaxSize()) {
             if (accounts.isEmpty()) {
                 Text(
@@ -81,25 +86,62 @@ fun GraphBody(
                     modifier = Modifier.align(Alignment.Center)
                 )
             } else {
-                Column {
-                    Spacer(modifier = Modifier.height(24.dp))
-                    CircleGraph(
-                        data = accounts,
-                        totalCount = totalCount,
-                        modifier = Modifier
-                            .height(254.dp)
-                            .fillMaxWidth()
-                    )
-                    Spacer(modifier = Modifier.height(24.dp))
-                    CategoryList(
-                        data = accounts,
-                        totalCount = totalCount,
-                        onItemClick = onClickItem
-                    )
+                val localConfig = LocalConfiguration.current
+
+                when (localConfig.orientation) {
+                    Configuration.ORIENTATION_LANDSCAPE -> {
+                        Row {
+                            GraphContent(
+                                accounts = accounts,
+                                totalCount = totalCount,
+                                onClickItem = onClickItem,
+                                modifierForGraph = Modifier
+                                    .fillMaxHeight()
+                                    .weight(1f)
+                                    .padding(bottom = 24.dp),
+                                modifierForList = Modifier.fillMaxHeight().weight(1f)
+                            )
+                        }
+                    } // 가로
+                    Configuration.ORIENTATION_PORTRAIT -> {
+                        Column {
+                            GraphContent(
+                                accounts = accounts,
+                                totalCount = totalCount,
+                                onClickItem = onClickItem,
+                                modifierForGraph = Modifier
+                                    .height(254.dp)
+                                    .fillMaxWidth()
+                            )
+                        }
+                    } // 세로
+                    else -> {}
                 }
             }
         }
     }
+}
+
+@Composable
+fun GraphContent(
+    accounts: List<OutComeByCategory>,
+    totalCount: Long,
+    onClickItem: (Long) -> Unit,
+    modifierForGraph: Modifier = Modifier,
+    modifierForList: Modifier = Modifier
+) {
+    CircleGraph(
+        data = accounts,
+        totalCount = totalCount,
+        modifier = modifierForGraph
+    )
+    Spacer(modifier = Modifier.height(24.dp))
+    CategoryList(
+        data = accounts,
+        totalCount = totalCount,
+        onItemClick = onClickItem,
+        modifier = modifierForList
+    )
 }
 
 @Composable
@@ -131,9 +173,11 @@ fun TopRow(
 fun CategoryList(
     data: List<OutComeByCategory>,
     totalCount: Long,
-    onItemClick: (Long) -> Unit
+    onItemClick: (Long) -> Unit,
+    modifier: Modifier = Modifier
 ) {
     LazyColumn(
+        modifier = modifier
     ) {
         items(items = data) { row ->
             CategoryOutComeItem(
