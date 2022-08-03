@@ -50,6 +50,7 @@ class MethodViewModel @Inject constructor(
 
                     _methodUiState.value = MethodUiState.Success.FetchMethod
                 }
+                else -> {}
             }
         }
     }

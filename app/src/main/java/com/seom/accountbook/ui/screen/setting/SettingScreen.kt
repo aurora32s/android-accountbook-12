@@ -21,7 +21,6 @@ import com.seom.accountbook.AccountDestination
 import com.seom.accountbook.CategoryDestination
 import com.seom.accountbook.MethodDestination
 import com.seom.accountbook.data.entity.category.CategoryEntity
-import com.seom.accountbook.data.entity.method.MethodEntity
 import com.seom.accountbook.model.base.BaseModel
 import com.seom.accountbook.model.history.HistoryType
 import com.seom.accountbook.ui.components.appbar.NoneButtonAppBar
@@ -140,7 +139,7 @@ fun LazyListScope.SettingGroup(
         SettingItem(
             itemName = item.name,
             onClickItem = {
-                onPushNavigate(destination.route, item.id?.toString() ?: "")
+                onPushNavigate(destination.route, item.id.toString())
             }
         ) {
             rightChild(item)
