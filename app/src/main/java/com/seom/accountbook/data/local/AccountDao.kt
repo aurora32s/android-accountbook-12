@@ -215,6 +215,12 @@ class AccountDao (
         val minYear = if (month < 6) year - 1 else year
         val minMonth = if (month < 6) 7 + month else month - 5
 
+        val duration = if (month < 6) {
+            "(${AccountEntity.COLUMN_NAME_YEAR} == $minYear AND ${AccountEntity.COLUMN_NAME_MONTH} >= $minMonth) " +
+                    "OR (${AccountEntity.COLUMN_NAME_YEAR} == $year AND ${AccountEntity.COLUMN_NAME_MONTH} <= $month) "
+        } else {
+            "${AccountEntity.COLUMN_NAME_YEAR} == $year AND ${AccountEntity.COLUMN_NAME_MONTH} BETWEEN $minMonth AND $month"
+        }
         val query = "SELECT " +
                 "A.${AccountEntity.COLUMN_NAME_ID}," +
                 "A.${AccountEntity.COLUMN_NAME_CONTENT}," +
@@ -231,8 +237,7 @@ class AccountDao (
                 "ON A.${AccountEntity.COLUMN_NAME_METHOD} = M.${MethodEntity.COLUMN_NAME_ID} " +
                 "LEFT JOIN ${CategoryDao.TABLE_NAME} C " +
                 "ON A.${AccountEntity.COLUMN_NAME_CATEGORY} = C.${CategoryEntity.COLUMN_NAME_ID} " +
-                "WHERE ${AccountEntity.COLUMN_NAME_YEAR} BETWEEN $minYear AND $year " +
-                "AND (${AccountEntity.COLUMN_NAME_MONTH} >= $minMonth OR ${AccountEntity.COLUMN_NAME_MONTH} <= $month) " +
+                "WHERE $duration " +
                 "AND ${AccountEntity.COLUMN_NAME_CATEGORY} = $categoryId " +
                 "ORDER BY ${AccountEntity.COLUMN_NAME_YEAR} DESC, ${AccountEntity.COLUMN_NAME_MONTH} DESC, ${AccountEntity.COLUMN_NAME_DATE} DESC"
 
@@ -267,13 +272,19 @@ class AccountDao (
         val minYear = if (month < 6) year - 1 else year
         val minMonth = if (month < 6) 7 + month else month - 5
 
+        val duration = if (month < 6) {
+            "(${AccountEntity.COLUMN_NAME_YEAR} == $minYear AND ${AccountEntity.COLUMN_NAME_MONTH} >= $minMonth) " +
+                    "OR (${AccountEntity.COLUMN_NAME_YEAR} == $year AND ${AccountEntity.COLUMN_NAME_MONTH} <= $month) "
+        } else {
+            "${AccountEntity.COLUMN_NAME_YEAR} == $year AND ${AccountEntity.COLUMN_NAME_MONTH} BETWEEN $minMonth AND $month"
+        }
+
         val query = "" +
                 "SELECT " +
                 "SUM(${AccountEntity.COLUMN_NAME_COUNT})," +
                 "${AccountEntity.COLUMN_NAME_MONTH} " +
                 "FROM $TABLE_NAME " +
-                "WHERE ${AccountEntity.COLUMN_NAME_YEAR} BETWEEN $minYear AND $year " +
-                "AND (${AccountEntity.COLUMN_NAME_MONTH} >= $minMonth OR ${AccountEntity.COLUMN_NAME_MONTH} <= $month) " +
+                "WHERE $duration " +
                 "AND ${AccountEntity.COLUMN_NAME_CATEGORY} = $categoryId " +
                 "GROUP BY ${AccountEntity.COLUMN_NAME_MONTH} " +
                 "ORDER BY ${AccountEntity.COLUMN_NAME_YEAR}, ${AccountEntity.COLUMN_NAME_MONTH}"
