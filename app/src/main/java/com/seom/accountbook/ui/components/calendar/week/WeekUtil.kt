@@ -1,8 +1,8 @@
-package com.seom.accountbook.ui.screen.calendar.week
+package com.seom.accountbook.ui.components.calendar.week
 
 import android.os.Build
 import androidx.annotation.RequiresApi
-import com.seom.accountbook.ui.screen.calendar.day.WeekDay
+import com.seom.accountbook.ui.components.calendar.day.WeekDay
 import com.seom.accountbook.util.daysUntil
 import java.time.DayOfWeek
 import java.time.LocalDate

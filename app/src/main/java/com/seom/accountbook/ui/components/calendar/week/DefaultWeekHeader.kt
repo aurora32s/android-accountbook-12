@@ -1,4 +1,4 @@
-package com.seom.accountbook.ui.screen.calendar.week
+package com.seom.accountbook.ui.components.calendar.week
 
 import android.os.Build
 import androidx.annotation.RequiresApi

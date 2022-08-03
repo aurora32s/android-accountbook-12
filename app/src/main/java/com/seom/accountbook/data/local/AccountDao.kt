@@ -199,7 +199,7 @@ class AccountDao(
                 accounts.add(
                     CalendarEntity(
                         date = cursor.getInt(0),
-                        count = cursor.getInt(1),
+                        count = cursor.getLong(1),
                         type = cursor.getInt(2)
                     )
                 )

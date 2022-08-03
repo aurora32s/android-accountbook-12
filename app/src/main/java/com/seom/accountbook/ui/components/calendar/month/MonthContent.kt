@@ -1,4 +1,4 @@
-package com.seom.accountbook.ui.screen.calendar.month
+package com.seom.accountbook.ui.components.calendar.month
 
 import android.os.Build
 import androidx.annotation.RequiresApi
@@ -6,10 +6,9 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.seom.accountbook.data.entity.calendar.CalendarEntity
-import com.seom.accountbook.ui.screen.calendar.day.DayState
-import com.seom.accountbook.ui.screen.calendar.week.WeekContent
-import com.seom.accountbook.ui.screen.calendar.week.getWeeks
+import com.seom.accountbook.ui.components.calendar.day.DayState
+import com.seom.accountbook.ui.components.calendar.week.WeekContent
+import com.seom.accountbook.ui.components.calendar.week.getWeeks
 import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.YearMonth

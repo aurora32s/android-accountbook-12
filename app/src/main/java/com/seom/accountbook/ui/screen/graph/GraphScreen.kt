@@ -118,7 +118,7 @@ fun TopRow(
         },
         right = {
             CustomText(
-                text = totalCount.toMoney(),
+                text = totalCount.toMoney(true),
                 style = MaterialTheme.typography.subtitle1,
                 color = ColorPalette.Red,
                 bold = true

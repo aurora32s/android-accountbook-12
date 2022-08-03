@@ -1,4 +1,3 @@
 package com.seom.accountbook.util.ext
-import java.text.DecimalFormat
 
-fun Long.toMoney(): String = "${formatter.format(this)} 원"
+fun Long.toMoney(won: Boolean = false): String = "${formatter.format(this)} ${if (won) "원" else ""}"

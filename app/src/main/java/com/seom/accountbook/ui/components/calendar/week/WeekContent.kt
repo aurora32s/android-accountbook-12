@@ -1,10 +1,9 @@
-package com.seom.accountbook.ui.screen.calendar.week
+package com.seom.accountbook.ui.components.calendar.week
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import com.seom.accountbook.data.entity.calendar.CalendarEntity
-import com.seom.accountbook.ui.screen.calendar.day.DayState
+import com.seom.accountbook.ui.components.calendar.day.DayState
 
 @Composable
 internal fun WeekContent(
