@@ -12,14 +12,17 @@ import com.seom.accountbook.model.history.HistoryType
 import com.seom.accountbook.model.method.MethodModel
 import com.seom.accountbook.model.setting.SettingModel
 import com.seom.accountbook.usecase.GetAllSettingDataUseCase
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
-class SettingViewModel(
-    private val getAllSettingDataUseCase: GetAllSettingDataUseCase = GetAllSettingDataUseCase()
+@HiltViewModel
+class SettingViewModel @Inject constructor(
+    private val getAllSettingDataUseCase: GetAllSettingDataUseCase
 ) : ViewModel() {
     private val _methods = MutableStateFlow<List<MethodEntity>>(emptyList())
     var methods = _methods.asStateFlow()

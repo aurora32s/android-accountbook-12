@@ -8,15 +8,15 @@ import com.seom.accountbook.data.entity.account.AccountEntity
 import com.seom.accountbook.data.entity.calendar.CalendarEntity
 import com.seom.accountbook.data.entity.category.CategoryEntity
 import com.seom.accountbook.data.entity.method.MethodEntity
-import com.seom.accountbook.di.provideAppDatabase
 import com.seom.accountbook.model.graph.OutComeByCategory
 import com.seom.accountbook.model.graph.OutComeByMonth
 import com.seom.accountbook.model.history.HistoryModel
 import com.seom.accountbook.model.history.HistoryType
+import javax.inject.Inject
 
 
-class AccountDao(
-    val appDatabase: AppDatabase = provideAppDatabase()
+class AccountDao (
+    private val appDatabase: AppDatabase
 ) {
     companion object {
         private val TABLE_NAME = "ACCOUNT"

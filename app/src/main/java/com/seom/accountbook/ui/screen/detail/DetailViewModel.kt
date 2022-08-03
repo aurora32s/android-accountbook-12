@@ -6,12 +6,15 @@ import com.seom.accountbook.data.entity.Result
 import com.seom.accountbook.model.graph.OutComeByMonth
 import com.seom.accountbook.model.history.HistoryModel
 import com.seom.accountbook.usecase.GetDetailOutComeOnCategoryUseCase
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
-class DetailViewModel(
-    private val getDetailOutComeOnCategory: GetDetailOutComeOnCategoryUseCase = GetDetailOutComeOnCategoryUseCase()
+@HiltViewModel
+class DetailViewModel @Inject constructor(
+    private val getDetailOutComeOnCategory: GetDetailOutComeOnCategoryUseCase
 ): ViewModel() {
 
     private val _history = MutableStateFlow<List<HistoryModel>>(emptyList())

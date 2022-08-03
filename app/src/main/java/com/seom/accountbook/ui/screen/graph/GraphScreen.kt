@@ -8,14 +8,14 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.modifier.modifierLocalConsumer
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.seom.accountbook.AccountViewModel
 import com.seom.accountbook.DetailDestination
 import com.seom.accountbook.model.graph.OutComeByCategory
@@ -33,12 +33,12 @@ import com.seom.accountbook.util.ext.toMoney
 @Composable
 fun GraphScreen(
     mainViewModel: AccountViewModel,
-    onDateChange: (Int, Int) -> Unit,
-    viewModel: GraphViewModel,
+    viewModel: GraphViewModel = hiltViewModel(),
     onPushNavigate: (String, String) -> Unit
 ) {
     val year = mainViewModel.year.collectAsState()
     val month = mainViewModel.month.collectAsState()
+    println("$year $month")
 
     LaunchedEffect(key1 = year.value, key2 = month.value) {
         viewModel.fetchData(year.value, month.value)
@@ -51,7 +51,7 @@ fun GraphScreen(
         year = year.value,
         month = month.value,
         onDateChange = {
-            onDateChange(it.year, it.month.value)
+            mainViewModel.setDate(it.year, it.month.value)
         },
         children = {
             GraphBody(totalCount = totalCount, accounts = accounts.value, onClickItem = {
@@ -101,7 +101,9 @@ fun GraphBody(
                                     .fillMaxHeight()
                                     .weight(1f)
                                     .padding(bottom = 24.dp),
-                                modifierForList = Modifier.fillMaxHeight().weight(1f)
+                                modifierForList = Modifier
+                                    .fillMaxHeight()
+                                    .weight(1f)
                             )
                         }
                     } // 가로

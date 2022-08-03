@@ -8,6 +8,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.seom.accountbook.model.graph.OutComeByMonth
 import com.seom.accountbook.model.history.HistoryModel
 import com.seom.accountbook.ui.components.BackButtonOneAppBar
@@ -23,7 +24,7 @@ fun DetailScreen(
     year: Int,
     month: Int,
     categoryId: String,
-    viewModel: DetailViewModel,
+    viewModel: DetailViewModel = hiltViewModel(),
     onBackButtonPressed: () -> Unit
 ) {
     LaunchedEffect(key1 = Unit) {

@@ -19,15 +19,18 @@ import com.seom.accountbook.data.repository.AccountRepository
 import com.seom.accountbook.data.repository.impl.AccountRepositoryImpl
 import com.seom.accountbook.model.history.HistoryType
 import com.seom.accountbook.usecase.GetPostDataUseCase
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import java.time.LocalDate
 import java.util.concurrent.Flow
+import javax.inject.Inject
 
+@HiltViewModel
 @RequiresApi(Build.VERSION_CODES.O)
-class PostViewModel(
-    private val getPostDataUseCase: GetPostDataUseCase = GetPostDataUseCase(),
-    private val accountRepository: AccountRepository = AccountRepositoryImpl()
+class PostViewModel @Inject constructor(
+    private val getPostDataUseCase: GetPostDataUseCase,
+    private val accountRepository: AccountRepository,
 ) : ViewModel() {
     private val _postUIState = MutableStateFlow<PostUiState>(PostUiState.UnInitialized)
     val postUiState: StateFlow<PostUiState>
@@ -90,7 +93,7 @@ class PostViewModel(
 
         when (val accountResult = result.account) {
             is Result.Error -> _postUIState.value =
-                PostUiState.Error(R.string.error_account_get)
+                PostUiState.Error("정보를 가져오는 도중 문제가 발생했어요.")
             is Result.Success.Finish -> {
                 val account = accountResult.data
                 accountId = account.id
@@ -132,7 +135,7 @@ class PostViewModel(
         }
 
         when (result) {
-            is Result.Error -> _postUIState.value = PostUiState.Error(R.string.error_account_add)
+            is Result.Error -> _postUIState.value = PostUiState.Error("정보를 저장하는 도중 문제가 발생했어요.")
             is Result.Success -> _postUIState.value = PostUiState.Success.AddAccount
         }
     }
@@ -151,7 +154,6 @@ sealed interface PostUiState {
     }
 
     data class Error(
-        @StringRes
-        val errorMsg: Int
+        val errorMsg: String
     ) : PostUiState
 }

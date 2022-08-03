@@ -20,7 +20,9 @@ import com.seom.accountbook.ui.components.AccountTabRow
 import com.seom.accountbook.ui.theme.AccountBookTheme
 import com.seom.accountbook.util.AccountNavigationHost
 import com.seom.accountbook.util.navigateSingleTop
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class AccountActivity : ComponentActivity() {
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -40,7 +42,6 @@ class AccountActivity : ComponentActivity() {
 @Composable
 fun AccountApp() {
     val navController = rememberNavController()
-    val viewModel: AccountViewModel = viewModel()
 
     val currentBackStack by navController.currentBackStackEntryAsState()
     val currentDestination = currentBackStack?.destination
@@ -60,7 +61,6 @@ fun AccountApp() {
             }
         ) { innerPadding ->
             AccountNavigationHost(
-                viewModel = viewModel,
                 navController = navController,
                 modifier = Modifier.padding(innerPadding)
             )

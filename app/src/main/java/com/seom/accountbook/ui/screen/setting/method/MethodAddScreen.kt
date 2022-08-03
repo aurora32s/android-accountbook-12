@@ -5,6 +5,7 @@ import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.seom.accountbook.model.history.HistoryType
 import com.seom.accountbook.ui.components.container.BackBottomButtonBox
 import com.seom.accountbook.ui.components.text.CustomTextField
@@ -15,7 +16,7 @@ import kotlinx.coroutines.launch
 fun MethodAddScreen(
     methodId: String? = null,
     methodType: HistoryType,
-    viewModel: MethodViewModel,
+    viewModel: MethodViewModel = hiltViewModel(),
     onBackButtonPressed: () -> Unit
 ) {
     val scaffoldState = rememberScaffoldState()

@@ -5,10 +5,11 @@ import com.seom.accountbook.data.repository.impl.AccountRepositoryImpl
 import com.seom.accountbook.model.post.PostModel
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
+import javax.inject.Inject
 
-class GetPostDataUseCase(
-    private val accountRepository: AccountRepository = AccountRepositoryImpl(),
-    private val getAllSettingDataUseCase: GetAllSettingDataUseCase = GetAllSettingDataUseCase()
+class GetPostDataUseCase @Inject constructor(
+    private val accountRepository: AccountRepository,
+    private val getAllSettingDataUseCase: GetAllSettingDataUseCase
 ) {
     suspend operator fun invoke(id: Long?): PostModel =
         coroutineScope {

@@ -4,6 +4,7 @@ import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.NavHostController
@@ -19,11 +20,12 @@ import com.seom.accountbook.ui.screen.post.PostScreen
 import com.seom.accountbook.ui.screen.setting.SettingScreen
 import com.seom.accountbook.ui.screen.setting.category.CategoryAddScreen
 import com.seom.accountbook.ui.screen.setting.method.MethodAddScreen
+import dagger.hilt.android.lifecycle.HiltViewModel
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun AccountNavigationHost(
-    viewModel: AccountViewModel,
+    mainViewModel: AccountViewModel = hiltViewModel(),
     navController: NavHostController,
     modifier: Modifier = Modifier
 ) {
@@ -34,9 +36,7 @@ fun AccountNavigationHost(
     ) {
         composable(route = History.route) {
             HistoryScreen(
-                mainViewModel = viewModel,
-                onDateChange = viewModel::setDate,
-                viewModel = viewModel(),
+                mainViewModel = mainViewModel,
                 onPushNavigate = { route, argument ->
                     navController.navigateSingleTop(route, argument)
                 }
@@ -44,16 +44,12 @@ fun AccountNavigationHost(
         }
         composable(route = Calendar.route) {
             CalendarScreen(
-                mainViewModel = viewModel,
-                onDateChange = viewModel::setDate,
-                viewModel = viewModel()
+                mainViewModel = mainViewModel
             )
         }
         composable(route = Graph.route) {
             GraphScreen(
-                mainViewModel = viewModel,
-                onDateChange = viewModel::setDate,
-                viewModel = viewModel(),
+                mainViewModel = mainViewModel,
                 onPushNavigate = { route, argument ->
                     navController.navigateSingleTop(route, argument)
                 }
@@ -61,7 +57,6 @@ fun AccountNavigationHost(
         }
         composable(route = Setting.route) {
             SettingScreen(
-                viewModel = viewModel()
             ) { route, args ->
                 navController.navigateSingleTop(route, args)
             }
@@ -73,7 +68,6 @@ fun AccountNavigationHost(
             val postId = navBackStackEntry.arguments?.getString(PostDestination.postIdArg)
             PostScreen(
                 postId = postId,
-                viewModel = viewModel(),
                 onPushNavigation = { route, argument ->
                     navController.navigateSingleTop(route, argument)
                 },
@@ -82,7 +76,6 @@ fun AccountNavigationHost(
         }
         composable(route = PostDestination.route) {
             PostScreen(
-                viewModel = viewModel(),
                 onPushNavigation = { route, argument ->
                     navController.navigateSingleTop(route, argument)
                 },
@@ -104,7 +97,6 @@ fun AccountNavigationHost(
                     year = year,
                     month = month,
                     categoryId = categoryId,
-                    viewModel = viewModel(),
                     onBackButtonPressed = { navController.popBackStack() }
                 )
             }
@@ -117,8 +109,7 @@ fun AccountNavigationHost(
             val methodType =
                 navBackStackEntry.arguments?.getInt(MethodDestination.methodTypeArgs)
             MethodAddScreen(
-                methodType = HistoryType.getHistoryType(methodType ?: 0),
-                viewModel = viewModel()
+                methodType = HistoryType.getHistoryType(methodType ?: 0)
             ) {
                 navController.popBackStack()
             }
@@ -133,8 +124,7 @@ fun AccountNavigationHost(
                 navBackStackEntry.arguments?.getInt(MethodDestination.methodTypeArgs)
             MethodAddScreen(
                 methodId = methodId,
-                methodType = HistoryType.getHistoryType(methodType ?: 0),
-                viewModel = viewModel()
+                methodType = HistoryType.getHistoryType(methodType ?: 0)
             ) {
                 navController.popBackStack()
             }
@@ -148,8 +138,7 @@ fun AccountNavigationHost(
                 navBackStackEntry.arguments?.getString(CategoryDestination.categoryTypeArgs)
             CategoryAddScreen(
                 null,
-                HistoryType.getHistoryType(categoryType?.toInt() ?: 0),
-                viewModel = viewModel()
+                HistoryType.getHistoryType(categoryType?.toInt() ?: 0)
             ) {
                 navController.popBackStack()
             }
@@ -165,8 +154,7 @@ fun AccountNavigationHost(
                 navBackStackEntry.arguments?.getString(CategoryDestination.categoryTypeArgs)
             CategoryAddScreen(
                 categoryId,
-                HistoryType.getHistoryType(categoryType?.toInt() ?: 0),
-                viewModel = viewModel()
+                HistoryType.getHistoryType(categoryType?.toInt() ?: 0)
             ) {
                 navController.popBackStack()
             }

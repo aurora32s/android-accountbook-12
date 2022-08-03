@@ -13,14 +13,17 @@ import com.seom.accountbook.data.repository.impl.CategoryRepositoryImpl
 import com.seom.accountbook.model.category.incomeColor
 import com.seom.accountbook.model.category.outcomeColor
 import com.seom.accountbook.model.history.HistoryType
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
-class CategoryViewModel(
-    private val categoryRepository: CategoryRepository = CategoryRepositoryImpl()
+@HiltViewModel
+class CategoryViewModel @Inject constructor(
+    private val categoryRepository: CategoryRepository
 ) : ViewModel() {
     private val _categoryUiState = MutableStateFlow<CategoryUiState>(CategoryUiState.UnInitialized)
     val categoryUiState: StateFlow<CategoryUiState>

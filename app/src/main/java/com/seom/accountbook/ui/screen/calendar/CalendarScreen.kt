@@ -14,6 +14,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.seom.accountbook.AccountViewModel
 import com.seom.accountbook.data.entity.calendar.CalendarEntity
 import com.seom.accountbook.model.history.HistoryType
@@ -34,8 +35,7 @@ import java.time.YearMonth
 @Composable
 fun CalendarScreen(
     mainViewModel: AccountViewModel,
-    onDateChange: (Int, Int) -> Unit,
-    viewModel: CalendarViewModel
+    viewModel: CalendarViewModel = hiltViewModel()
 ) {
     val year = mainViewModel.year.collectAsState()
     val month = mainViewModel.month.collectAsState()
@@ -52,7 +52,7 @@ fun CalendarScreen(
         year = year.value,
         month = month.value,
         onDateChange = {
-            onDateChange(it.year, it.month.value)
+            mainViewModel.setDate(it.year, it.month.value)
         },
         children = {
             CalendarBody(

@@ -13,6 +13,8 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.seom.accountbook.AccountViewModel
 import com.seom.accountbook.PostDestination
 import com.seom.accountbook.R
@@ -28,14 +30,14 @@ import com.seom.accountbook.ui.components.text.CustomText
 import com.seom.accountbook.ui.theme.ColorPalette
 import com.seom.accountbook.util.ext.toMoney
 import java.time.LocalDate
+import javax.inject.Inject
 import kotlin.math.pow
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun HistoryScreen(
+fun HistoryScreen (
     mainViewModel: AccountViewModel,
-    onDateChange: (Int, Int) -> Unit,
-    viewModel: HistoryViewModel,
+    viewModel: HistoryViewModel = hiltViewModel(),
     onPushNavigate: (String, String) -> Unit
 ) {
     val year = mainViewModel.year.collectAsState()
@@ -52,7 +54,7 @@ fun HistoryScreen(
         year = year.value,
         month = month.value,
         onDateChange = {
-            onDateChange(it.year, it.month.value)
+            mainViewModel.setDate(it.year, it.month.value)
         }, children = {
             HistoryBody(
                 histories = histories.value,

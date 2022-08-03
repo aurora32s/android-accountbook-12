@@ -1,11 +1,7 @@
 package com.seom.accountbook
 
 import android.app.Application
-import com.seom.accountbook.di.provideAppDatabase
+import dagger.hilt.android.HiltAndroidApp
 
-class AccountBookApplication : Application() {
-    override fun onCreate() {
-        super.onCreate()
-        val db = provideAppDatabase(context = applicationContext)
-    }
-}
+@HiltAndroidApp
+class AccountBookApplication : Application()

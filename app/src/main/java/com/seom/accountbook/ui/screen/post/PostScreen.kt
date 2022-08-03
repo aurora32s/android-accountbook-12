@@ -9,6 +9,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.seom.accountbook.CategoryDestination
 import com.seom.accountbook.MethodDestination
 import com.seom.accountbook.model.history.HistoryType
@@ -32,7 +33,7 @@ import kotlin.math.pow
 @Composable
 fun PostScreen(
     postId: String? = null,
-    viewModel: PostViewModel,
+    viewModel: PostViewModel = hiltViewModel(),
     onBackButtonPressed: () -> Unit,
     onPushNavigation: (String, String) -> Unit,
 ) {
@@ -50,7 +51,13 @@ fun PostScreen(
                 PostUiState.Loading -> {}
                 is PostUiState.Success.FetchAccount -> {}
                 PostUiState.Success.AddAccount -> onBackButtonPressed()
-                is PostUiState.Error -> {}
+                is PostUiState.Error -> {
+                    this.launch {
+                        scaffoldState.snackbarHostState.showSnackbar(
+                            message = it.errorMsg
+                        )
+                    }
+                }
             }
         }
     }
@@ -58,7 +65,10 @@ fun PostScreen(
     FullDateBottomSheet(
         sheetState = bottomSheetState,
         onClickCloseBtn = { coroutine.launch { bottomSheetState.hide() } },
-        onChangeDate = viewModel::setDate
+        onChangeDate = {
+            viewModel.setDate(it)
+            coroutine.launch { bottomSheetState.hide() }
+        }
     ) {
         PostBody(
             isModifyMode = isModifyMode,

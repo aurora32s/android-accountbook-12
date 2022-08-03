@@ -3,19 +3,18 @@ package com.seom.accountbook.data.repository.impl
 import com.seom.accountbook.data.entity.account.AccountEntity
 import com.seom.accountbook.data.local.AccountDao
 import com.seom.accountbook.data.repository.AccountRepository
-import com.seom.accountbook.di.provideAccountDao
 import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import com.seom.accountbook.data.entity.Result
 import com.seom.accountbook.data.entity.calendar.CalendarEntity
 import com.seom.accountbook.model.graph.OutComeByCategory
 import com.seom.accountbook.model.graph.OutComeByMonth
 import com.seom.accountbook.model.history.HistoryModel
+import javax.inject.Inject
 
-class AccountRepositoryImpl(
-    private val accountDao: AccountDao = provideAccountDao(),
-    private val ioDispatcher: CoroutineDispatcher = Dispatchers.IO
+class AccountRepositoryImpl @Inject constructor(
+    private val accountDao: AccountDao,
+    private val ioDispatcher: CoroutineDispatcher
 ) : AccountRepository {
 
     override suspend fun addAccount(account: AccountEntity) = withContext(ioDispatcher) {

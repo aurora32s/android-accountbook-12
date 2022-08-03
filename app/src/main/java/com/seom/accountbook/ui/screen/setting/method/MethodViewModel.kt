@@ -10,13 +10,16 @@ import com.seom.accountbook.data.repository.MethodRepository
 import com.seom.accountbook.data.repository.impl.MethodRepositoryImpl
 import com.seom.accountbook.model.history.HistoryType
 import com.seom.accountbook.ui.screen.setting.category.CategoryUiState
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
-class MethodViewModel(
-    private val methodRepository: MethodRepository = MethodRepositoryImpl()
+@HiltViewModel
+class MethodViewModel @Inject constructor(
+    private val methodRepository: MethodRepository
 ) : ViewModel() {
     private val _methodUiState = MutableStateFlow<MethodUiState>(MethodUiState.UnInitialized)
     val methodUiState: StateFlow<MethodUiState>

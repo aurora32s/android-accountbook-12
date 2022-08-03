@@ -16,6 +16,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.seom.accountbook.AccountDestination
 import com.seom.accountbook.CategoryDestination
 import com.seom.accountbook.MethodDestination
@@ -36,7 +37,7 @@ import com.seom.accountbook.ui.components.image.IconImage
 
 @Composable
 fun SettingScreen(
-    viewModel: SettingViewModel,
+    viewModel: SettingViewModel = hiltViewModel(),
     onPushNavigate: (String, String) -> Unit
 ) {
     LaunchedEffect(key1 = Unit) {

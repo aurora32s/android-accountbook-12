@@ -1,14 +1,12 @@
 package com.seom.accountbook.data.local
 
 import android.content.ContentValues
-import android.provider.BaseColumns
-import com.seom.accountbook.data.entity.category.CategoryEntity
 import com.seom.accountbook.data.entity.method.MethodEntity
-import com.seom.accountbook.di.provideAppDatabase
 import com.seom.accountbook.model.history.HistoryType
+import javax.inject.Inject
 
 class MethodDao(
-    private val appDatabase: AppDatabase = provideAppDatabase()
+    private val appDatabase: AppDatabase
 ) {
     companion object {
         const val TABLE_NAME = "METHOD"

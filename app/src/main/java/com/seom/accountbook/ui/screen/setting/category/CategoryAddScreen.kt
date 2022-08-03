@@ -5,6 +5,7 @@ import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.seom.accountbook.model.history.HistoryType
 import com.seom.accountbook.ui.components.BackButtonOneAppBar
 import com.seom.accountbook.ui.components.common.BaseSnackBar
@@ -20,7 +21,7 @@ import kotlinx.coroutines.launch
 fun CategoryAddScreen(
     categoryId: String? = null,
     categoryType: HistoryType,
-    viewModel: CategoryViewModel,
+    viewModel: CategoryViewModel = hiltViewModel(),
     onBackButtonPressed: () -> Unit
 ) {
     val scaffoldState = rememberScaffoldState()
