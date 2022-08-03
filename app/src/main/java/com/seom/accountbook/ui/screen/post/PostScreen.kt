@@ -123,8 +123,12 @@ fun PostBody(
     val content = viewModel.content.collectAsState()
     val type = viewModel.type.collectAsState()
 
+    val scrollState = rememberScrollState()
+
     Column(
-        modifier = Modifier.padding(start = 16.dp, end = 16.dp)
+        modifier = Modifier
+            .padding(start = 16.dp, end = 16.dp)
+            .verticalScroll(scrollState)
     ) {
         DateInput(
             selectedDate = date.value,
@@ -139,10 +143,12 @@ fun PostBody(
             title = "결제수단",
             values = viewModel.methods.collectAsState().value,
             onSelectedId = viewModel::setMethodID,
-            onClickAddBtn = { onPushNavigation(
-                MethodDestination.route,
-                ""
-            )})
+            onClickAddBtn = {
+                onPushNavigation(
+                    MethodDestination.route,
+                    ""
+                )
+            })
         Spacer(modifier = Modifier.height(16.dp))
         ExposedInput(
             id = categoryId,
@@ -153,11 +159,13 @@ fun PostBody(
                 onPushNavigation(
                     CategoryDestination.route,
                     "${type.value.type}"
-                )})
+                )
+            })
         Spacer(modifier = Modifier.height(16.dp))
         ContentInput(
             content = content.value,
             onValueChange = viewModel::setContent
         )
+        Spacer(modifier = Modifier.height(100.dp))
     }
 }
