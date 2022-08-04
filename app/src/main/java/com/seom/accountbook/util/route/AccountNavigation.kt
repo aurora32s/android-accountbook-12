@@ -71,6 +71,7 @@ fun AccountNavigationHost(
 fun NavController.navigateSingleTop(route: String, argument: String = "") {
     navigate("$route${if (argument.isBlank()) "" else "/${argument}"}") {
         // back button 클릭 시에는 이전 tab 으로 이도할 수 있도록 하기 위해 popUpTo는 지정하지 않음
+        popUpTo(HistoryDestination.route)
         launchSingleTop = true
     }
 }
