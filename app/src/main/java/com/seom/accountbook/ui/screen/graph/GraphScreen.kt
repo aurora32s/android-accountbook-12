@@ -8,17 +8,15 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.modifier.modifierLocalConsumer
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.unit.dp
-import com.seom.accountbook.AccountViewModel
-import com.seom.accountbook.DetailDestination
-import com.seom.accountbook.model.graph.OutComeByCategory
+import androidx.hilt.navigation.compose.hiltViewModel
+import com.seom.accountbook.model.graph.OutComeByCategoryModel
+import com.seom.accountbook.ui.AccountViewModel
 import com.seom.accountbook.ui.components.DateAppBar
 import com.seom.accountbook.ui.components.common.BaseDivider
 import com.seom.accountbook.ui.components.common.BottomSpacer
@@ -26,6 +24,7 @@ import com.seom.accountbook.ui.components.common.Chip
 import com.seom.accountbook.ui.components.common.SideItemRow
 import com.seom.accountbook.ui.components.graph.CircleGraph
 import com.seom.accountbook.ui.components.text.CustomText
+import com.seom.accountbook.ui.screen.detail.DetailDestination
 import com.seom.accountbook.ui.theme.ColorPalette
 import com.seom.accountbook.util.ext.toMoney
 
@@ -33,12 +32,12 @@ import com.seom.accountbook.util.ext.toMoney
 @Composable
 fun GraphScreen(
     mainViewModel: AccountViewModel,
-    onDateChange: (Int, Int) -> Unit,
-    viewModel: GraphViewModel,
-    onPushNavigate: (String, String) -> Unit
+    viewModel: GraphViewModel = hiltViewModel(),
+    navigate: (String, String) -> Unit
 ) {
     val year = mainViewModel.year.collectAsState()
     val month = mainViewModel.month.collectAsState()
+    println("$year $month")
 
     LaunchedEffect(key1 = year.value, key2 = month.value) {
         viewModel.fetchData(year.value, month.value)
@@ -51,11 +50,11 @@ fun GraphScreen(
         year = year.value,
         month = month.value,
         onDateChange = {
-            onDateChange(it.year, it.month.value)
+            mainViewModel.setDate(it.year, it.month.value)
         },
         children = {
             GraphBody(totalCount = totalCount, accounts = accounts.value, onClickItem = {
-                onPushNavigate(
+                navigate(
                     DetailDestination.route,
                     "$it/${year.value}/${month.value}"
                 )
@@ -67,10 +66,9 @@ fun GraphScreen(
 @Composable
 fun GraphBody(
     totalCount: Long,
-    accounts: List<OutComeByCategory>,
+    accounts: List<OutComeByCategoryModel>,
     onClickItem: (Long) -> Unit
 ) {
-
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -97,11 +95,13 @@ fun GraphBody(
                                 accounts = accounts,
                                 totalCount = totalCount,
                                 onClickItem = onClickItem,
-                                modifierForGraph = Modifier
+                                modifier = Modifier
                                     .fillMaxHeight()
                                     .weight(1f)
                                     .padding(bottom = 24.dp),
-                                modifierForList = Modifier.fillMaxHeight().weight(1f)
+                                modifierForList = Modifier
+                                    .fillMaxHeight()
+                                    .weight(1f)
                             )
                         }
                     } // 가로
@@ -111,7 +111,7 @@ fun GraphBody(
                                 accounts = accounts,
                                 totalCount = totalCount,
                                 onClickItem = onClickItem,
-                                modifierForGraph = Modifier
+                                modifier = Modifier
                                     .height(254.dp)
                                     .fillMaxWidth()
                             )
@@ -126,16 +126,16 @@ fun GraphBody(
 
 @Composable
 fun GraphContent(
-    accounts: List<OutComeByCategory>,
+    accounts: List<OutComeByCategoryModel>,
     totalCount: Long,
     onClickItem: (Long) -> Unit,
-    modifierForGraph: Modifier = Modifier,
+    modifier: Modifier = Modifier,
     modifierForList: Modifier = Modifier
 ) {
     CircleGraph(
         data = accounts,
         totalCount = totalCount,
-        modifier = modifierForGraph
+        modifier = modifier
     )
     Spacer(modifier = Modifier.height(24.dp))
     CategoryList(
@@ -173,7 +173,7 @@ fun TopRow(
 
 @Composable
 fun CategoryList(
-    data: List<OutComeByCategory>,
+    data: List<OutComeByCategoryModel>,
     totalCount: Long,
     onItemClick: (Long) -> Unit,
     modifier: Modifier = Modifier
@@ -193,7 +193,7 @@ fun CategoryList(
 
 @Composable
 fun CategoryOutComeItem(
-    data: OutComeByCategory,
+    data: OutComeByCategoryModel,
     totalCount: Long,
     modifier: Modifier = Modifier
 ) {
@@ -206,7 +206,7 @@ fun CategoryOutComeItem(
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Chip(
                         text = data.name,
-                        color = Color(if (data.color == 0L) 0xFF2E2E2E else data.color)
+                        color = Color(data.color)
                     )
                     CustomText(
                         text = data.count.toMoney(),

@@ -6,8 +6,6 @@ import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
 import com.seom.accountbook.data.entity.category.CategoryEntity
 import com.seom.accountbook.data.entity.method.MethodEntity
-import com.seom.accountbook.di.provideAccountDao
-import com.seom.accountbook.di.provideCategoryDao
 
 class AppDatabase(context: Context) :
     SQLiteOpenHelper(context, DATABASE_NAME, null, DATABASE_VERSION) {

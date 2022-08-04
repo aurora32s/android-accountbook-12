@@ -1,9 +1,8 @@
-package com.seom.accountbook
+package com.seom.accountbook.ui
 
 import android.os.Build
 import android.os.Bundle
 import android.view.WindowManager
-import android.widget.ListAdapter
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.annotation.RequiresApi
@@ -13,14 +12,18 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.seom.accountbook.ui.components.AccountTabRow
+import com.seom.accountbook.ui.screen.history.HistoryDestination
 import com.seom.accountbook.ui.theme.AccountBookTheme
-import com.seom.accountbook.util.AccountNavigationHost
-import com.seom.accountbook.util.navigateSingleTop
+import com.seom.accountbook.util.route.AccountNavigationHost
+import com.seom.accountbook.util.route.accountBottomTabScreens
+import com.seom.accountbook.util.route.allScreens
+import com.seom.accountbook.util.route.navigateSingleTop
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class AccountActivity : ComponentActivity() {
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -40,12 +43,12 @@ class AccountActivity : ComponentActivity() {
 @Composable
 fun AccountApp() {
     val navController = rememberNavController()
-    val viewModel: AccountViewModel = viewModel()
 
     val currentBackStack by navController.currentBackStackEntryAsState()
     val currentDestination = currentBackStack?.destination
     val currentScreen =
-        allScreens.find { currentDestination?.route?.startsWith(it.route) ?: false } ?: History
+        allScreens.find { currentDestination?.route?.startsWith(it.route) ?: false }
+            ?: HistoryDestination
 
     AccountBookTheme() {
         Scaffold(
@@ -60,7 +63,6 @@ fun AccountApp() {
             }
         ) { innerPadding ->
             AccountNavigationHost(
-                viewModel = viewModel,
                 navController = navController,
                 modifier = Modifier.padding(innerPadding)
             )

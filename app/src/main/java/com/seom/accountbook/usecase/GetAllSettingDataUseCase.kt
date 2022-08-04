@@ -7,10 +7,11 @@ import com.seom.accountbook.data.repository.impl.MethodRepositoryImpl
 import com.seom.accountbook.model.setting.SettingModel
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
+import javax.inject.Inject
 
-class GetAllSettingDataUseCase(
-    private val methodRepository: MethodRepository = MethodRepositoryImpl(),
-    private val categoryRepository: CategoryRepository = CategoryRepositoryImpl()
+class GetAllSettingDataUseCase @Inject constructor(
+    private val methodRepository: MethodRepository,
+    private val categoryRepository: CategoryRepository
 ) : UseCase {
 
     suspend operator fun invoke(): SettingModel =

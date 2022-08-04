@@ -31,7 +31,7 @@ import com.seom.accountbook.ui.theme.ColorPalette
 @Composable
 fun ExposedDropdownBox(
     selectedOptionId: Long,
-    onOptionSelected: (Long?) -> Unit,
+    onOptionSelected: (Long) -> Unit,
     onPushAddButton: () -> Unit,
     options: List<BaseModel>
 ) {

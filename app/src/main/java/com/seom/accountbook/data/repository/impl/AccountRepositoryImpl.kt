@@ -3,19 +3,20 @@ package com.seom.accountbook.data.repository.impl
 import com.seom.accountbook.data.entity.account.AccountEntity
 import com.seom.accountbook.data.local.AccountDao
 import com.seom.accountbook.data.repository.AccountRepository
-import com.seom.accountbook.di.provideAccountDao
 import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import com.seom.accountbook.data.entity.Result
 import com.seom.accountbook.data.entity.calendar.CalendarEntity
-import com.seom.accountbook.model.graph.OutComeByCategory
+import com.seom.accountbook.data.entity.graph.OutComeByCategoryEntity
+import com.seom.accountbook.data.entity.history.HistoryEntity
+import com.seom.accountbook.model.graph.OutComeByCategoryModel
 import com.seom.accountbook.model.graph.OutComeByMonth
 import com.seom.accountbook.model.history.HistoryModel
+import javax.inject.Inject
 
-class AccountRepositoryImpl(
-    private val accountDao: AccountDao = provideAccountDao(),
-    private val ioDispatcher: CoroutineDispatcher = Dispatchers.IO
+class AccountRepositoryImpl @Inject constructor(
+    private val accountDao: AccountDao,
+    private val ioDispatcher: CoroutineDispatcher
 ) : AccountRepository {
 
     override suspend fun addAccount(account: AccountEntity) = withContext(ioDispatcher) {
@@ -29,6 +30,9 @@ class AccountRepositoryImpl(
         }
     }
 
+    /**
+     * 특정 수입/지출 내역 요청
+     */
     override suspend fun getAccount(id: Long): Result<AccountEntity> = withContext(ioDispatcher) {
         try {
             val account = accountDao.getAccount(id)
@@ -52,7 +56,10 @@ class AccountRepositoryImpl(
             }
         }
 
-    override suspend fun getAllAccountByDate(year: Int, month: Int): Result<List<HistoryModel>> =
+    /**
+     * 연도/월에 따른 내역 요청
+     */
+    override suspend fun getAllAccountByDate(year: Int, month: Int): Result<List<HistoryEntity>> =
         withContext(ioDispatcher) {
             try {
                 val result = accountDao.getAllAccountByDate(year, month)
@@ -62,6 +69,9 @@ class AccountRepositoryImpl(
             }
         }
 
+    /**
+     * 내역 제거 요청
+     */
     override suspend fun removeAccounts(accountItems: List<Long>): Result<Int> =
         withContext(ioDispatcher) {
             try {
@@ -72,6 +82,9 @@ class AccountRepositoryImpl(
             }
         }
 
+    /**
+     * 특정 월의 일별 총 수입/지출 내역 요청
+     */
     override suspend fun getAllAccountOnDate(year: Int, month: Int): Result<List<CalendarEntity>> =
         withContext(ioDispatcher) {
             try {
@@ -86,7 +99,7 @@ class AccountRepositoryImpl(
     override suspend fun getOutComeOnCategory(
         year: Int,
         month: Int
-    ): Result<List<OutComeByCategory>> = withContext(ioDispatcher) {
+    ): Result<List<OutComeByCategoryEntity>> = withContext(ioDispatcher) {
         try {
             val result = accountDao.getOutComeOnCategory(year, month)
             Result.Success.Finish(result)
@@ -114,7 +127,7 @@ class AccountRepositoryImpl(
         categoryId: Long,
         year: Int,
         month: Int
-    ): Result<List<HistoryModel>>  = withContext(ioDispatcher) {
+    ): Result<List<HistoryEntity>> = withContext(ioDispatcher) {
         try {
             val result = accountDao.getDetailOutComeOnCategory(categoryId, year, month)
             Result.Success.Finish(result)

@@ -1,14 +1,17 @@
-package com.seom.accountbook
+package com.seom.accountbook.ui
 
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.lifecycle.ViewModel
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import java.time.LocalDate
+import javax.inject.Inject
 
+@HiltViewModel
 @RequiresApi(Build.VERSION_CODES.O)
-class AccountViewModel : ViewModel() {
+class AccountViewModel @Inject constructor() : ViewModel() {
 
     private val _year = MutableStateFlow(0)
     val year = _year.asStateFlow()

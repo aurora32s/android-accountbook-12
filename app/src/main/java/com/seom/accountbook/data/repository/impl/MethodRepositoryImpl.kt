@@ -4,14 +4,12 @@ import com.seom.accountbook.data.entity.Result
 import com.seom.accountbook.data.entity.method.MethodEntity
 import com.seom.accountbook.data.local.MethodDao
 import com.seom.accountbook.data.repository.MethodRepository
-import com.seom.accountbook.di.provideMethodDao
 import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
 class MethodRepositoryImpl(
-    private val methodDao: MethodDao = provideMethodDao(),
-    private val ioDispatcher: CoroutineDispatcher = Dispatchers.IO
+    private val methodDao: MethodDao,
+    private val ioDispatcher: CoroutineDispatcher
 ) : MethodRepository {
     override suspend fun addMethod(method: MethodEntity): Result<Long> =
         withContext(ioDispatcher)

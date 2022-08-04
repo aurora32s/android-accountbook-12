@@ -3,15 +3,13 @@ package com.seom.accountbook.data.repository.impl
 import com.seom.accountbook.data.entity.category.CategoryEntity
 import com.seom.accountbook.data.local.CategoryDao
 import com.seom.accountbook.data.repository.CategoryRepository
-import com.seom.accountbook.di.provideCategoryDao
 import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import com.seom.accountbook.data.entity.Result
 
-class CategoryRepositoryImpl(
-    private val categoryDao: CategoryDao = provideCategoryDao(),
-    private val ioDispatcher: CoroutineDispatcher = Dispatchers.IO
+class CategoryRepositoryImpl (
+    private val categoryDao: CategoryDao,
+    private val ioDispatcher: CoroutineDispatcher
 ) : CategoryRepository {
     override suspend fun addCategory(category: CategoryEntity): Result<Long> =
         withContext(ioDispatcher) {

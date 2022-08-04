@@ -16,11 +16,8 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import com.seom.accountbook.AccountDestination
-import com.seom.accountbook.CategoryDestination
-import com.seom.accountbook.MethodDestination
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.seom.accountbook.data.entity.category.CategoryEntity
-import com.seom.accountbook.data.entity.method.MethodEntity
 import com.seom.accountbook.model.base.BaseModel
 import com.seom.accountbook.model.history.HistoryType
 import com.seom.accountbook.ui.components.appbar.NoneButtonAppBar
@@ -30,14 +27,19 @@ import com.seom.accountbook.ui.components.header.SingleTextHeader
 import com.seom.accountbook.ui.components.text.CustomText
 import com.seom.accountbook.ui.theme.ColorPalette
 import com.seom.accountbook.R
+import com.seom.accountbook.model.category.CategoryModel
+import com.seom.accountbook.model.method.MethodModel
 import com.seom.accountbook.ui.components.common.Chip
 import com.seom.accountbook.ui.components.common.SideItemRow
 import com.seom.accountbook.ui.components.image.IconImage
+import com.seom.accountbook.ui.screen.category.CategoryDestination
+import com.seom.accountbook.ui.screen.method.MethodDestination
+import com.seom.accountbook.util.route.AccountDestination
 
 @Composable
 fun SettingScreen(
-    viewModel: SettingViewModel,
-    onPushNavigate: (String, String) -> Unit
+    viewModel: SettingViewModel = hiltViewModel(),
+    navigate: (String, String) -> Unit
 ) {
     LaunchedEffect(key1 = Unit) {
         viewModel.fetchData()
@@ -47,20 +49,20 @@ fun SettingScreen(
     val category = viewModel.category.collectAsState()
 
     SettingBody(
-        incomeMethods = methods.value.filter { it.type == HistoryType.INCOME.type },
-        outcomeMethods = methods.value.filter { it.type == HistoryType.OUTCOME.type },
-        incomeCategories = category.value.filter { it.type == HistoryType.INCOME.type },
-        outcomeCategories = category.value.filter { it.type == HistoryType.OUTCOME.type },
-        onPushNavigate = onPushNavigate
+        incomeMethods = methods.value.filter { it.type == HistoryType.INCOME },
+        outcomeMethods = methods.value.filter { it.type == HistoryType.OUTCOME },
+        incomeCategories = category.value.filter { it.type == HistoryType.INCOME },
+        outcomeCategories = category.value.filter { it.type == HistoryType.OUTCOME },
+        onPushNavigate = navigate
     )
 }
 
 @Composable
 fun SettingBody(
-    incomeMethods: List<MethodEntity>,
-    outcomeMethods: List<MethodEntity>,
-    incomeCategories: List<CategoryEntity>,
-    outcomeCategories: List<CategoryEntity>,
+    incomeMethods: List<MethodModel>,
+    outcomeMethods: List<MethodModel>,
+    incomeCategories: List<CategoryModel>,
+    outcomeCategories: List<CategoryModel>,
     onPushNavigate: (String, String) -> Unit
 ) {
     Scaffold(
@@ -137,7 +139,7 @@ fun LazyListScope.SettingGroup(
         SettingItem(
             itemName = item.name,
             onClickItem = {
-                onPushNavigate(destination.route, item.id?.toString() ?: "")
+                onPushNavigate(destination.route, item.id.toString())
             }
         ) {
             rightChild(item)

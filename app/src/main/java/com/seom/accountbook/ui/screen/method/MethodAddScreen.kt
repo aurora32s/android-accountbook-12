@@ -1,10 +1,11 @@
-package com.seom.accountbook.ui.screen.setting.method
+package com.seom.accountbook.ui.screen.method
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.seom.accountbook.model.history.HistoryType
 import com.seom.accountbook.ui.components.container.BackBottomButtonBox
 import com.seom.accountbook.ui.components.text.CustomTextField
@@ -13,22 +14,22 @@ import kotlinx.coroutines.launch
 
 @Composable
 fun MethodAddScreen(
-    methodId: String? = null,
+    methodId: Long? = null,
     methodType: HistoryType,
-    viewModel: MethodViewModel,
-    onBackButtonPressed: () -> Unit
+    viewModel: MethodViewModel = hiltViewModel(),
+    onBackPressed: () -> Unit
 ) {
     val scaffoldState = rememberScaffoldState()
     LaunchedEffect(key1 = Unit) {
         viewModel.methodUiState.collect {
             when (it) {
                 MethodUiState.UnInitialized -> viewModel.fetchCategory(
-                    methodId = methodId?.toLong(),
+                    methodId = methodId,
                     methodType = methodType
                 )
                 MethodUiState.Loading -> {}
                 MethodUiState.Success.AddMethod -> {
-                    onBackButtonPressed()
+                    onBackPressed()
                 }
                 MethodUiState.Success.FetchMethod -> {}
                 is MethodUiState.Error -> {
@@ -45,13 +46,13 @@ fun MethodAddScreen(
         }
     }
     MethodBody(
-        isModifyMode = methodId.isNullOrBlank().not(),
+        isModifyMode = methodId?.let { true } ?: false,
         scaffoldState = scaffoldState,
         methodType = methodType,
         value = viewModel.name.collectAsState().value,
         onChangeValue = viewModel::setName,
         onClickAddBtn = viewModel::addMethod,
-        onBackButtonPressed = onBackButtonPressed
+        onBackButtonPressed = onBackPressed
     )
 }
 

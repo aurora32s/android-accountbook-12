@@ -1,176 +1,70 @@
-package com.seom.accountbook.util
+package com.seom.accountbook.util.route
 
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.seom.accountbook.*
 import com.seom.accountbook.model.history.HistoryType
-import com.seom.accountbook.ui.screen.calendar.CalendarScreen
+import com.seom.accountbook.ui.AccountViewModel
+import com.seom.accountbook.ui.screen.calendar.calendar
 import com.seom.accountbook.ui.screen.detail.DetailScreen
-import com.seom.accountbook.ui.screen.graph.GraphScreen
-import com.seom.accountbook.ui.screen.history.HistoryScreen
-import com.seom.accountbook.ui.screen.post.PostScreen
+import com.seom.accountbook.ui.screen.detail.detail
+import com.seom.accountbook.ui.screen.graph.graph
+import com.seom.accountbook.ui.screen.history.HistoryDestination
+import com.seom.accountbook.ui.screen.history.history
+import com.seom.accountbook.ui.screen.post.post
 import com.seom.accountbook.ui.screen.setting.SettingScreen
-import com.seom.accountbook.ui.screen.setting.category.CategoryAddScreen
-import com.seom.accountbook.ui.screen.setting.method.MethodAddScreen
+import com.seom.accountbook.ui.screen.category.CategoryAddScreen
+import com.seom.accountbook.ui.screen.category.category
+import com.seom.accountbook.ui.screen.method.MethodAddScreen
+import com.seom.accountbook.ui.screen.method.method
+import com.seom.accountbook.ui.screen.setting.setting
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun AccountNavigationHost(
-    viewModel: AccountViewModel,
+    modifier: Modifier = Modifier,
+    mainViewModel: AccountViewModel = hiltViewModel(),
     navController: NavHostController,
-    modifier: Modifier = Modifier
+    startDestination: String = HistoryDestination.route
 ) {
     NavHost(
         navController = navController,
-        startDestination = History.route,
+        startDestination = startDestination,
         modifier = modifier
     ) {
-        composable(route = History.route) {
-            HistoryScreen(
-                mainViewModel = viewModel,
-                onDateChange = viewModel::setDate,
-                viewModel = viewModel(),
-                onPushNavigate = { route, argument ->
-                    navController.navigateSingleTop(route, argument)
-                }
-            )
-        }
-        composable(route = Calendar.route) {
-            CalendarScreen(
-                mainViewModel = viewModel,
-                onDateChange = viewModel::setDate,
-                viewModel = viewModel()
-            )
-        }
-        composable(route = Graph.route) {
-            GraphScreen(
-                mainViewModel = viewModel,
-                onDateChange = viewModel::setDate,
-                viewModel = viewModel(),
-                onPushNavigate = { route, argument ->
-                    navController.navigateSingleTop(route, argument)
-                }
-            )
-        }
-        composable(route = Setting.route) {
-            SettingScreen(
-                viewModel = viewModel()
-            ) { route, args ->
-                navController.navigateSingleTop(route, args)
-            }
-        }
-        composable(
-            route = PostDestination.routeWithArgs,
-            arguments = PostDestination.arguments
-        ) { navBackStackEntry ->
-            val postId = navBackStackEntry.arguments?.getString(PostDestination.postIdArg)
-            PostScreen(
-                postId = postId,
-                viewModel = viewModel(),
-                onPushNavigation = { route, argument ->
-                    navController.navigateSingleTop(route, argument)
-                },
-                onBackButtonPressed = { navController.popBackStack() }
-            )
-        }
-        composable(route = PostDestination.route) {
-            PostScreen(
-                viewModel = viewModel(),
-                onPushNavigation = { route, argument ->
-                    navController.navigateSingleTop(route, argument)
-                },
-                onBackButtonPressed = { navController.popBackStack() }
-            )
-        }
-
-        composable(
-            route = DetailDestination.routeWithArgs,
-            arguments = DetailDestination.arguments
-        ) { navBackStackEntry ->
-            val year = navBackStackEntry.arguments?.getInt(DetailDestination.yearArgs)
-            val month = navBackStackEntry.arguments?.getInt(DetailDestination.monthArgs)
-            val categoryId =
-                navBackStackEntry.arguments?.getString(DetailDestination.categoryIdArgs)
-
-            if (year != null && month != null && categoryId != null) {
-                DetailScreen(
-                    year = year,
-                    month = month,
-                    categoryId = categoryId,
-                    viewModel = viewModel(),
-                    onBackButtonPressed = { navController.popBackStack() }
-                )
-            }
-        }
-        // 결제/입금 수단 새로 추가
-        composable(
-            route = MethodDestination.routeWithArgs,
-            arguments = MethodDestination.arguments
-        ) { navBackStackEntry ->
-            val methodType =
-                navBackStackEntry.arguments?.getInt(MethodDestination.methodTypeArgs)
-            MethodAddScreen(
-                methodType = HistoryType.getHistoryType(methodType ?: 0),
-                viewModel = viewModel()
-            ) {
-                navController.popBackStack()
-            }
-        }
-        // 결제/입금 수단 변경
-        composable(
-            route = MethodDestination.routeWithAllArgs,
-            arguments = MethodDestination.allArguments
-        ) { navBackStackEntry ->
-            val methodId = navBackStackEntry.arguments?.getString(MethodDestination.methodIdArgs)
-            val methodType =
-                navBackStackEntry.arguments?.getInt(MethodDestination.methodTypeArgs)
-            MethodAddScreen(
-                methodId = methodId,
-                methodType = HistoryType.getHistoryType(methodType ?: 0),
-                viewModel = viewModel()
-            ) {
-                navController.popBackStack()
-            }
-        }
-        // 카테고리 새로 추가
-        composable(
-            route = CategoryDestination.routeWithArgs,
-            arguments = CategoryDestination.arguments
-        ) { navBackStackEntry ->
-            val categoryType =
-                navBackStackEntry.arguments?.getString(CategoryDestination.categoryTypeArgs)
-            CategoryAddScreen(
-                null,
-                HistoryType.getHistoryType(categoryType?.toInt() ?: 0),
-                viewModel = viewModel()
-            ) {
-                navController.popBackStack()
-            }
-        }
-        // 카테고리 변경
-        composable(
-            route = CategoryDestination.routeWithAllArgs,
-            arguments = CategoryDestination.allArguments
-        ) { navBackStackEntry ->
-            val categoryId =
-                navBackStackEntry.arguments?.getString(CategoryDestination.categoryIdArgs)
-            val categoryType =
-                navBackStackEntry.arguments?.getString(CategoryDestination.categoryTypeArgs)
-            CategoryAddScreen(
-                categoryId,
-                HistoryType.getHistoryType(categoryType?.toInt() ?: 0),
-                viewModel = viewModel()
-            ) {
-                navController.popBackStack()
-            }
-        }
+        history( // 수입/지출 내역 리스트 화면
+            mainViewModel = mainViewModel,
+            navigate = navController::navigateSingleTop
+        )
+        post( // 수입/지출 내역 작성 화면
+            onBackPressed = navController::popBackStack,
+            navigate = navController::navigateSingleTop
+        )
+        calendar( // 달력 화면
+            mainViewModel = mainViewModel
+        )
+        graph( // 통계 화면
+            mainViewModel = mainViewModel,
+            navigate = navController::navigateSingleTop
+        )
+        detail( // 카테고리별 6개월 이내 상세 지출 내역
+            onBackPressed = navController::popBackStack
+        )
+        // 설정 화면
+        setting(navigate = navController::navigateSingleTop)
+        method( // 결제수단/입금계좌 등록/수정 화면
+            onBackPressed = navController::popBackStack
+        )
+        category( // 수입/지출 카테고리 등록/수정 화면
+            onBackPressed = navController::popBackStack
+        )
     }
 }
 

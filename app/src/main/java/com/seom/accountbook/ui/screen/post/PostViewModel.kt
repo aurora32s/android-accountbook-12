@@ -17,17 +17,22 @@ import com.seom.accountbook.data.entity.category.CategoryEntity
 import com.seom.accountbook.data.entity.method.MethodEntity
 import com.seom.accountbook.data.repository.AccountRepository
 import com.seom.accountbook.data.repository.impl.AccountRepositoryImpl
+import com.seom.accountbook.model.category.CategoryModel
 import com.seom.accountbook.model.history.HistoryType
+import com.seom.accountbook.model.method.MethodModel
 import com.seom.accountbook.usecase.GetPostDataUseCase
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import java.time.LocalDate
 import java.util.concurrent.Flow
+import javax.inject.Inject
 
+@HiltViewModel
 @RequiresApi(Build.VERSION_CODES.O)
-class PostViewModel(
-    private val getPostDataUseCase: GetPostDataUseCase = GetPostDataUseCase(),
-    private val accountRepository: AccountRepository = AccountRepositoryImpl()
+class PostViewModel @Inject constructor(
+    private val getPostDataUseCase: GetPostDataUseCase,
+    private val accountRepository: AccountRepository,
 ) : ViewModel() {
     private val _postUIState = MutableStateFlow<PostUiState>(PostUiState.UnInitialized)
     val postUiState: StateFlow<PostUiState>
@@ -54,15 +59,19 @@ class PostViewModel(
         _count.value = newCount
     }
 
-    private val _methodId = MutableStateFlow<Long?>(null)
+    private val _methodId = MutableStateFlow<Long>(-1)
     var methodId = _methodId.asStateFlow()
-    fun setMethodID(newMethodId: Long?) {
+    fun setMethodID(newMethodId: Long) {
         _methodId.value = newMethodId
     }
 
-    private val _categoryId = MutableStateFlow<Long?>(null)
+    private val _categoryId = MutableStateFlow<Long>(-1)
     var categoryId = _categoryId.asStateFlow()
-    fun setCategoryId(newCategoryId: Long?) {
+    fun resetCategoryId() {
+        _categoryId.value = -1
+    }
+
+    fun setCategoryId(newCategoryId: Long) {
         _categoryId.value = newCategoryId
     }
 
@@ -72,14 +81,14 @@ class PostViewModel(
         _content.value = newContent
     }
 
-    private val _methods = MutableStateFlow<List<MethodEntity>>(emptyList())
+    private val _methods = MutableStateFlow<List<MethodModel>>(emptyList())
     var methods = _methods.combine(_type) { method, type ->
-        method.filter { it.type == type.type }
+        method.filter { it.type == type }
     }
 
-    private val _category = MutableStateFlow<List<CategoryEntity>>(emptyList())
+    private val _category = MutableStateFlow<List<CategoryModel>>(emptyList())
     var category = _category.combine(_type) { category, type ->
-        category.filter { it.type == type.type }
+        category.filter { it.type == type }
     }
 
     // 수입/지출 내역 작성 시 필요한 데이터
@@ -90,7 +99,7 @@ class PostViewModel(
 
         when (val accountResult = result.account) {
             is Result.Error -> _postUIState.value =
-                PostUiState.Error(R.string.error_account_get)
+                PostUiState.Error("정보를 가져오는 도중 문제가 발생했어요.")
             is Result.Success.Finish -> {
                 val account = accountResult.data
                 accountId = account.id
@@ -101,18 +110,19 @@ class PostViewModel(
                 _categoryId.value = account.categoryId
                 _content.value = account.content ?: ""
             }
-            null -> {}
+            else -> {}
         }
         when (val methodResult = result.settingModel.methods) {
-            is Result.Error -> {}
-            is Result.Success.Finish -> _methods.value = methodResult.data
+            is Result.Success.Finish -> _methods.value = methodResult.data.map { it.toModel() }
+            else -> {}
         }
         when (val categoryResult = result.settingModel.categories) {
-            is Result.Error -> {}
-            is Result.Success.Finish -> _category.value = categoryResult.data
+            is Result.Success.Finish -> _category.value = categoryResult.data.map { it.toModel() }
+            else -> {}
         }
     }
 
+    // 수입/지출 내역 등록/수정
     fun addAccount() = viewModelScope.launch {
         val account = AccountEntity(
             id = accountId,
@@ -132,7 +142,7 @@ class PostViewModel(
         }
 
         when (result) {
-            is Result.Error -> _postUIState.value = PostUiState.Error(R.string.error_account_add)
+            is Result.Error -> _postUIState.value = PostUiState.Error("정보를 저장하는 도중 문제가 발생했어요.")
             is Result.Success -> _postUIState.value = PostUiState.Success.AddAccount
         }
     }
@@ -141,6 +151,7 @@ class PostViewModel(
 sealed interface PostUiState {
     object UnInitialized : PostUiState
     object Loading : PostUiState
+
     object Success {
         object AddAccount : PostUiState
         data class FetchAccount(
@@ -151,7 +162,6 @@ sealed interface PostUiState {
     }
 
     data class Error(
-        @StringRes
-        val errorMsg: Int
+        val errorMsg: String
     ) : PostUiState
 }

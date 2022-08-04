@@ -8,6 +8,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.seom.accountbook.model.graph.OutComeByMonth
 import com.seom.accountbook.model.history.HistoryModel
 import com.seom.accountbook.ui.components.BackButtonOneAppBar
@@ -22,12 +23,12 @@ import java.time.LocalDate
 fun DetailScreen(
     year: Int,
     month: Int,
-    categoryId: String,
-    viewModel: DetailViewModel,
-    onBackButtonPressed: () -> Unit
+    categoryId: Long,
+    viewModel: DetailViewModel = hiltViewModel(),
+    onBackPressed: () -> Unit
 ) {
     LaunchedEffect(key1 = Unit) {
-        viewModel.fetchData(categoryId.toLong(), year, month)
+        viewModel.fetchData(categoryId, year, month)
     }
 
     val accounts = viewModel.history.collectAsState()
@@ -38,7 +39,7 @@ fun DetailScreen(
             accounts = accounts.value,
             month = month,
             outComeByMonth = outcome.value,
-            onBackButtonPressed = onBackButtonPressed
+            onBackButtonPressed = onBackPressed
         )
     }
 }

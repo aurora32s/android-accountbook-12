@@ -1,15 +1,13 @@
-package com.seom.accountbook.ui.screen.setting.category
+package com.seom.accountbook.ui.screen.category
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.seom.accountbook.model.history.HistoryType
-import com.seom.accountbook.ui.components.BackButtonOneAppBar
-import com.seom.accountbook.ui.components.common.BaseSnackBar
 import com.seom.accountbook.ui.components.container.BackBottomButtonBox
-import com.seom.accountbook.ui.components.container.BottomButtonBox
 import com.seom.accountbook.ui.components.header.SingleTextHeader
 import com.seom.accountbook.ui.components.selector.ColorSelector
 import com.seom.accountbook.ui.components.text.CustomTextField
@@ -18,21 +16,21 @@ import kotlinx.coroutines.launch
 
 @Composable
 fun CategoryAddScreen(
-    categoryId: String? = null,
+    categoryId: Long? = null,
     categoryType: HistoryType,
-    viewModel: CategoryViewModel,
-    onBackButtonPressed: () -> Unit
+    viewModel: CategoryViewModel = hiltViewModel(),
+    onBackPressed: () -> Unit
 ) {
     val scaffoldState = rememberScaffoldState()
     LaunchedEffect(key1 = Unit) {
         viewModel.categoryUiState.collect {
             when (it) {
                 CategoryUiState.UnInitialized -> viewModel.fetchCategory(
-                    categoryId = categoryId?.toLong(),
+                    categoryId = categoryId,
                     categoryType = categoryType
                 )
                 CategoryUiState.Loading -> {}
-                CategoryUiState.Success.AddCategory -> onBackButtonPressed()
+                CategoryUiState.Success.AddCategory -> onBackPressed()
                 CategoryUiState.Success.FetchCategory -> {}
                 is CategoryUiState.Error -> {}
                 is CategoryUiState.Duplicate -> {
@@ -46,7 +44,7 @@ fun CategoryAddScreen(
         }
     }
     SettingBody(
-        isModifyMode = categoryId.isNullOrBlank().not(),
+        isModifyMode = categoryId?.let { true } ?: false,
         scaffoldState = scaffoldState,
         colorList = viewModel.colorList,
         categoryType = categoryType,
@@ -55,7 +53,7 @@ fun CategoryAddScreen(
         onChangeName = viewModel::setName,
         onChangeColor = viewModel::setColor,
         onClickAddBtn = viewModel::addCategory,
-        onBackButtonPressed = onBackButtonPressed
+        onBackButtonPressed = onBackPressed
     )
 }
 

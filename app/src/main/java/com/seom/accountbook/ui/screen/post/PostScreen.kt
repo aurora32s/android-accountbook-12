@@ -9,8 +9,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import com.seom.accountbook.CategoryDestination
-import com.seom.accountbook.MethodDestination
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.seom.accountbook.model.history.HistoryType
 import com.seom.accountbook.ui.components.container.BackBottomButtonBox
 import com.seom.accountbook.ui.components.datesheet.FullDateBottomSheet
@@ -20,6 +19,8 @@ import com.seom.accountbook.ui.components.input.ExposedInput
 import com.seom.accountbook.ui.components.input.MoneyInput
 import com.seom.accountbook.ui.components.tab.TopTabRow
 import com.seom.accountbook.ui.components.text.CustomText
+import com.seom.accountbook.ui.screen.category.CategoryDestination
+import com.seom.accountbook.ui.screen.method.MethodDestination
 import com.seom.accountbook.ui.theme.ColorPalette
 import kotlinx.coroutines.launch
 import kotlin.math.pow
@@ -31,26 +32,32 @@ import kotlin.math.pow
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun PostScreen(
-    postId: String? = null,
-    viewModel: PostViewModel,
-    onBackButtonPressed: () -> Unit,
-    onPushNavigation: (String, String) -> Unit,
+    postId: Long? = null,
+    viewModel: PostViewModel = hiltViewModel(),
+    onBackPressed: () -> Unit,
+    navigate: (String, String) -> Unit,
 ) {
-    val isModifyMode = postId.isNullOrBlank().not()
+    val isModifyMode = postId?.let { true } ?: false
     val scaffoldState = rememberScaffoldState()
     val bottomSheetState =
         rememberModalBottomSheetState(initialValue = ModalBottomSheetValue.Hidden)
     val coroutine = rememberCoroutineScope()
 
     LaunchedEffect(key1 = Unit) {
-        viewModel.fetchAccount(postId = postId?.toLong())
+        viewModel.fetchAccount(postId = postId)
         viewModel.postUiState.collect {
             when (it) {
                 PostUiState.UnInitialized -> {}
                 PostUiState.Loading -> {}
                 is PostUiState.Success.FetchAccount -> {}
-                PostUiState.Success.AddAccount -> onBackButtonPressed()
-                is PostUiState.Error -> {}
+                PostUiState.Success.AddAccount -> onBackPressed()
+                is PostUiState.Error -> {
+                    this.launch {
+                        scaffoldState.snackbarHostState.showSnackbar(
+                            message = it.errorMsg
+                        )
+                    }
+                }
             }
         }
     }
@@ -58,15 +65,18 @@ fun PostScreen(
     FullDateBottomSheet(
         sheetState = bottomSheetState,
         onClickCloseBtn = { coroutine.launch { bottomSheetState.hide() } },
-        onChangeDate = viewModel::setDate
+        onChangeDate = {
+            viewModel.setDate(it)
+            coroutine.launch { bottomSheetState.hide() }
+        }
     ) {
         PostBody(
             isModifyMode = isModifyMode,
             scaffoldState = scaffoldState,
             viewModel = viewModel,
             onOpenDatePicker = { coroutine.launch { bottomSheetState.show() } },
-            onBackButtonPressed = onBackButtonPressed,
-            onPushNavigation = onPushNavigation
+            onBackButtonPressed = onBackPressed,
+            onPushNavigation = navigate
         )
     }
 }
@@ -116,7 +126,7 @@ fun PostBody(
     val categories = viewModel.category.collectAsState(initial = emptyList())
 
     val scrollState = rememberScrollState()
-    val isAbleAdd = count.value > 0 && methodId.value != null && content.value.isNotBlank()
+    val isAbleAdd = count.value > 0 && methodId.value >= 0 && content.value.isNotBlank()
 
     BackBottomButtonBox(
         scaffoldState = scaffoldState,
@@ -132,7 +142,7 @@ fun PostBody(
             currentSelectedTab = (2.0).pow(type.value.type).toInt(),
             onTabSelected = {
                 viewModel.setType(it)
-                viewModel.setCategoryId(null)
+                viewModel.resetCategoryId()
             },
             modifier = Modifier.padding(16.dp)
         )

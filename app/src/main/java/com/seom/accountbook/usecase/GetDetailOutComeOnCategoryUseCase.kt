@@ -5,9 +5,10 @@ import com.seom.accountbook.data.repository.impl.AccountRepositoryImpl
 import com.seom.accountbook.model.detail.DetailOutComeOnCategory
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
+import javax.inject.Inject
 
-class GetDetailOutComeOnCategoryUseCase(
-    private val accountRepository: AccountRepository = AccountRepositoryImpl()
+class GetDetailOutComeOnCategoryUseCase @Inject constructor(
+    private val accountRepository: AccountRepository
 ) {
     suspend operator fun invoke(categoryId: Long, year: Int, month: Int): DetailOutComeOnCategory =
         coroutineScope {

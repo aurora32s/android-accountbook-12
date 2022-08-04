@@ -2,11 +2,11 @@ package com.seom.accountbook.data.local
 
 import android.content.ContentValues
 import com.seom.accountbook.data.entity.category.CategoryEntity
-import com.seom.accountbook.di.provideAppDatabase
 import com.seom.accountbook.model.history.HistoryType
+import javax.inject.Inject
 
 class CategoryDao(
-    val appDatabase: AppDatabase = provideAppDatabase()
+    private val appDatabase: AppDatabase
 ) {
     companion object {
         const val TABLE_NAME = "CATEGORY"

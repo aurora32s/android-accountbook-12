@@ -1,8 +1,6 @@
 package com.seom.accountbook.model.base
 
-interface BaseCount {
-    val id: Long
+interface BaseLinearGraphModel {
     val count: Long
-    val color: Long
     val name: String
 }

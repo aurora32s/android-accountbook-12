@@ -1,22 +1,23 @@
 package com.seom.accountbook.data.local
 
+import android.annotation.SuppressLint
 import android.content.ContentValues
-import android.database.sqlite.SQLiteDatabase
 import android.provider.BaseColumns
 import androidx.core.database.getLongOrNull
 import com.seom.accountbook.data.entity.account.AccountEntity
 import com.seom.accountbook.data.entity.calendar.CalendarEntity
 import com.seom.accountbook.data.entity.category.CategoryEntity
+import com.seom.accountbook.data.entity.graph.OutComeByCategoryEntity
+import com.seom.accountbook.data.entity.history.HistoryEntity
 import com.seom.accountbook.data.entity.method.MethodEntity
-import com.seom.accountbook.di.provideAppDatabase
-import com.seom.accountbook.model.graph.OutComeByCategory
+import com.seom.accountbook.model.graph.OutComeByCategoryModel
 import com.seom.accountbook.model.graph.OutComeByMonth
 import com.seom.accountbook.model.history.HistoryModel
 import com.seom.accountbook.model.history.HistoryType
 
 
-class AccountDao(
-    val appDatabase: AppDatabase = provideAppDatabase()
+class AccountDao (
+    private val appDatabase: AppDatabase
 ) {
     companion object {
         private val TABLE_NAME = "ACCOUNT"
@@ -28,7 +29,7 @@ class AccountDao(
                 "${AccountEntity.COLUMN_NAME_MONTH} INTEGER NOT NULL," +
                 "${AccountEntity.COLUMN_NAME_DATE} INTEGER NOT NULL," +
                 "${AccountEntity.COLUMN_NAME_COUNT} INTEGER NOT NULL," +
-                "${AccountEntity.COLUMN_NAME_METHOD} INTEGER," +
+                "${AccountEntity.COLUMN_NAME_METHOD} INTEGER NOT NULL," +
                 "${AccountEntity.COLUMN_NAME_CATEGORY} INTEGER DEFAULT -1," +
                 "${AccountEntity.COLUMN_NAME_TYPE} INTEGER NOT NULL," +
                 "FOREIGN KEY (${AccountEntity.COLUMN_NAME_METHOD}) REFERENCES ${MethodDao.TABLE_NAME} (${BaseColumns._ID})," +
@@ -77,6 +78,9 @@ class AccountDao(
         return result
     }
 
+    /**
+     * 전달된 id에 해당하는 수입/지출 내역 요청
+     */
     fun getAccount(id: Long): AccountEntity? {
         val db = appDatabase.readable
 
@@ -114,8 +118,8 @@ class AccountDao(
                 month = cursor.getInt(3),
                 date = cursor.getInt(4),
                 count = cursor.getInt(5),
-                methodId = cursor.getLongOrNull(6),
-                categoryId = cursor.getLongOrNull(7),
+                methodId = cursor.getLong(6),
+                categoryId = cursor.getLong(7),
                 type = cursor.getInt(8)
             )
         } ?: kotlin.run {
@@ -123,7 +127,11 @@ class AccountDao(
         }
     }
 
-    fun getAllAccountByDate(year: Int, month: Int): List<HistoryModel> {
+    /**
+     * 특정 연도/월별 수입/지출 내역 요청
+     */
+    @SuppressLint("Recycle")
+    fun getAllAccountByDate(year: Int, month: Int): List<HistoryEntity> {
         val db = appDatabase.readable
 
         val query = "SELECT " +
@@ -137,7 +145,7 @@ class AccountDao(
                 "C.${CategoryEntity.COLUMN_NAME_NAME}," +
                 "C.${CategoryEntity.COLUMN_NAME_COLOR}," +
                 "A.${AccountEntity.COLUMN_NAME_TYPE} " +
-                "FROM ${TABLE_NAME} A " +
+                "FROM $TABLE_NAME A " +
                 "LEFT JOIN ${MethodDao.TABLE_NAME} M " +
                 "ON A.${AccountEntity.COLUMN_NAME_METHOD} = M.${MethodEntity.COLUMN_NAME_ID} " +
                 "LEFT JOIN ${CategoryDao.TABLE_NAME} C " +
@@ -146,11 +154,11 @@ class AccountDao(
 
         val cursor = db.rawQuery(query, null)
 
-        val accounts = mutableListOf<HistoryModel>()
+        val accounts = mutableListOf<HistoryEntity>()
         if (cursor.moveToFirst()) {
             do {
                 accounts.add(
-                    HistoryModel(
+                    HistoryEntity(
                         id = cursor.getLong(0),
                         content = cursor.getString(1),
                         year = cursor.getInt(2),
@@ -160,7 +168,7 @@ class AccountDao(
                         method = cursor.getString(6),
                         categoryName = cursor.getString(7),
                         categoryColor = cursor.getLong(8),
-                        type = HistoryType.getHistoryType(cursor.getInt(9))
+                        type = cursor.getInt(9)
                     )
                 )
             } while (cursor.moveToNext())
@@ -169,6 +177,9 @@ class AccountDao(
         return accounts.toList()
     }
 
+    /**
+     * 한 개 이상의 수입/지출 내역 삭제 요청
+     */
     fun removeAccount(accountItems: List<Long>): Int {
         val db = appDatabase.writable
 
@@ -180,8 +191,12 @@ class AccountDao(
         return numRowsDeleted
     }
 
+    /**
+     * 특정 연도/월의 일별 총 수입/지출 내역 요청
+     */
     fun getAllAccountOnDate(year: Int, month: Int): List<CalendarEntity> {
         val db = appDatabase.writable
+
         val query = "SELECT " +
                 "${AccountEntity.COLUMN_NAME_DATE}," +
                 "SUM(${AccountEntity.COLUMN_NAME_COUNT})," +
@@ -209,12 +224,18 @@ class AccountDao(
         return accounts.toList()
     }
 
-    fun getDetailOutComeOnCategory(categoryId: Long, year: Int, month: Int): List<HistoryModel> {
+    fun getDetailOutComeOnCategory(categoryId: Long, year: Int, month: Int): List<HistoryEntity> {
         val db = appDatabase.readable
 
         val minYear = if (month < 6) year - 1 else year
         val minMonth = if (month < 6) 7 + month else month - 5
 
+        val duration = if (month < 6) {
+            "(${AccountEntity.COLUMN_NAME_YEAR} == $minYear AND ${AccountEntity.COLUMN_NAME_MONTH} >= $minMonth) " +
+                    "OR (${AccountEntity.COLUMN_NAME_YEAR} == $year AND ${AccountEntity.COLUMN_NAME_MONTH} <= $month) "
+        } else {
+            "${AccountEntity.COLUMN_NAME_YEAR} == $year AND ${AccountEntity.COLUMN_NAME_MONTH} BETWEEN $minMonth AND $month"
+        }
         val query = "SELECT " +
                 "A.${AccountEntity.COLUMN_NAME_ID}," +
                 "A.${AccountEntity.COLUMN_NAME_CONTENT}," +
@@ -226,23 +247,22 @@ class AccountDao(
                 "C.${CategoryEntity.COLUMN_NAME_NAME}," +
                 "C.${CategoryEntity.COLUMN_NAME_COLOR}," +
                 "A.${AccountEntity.COLUMN_NAME_TYPE} " +
-                "FROM ${TABLE_NAME} A " +
+                "FROM $TABLE_NAME A " +
                 "LEFT JOIN ${MethodDao.TABLE_NAME} M " +
                 "ON A.${AccountEntity.COLUMN_NAME_METHOD} = M.${MethodEntity.COLUMN_NAME_ID} " +
                 "LEFT JOIN ${CategoryDao.TABLE_NAME} C " +
                 "ON A.${AccountEntity.COLUMN_NAME_CATEGORY} = C.${CategoryEntity.COLUMN_NAME_ID} " +
-                "WHERE ${AccountEntity.COLUMN_NAME_YEAR} BETWEEN $minYear AND $year " +
-                "AND (${AccountEntity.COLUMN_NAME_MONTH} >= $minMonth OR ${AccountEntity.COLUMN_NAME_MONTH} <= $month) " +
+                "WHERE $duration " +
                 "AND ${AccountEntity.COLUMN_NAME_CATEGORY} = $categoryId " +
                 "ORDER BY ${AccountEntity.COLUMN_NAME_YEAR} DESC, ${AccountEntity.COLUMN_NAME_MONTH} DESC, ${AccountEntity.COLUMN_NAME_DATE} DESC"
 
         val cursor = db.rawQuery(query, null)
 
-        val accounts = mutableListOf<HistoryModel>()
+        val accounts = mutableListOf<HistoryEntity>()
         if (cursor.moveToFirst()) {
             do {
                 accounts.add(
-                    HistoryModel(
+                    HistoryEntity(
                         id = cursor.getLong(0),
                         content = cursor.getString(1),
                         year = cursor.getInt(2),
@@ -252,7 +272,7 @@ class AccountDao(
                         method = cursor.getString(6),
                         categoryName = cursor.getString(7),
                         categoryColor = cursor.getLong(8),
-                        type = HistoryType.getHistoryType(cursor.getInt(9))
+                        type = cursor.getInt(9)
                     )
                 )
             } while (cursor.moveToNext())
@@ -267,13 +287,19 @@ class AccountDao(
         val minYear = if (month < 6) year - 1 else year
         val minMonth = if (month < 6) 7 + month else month - 5
 
+        val duration = if (month < 6) {
+            "(${AccountEntity.COLUMN_NAME_YEAR} == $minYear AND ${AccountEntity.COLUMN_NAME_MONTH} >= $minMonth) " +
+                    "OR (${AccountEntity.COLUMN_NAME_YEAR} == $year AND ${AccountEntity.COLUMN_NAME_MONTH} <= $month) "
+        } else {
+            "${AccountEntity.COLUMN_NAME_YEAR} == $year AND ${AccountEntity.COLUMN_NAME_MONTH} BETWEEN $minMonth AND $month"
+        }
+
         val query = "" +
                 "SELECT " +
                 "SUM(${AccountEntity.COLUMN_NAME_COUNT})," +
                 "${AccountEntity.COLUMN_NAME_MONTH} " +
                 "FROM $TABLE_NAME " +
-                "WHERE ${AccountEntity.COLUMN_NAME_YEAR} BETWEEN $minYear AND $year " +
-                "AND (${AccountEntity.COLUMN_NAME_MONTH} >= $minMonth OR ${AccountEntity.COLUMN_NAME_MONTH} <= $month) " +
+                "WHERE $duration " +
                 "AND ${AccountEntity.COLUMN_NAME_CATEGORY} = $categoryId " +
                 "GROUP BY ${AccountEntity.COLUMN_NAME_MONTH} " +
                 "ORDER BY ${AccountEntity.COLUMN_NAME_YEAR}, ${AccountEntity.COLUMN_NAME_MONTH}"
@@ -296,15 +322,19 @@ class AccountDao(
         return accounts.toList()
     }
 
-    fun getOutComeOnCategory(year: Int, month: Int): List<OutComeByCategory> {
+    /**
+     * 연도/월의 카테고리별 지출 내역 요청
+     */
+    fun getOutComeOnCategory(year: Int, month: Int): List<OutComeByCategoryEntity> {
         val db = appDatabase.readable
+
         val query = "" +
                 "SELECT " +
-                "C.${CategoryEntity.COLUMN_NAME_ID}," +
+                "A.${AccountEntity.COLUMN_NAME_CATEGORY}," +
                 "C.${CategoryEntity.COLUMN_NAME_NAME}," +
                 "C.${CategoryEntity.COLUMN_NAME_COLOR}," +
                 "SUM(${AccountEntity.COLUMN_NAME_COUNT}) AS S " +
-                "FROM ${TABLE_NAME} A " +
+                "FROM $TABLE_NAME A " +
                 "LEFT JOIN ${CategoryDao.TABLE_NAME} C " +
                 "ON A.${AccountEntity.COLUMN_NAME_CATEGORY} = C.${CategoryEntity.COLUMN_NAME_ID} " +
                 "WHERE A.${AccountEntity.COLUMN_NAME_TYPE} = ${HistoryType.OUTCOME.type} " +
@@ -315,14 +345,14 @@ class AccountDao(
 
         val cursor = db.rawQuery(query, null)
 
-        val accounts = mutableListOf<OutComeByCategory>()
+        val accounts = mutableListOf<OutComeByCategoryEntity>()
         if (cursor.moveToFirst()) {
             do {
                 accounts.add(
-                    OutComeByCategory(
+                    OutComeByCategoryEntity(
                         id = cursor.getLong(0),
-                        name = cursor.getString(1) ?: "UnKnown",
-                        color = cursor.getLong(2) ?: 0xFFECECEC,
+                        name = cursor.getString(1),
+                        color = cursor.getLong(2),
                         count = cursor.getLong(3)
                     )
                 )
